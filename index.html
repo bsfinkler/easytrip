@@ -576,15 +576,27 @@ async function startChat() {
   await callAPI('Olá! Acabei de preencher meu perfil de viagem. Por favor, monte meu roteiro completo com links para reservas!');
 }
 
+function formatMsg(text) {
+  // 1. Escapa HTML perigoso
+  let t = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // 2. Links markdown [texto](url)
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  // 3. URLs soltas
+  t = t.replace(/(?<!['"=])(https?:\/\/[^\s<&"]+)/g,
+    '<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  // 4. Negrito **texto**
+  t = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // 5. Quebras de linha
+  t = t.replace(/\n/g,'<br>');
+  return t;
+}
+
 function addMsg(role, text) {
   const box = document.getElementById('chat-messages');
   const d = document.createElement('div');
   d.className = `msg ${role}`;
-  const formatted = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\n/g,'<br>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;">$1</a>')
-    .replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;">$1</a>');
+  const formatted = formatMsg(text);
   if(role==='ai') {
     d.innerHTML = `<div class="msg-av-sm">🤖</div><div class="msg-bubble">${formatted}</div>`;
   } else {
