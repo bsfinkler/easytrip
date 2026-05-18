@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Easy Trip — Seu Concierge de Viagens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --green: #1D9E75;
+  --green-dark: #0F6E56;
+  --green-light: #E1F5EE;
+  --green-mid: #5DCAA5;
+  --green-border: #9FE1CB;
+  --text: #1a1a1a;
+  --text-muted: #6b7280;
+  --bg: #fafaf8;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ══ PÁGINAS ══ */
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ══ NAV ══ */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  flex-shrink: 0;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 9px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; font-weight: 600; color: var(--text);
+  text-decoration: none;
+}
+.nav-dot { width: 9px; height: 9px; background: var(--green); border-radius: 50%; }
+.nav-badge {
+  font-size: 11px; background: var(--green-light); color: var(--green-dark);
+  border: 1px solid var(--green-border); border-radius: 20px; padding: 3px 10px; font-weight: 500;
+}
+
+/* ══ LANDING ══ */
+.hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(160deg, #f0fdf8 0%, #fafaf8 60%);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(29,158,117,0.07) 0%, transparent 70%);
+  top: -120px; right: -120px; pointer-events: none;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 500; color: var(--green-dark);
+  background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: 20px; padding: 5px 14px; margin-bottom: 1.5rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 600; line-height: 1.2;
+  color: var(--text); max-width: 680px; margin-bottom: 1.25rem;
+}
+.hero h1 em { font-style: normal; color: var(--green); }
+.hero p {
+  font-size: 1.05rem; color: var(--text-muted); max-width: 480px;
+  line-height: 1.75; font-weight: 300; margin-bottom: 2.5rem;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green); color: white;
+  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+  padding: 14px 32px; border-radius: var(--radius); border: none;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+}
+.hero-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
+.hero-features {
+  display: flex; gap: 2rem; margin-top: 2.5rem;
+  flex-wrap: wrap; justify-content: center;
+}
+.hero-feat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.hero-feat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; }
+
+/* ══ WIZARD ══ */
+.wizard-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+  background: var(--card); flex-shrink: 0;
+}
+.step-count { font-size: 13px; color: var(--text-muted); }
+.progress-track { height: 3px; background: var(--border); flex-shrink: 0; }
+.progress-fill { height: 100%; background: var(--green); transition: width 0.4s ease; }
+.wizard-body {
+  flex: 1; display: flex; align-items: flex-start;
+  justify-content: center; padding: 2.5rem 1.5rem;
+}
+.wizard-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem;
+  width: 100%; max-width: 560px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.04);
+}
+.step-label {
+  font-size: 11px; font-weight: 500; color: var(--green);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem;
+}
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 500; color: var(--text);
+  margin-bottom: 1.4rem; line-height: 1.3;
+}
+.step-hint { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; font-weight: 300; }
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.options-grid.single { grid-template-columns: 1fr; }
+.opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 14px; color: var(--text); text-align: left;
+  transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+}
+.opt:hover { border-color: var(--green-mid); background: var(--green-light); }
+.opt.selected { border-color: var(--green); background: var(--green-light); color: var(--green-dark); font-weight: 500; }
+.opt-icon { font-size: 18px; flex-shrink: 0; }
+.text-field {
+  width: 100%; padding: 12px 14px; font-size: 15px;
+  font-family: 'DM Sans', sans-serif; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--card); color: var(--text);
+  outline: none; transition: border-color 0.15s; display: block;
+}
+.text-field + .text-field { margin-top: 10px; }
+.text-field:focus { border-color: var(--green); }
+.nav-btns {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+}
+.btn-back {
+  padding: 10px 20px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: none; color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+.btn-back:hover { border-color: var(--text-muted); color: var(--text); }
+.btn-next {
+  padding: 10px 22px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  font-weight: 500; border: none; border-radius: var(--radius-sm);
+  background: var(--green); color: white; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; transition: background 0.15s;
+}
+.btn-next:hover { background: var(--green-dark); }
+
+/* ══ DONE / RESUMO ══ */
+.summary-box {
+  background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+}
+.summary-box-title {
+  font-size: 11px; font-weight: 500; color: var(--green-dark);
+  margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  background: white; border: 1px solid var(--green-border);
+  border-radius: 20px; padding: 3px 12px; font-size: 12px;
+  color: var(--green-dark); font-weight: 500;
+}
+.search-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 1rem 0 1.5rem; }
+.search-pill {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--green-light); border: 1px solid var(--green-border);
+  border-radius: 20px; padding: 5px 12px; font-size: 12px;
+  color: var(--green-dark); font-weight: 500;
+}
+.done-center { text-align: center; }
+.done-icon-wrap {
+  width: 60px; height: 60px; background: var(--green-light); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem; font-size: 26px;
+}
+.done-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 500; margin-bottom: 0.5rem; }
+.done-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 300; }
+.btn-generate {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green); color: white; font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 500; padding: 13px 30px;
+  border-radius: var(--radius-sm); border: none; cursor: pointer;
+  transition: background 0.15s; margin-top: 1rem;
+}
+.btn-generate:hover { background: var(--green-dark); }
+.btn-restart {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none; border: none; font-size: 13px;
+  color: var(--text-muted); cursor: pointer; margin-top: 0.75rem;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ══ CHAT ══ */
+#page-chat { background: var(--bg); }
+.chat-layout {
+  display: flex; flex-direction: column; flex: 1; overflow: hidden;
+  max-width: 760px; width: 100%; margin: 0 auto; padding: 1.5rem 1.5rem 0;
+  gap: 0;
+}
+.chat-header-box {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 1rem 1.25rem; display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.chat-av {
+  width: 38px; height: 38px; background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.chat-info-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.chat-info-status { font-size: 12px; color: var(--green); }
+.chat-new-btn {
+  margin-left: auto; background: none; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 12px; font-size: 12px;
+  color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+.chat-new-btn:hover { border-color: var(--green); color: var(--green); }
+
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 1.25rem;
+  background: #f5f5f3; display: flex; flex-direction: column; gap: 14px;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  min-height: 0;
+}
+.msg { display: flex; gap: 8px; max-width: 88%; }
+.msg.user { flex-direction: row-reverse; align-self: flex-end; }
+.msg-bubble {
+  padding: 11px 15px; border-radius: 16px;
+  font-size: 14px; line-height: 1.65; white-space: pre-wrap;
+}
+.msg.ai .msg-bubble {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); border-radius: 4px 16px 16px 16px;
+}
+.msg.user .msg-bubble {
+  background: var(--green); color: white;
+  border-radius: 16px 4px 16px 16px;
+}
+.msg-av-sm {
+  width: 30px; height: 30px; background: var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0; margin-top: 2px;
+}
+.typing-wrap { display: flex; gap: 8px; align-items: flex-start; }
+.typing-bubble {
+  display: flex; align-items: center; gap: 5px;
+  padding: 12px 16px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 4px 16px 16px 16px;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid);
+  animation: bounce 1.2s infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+.chat-input-box {
+  display: flex; gap: 8px; padding: 12px;
+  background: var(--card); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; padding: 10px 14px; font-size: 14px;
+  font-family: 'DM Sans', sans-serif; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--bg); color: var(--text);
+  outline: none; transition: border-color 0.15s; resize: none;
+}
+.chat-input:focus { border-color: var(--green); }
+.send-btn {
+  background: var(--green); border: none; border-radius: var(--radius-sm);
+  padding: 10px 16px; cursor: pointer; font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.send-btn:hover { background: var(--green-dark); }
+.send-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+/* ══ FOOTER ══ */
+footer {
+  text-align: center; padding: 1.25rem; font-size: 12px;
+  color: var(--text-muted); border-top: 1px solid var(--border);
+  background: var(--card); flex-shrink: 0;
+}
+
+/* ══ MOBILE ══ */
+@media (max-width: 520px) {
+  nav, .wizard-nav { padding: 1rem; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .options-grid { grid-template-columns: 1fr; }
+  .wizard-body { padding: 1.25rem 1rem; }
+  .wizard-card { padding: 1.5rem 1.25rem; }
+  .chat-layout { padding: 1rem 1rem 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="page-landing" class="page active">
+  <nav>
+    <a class="nav-logo" href="#"><span class="nav-dot"></span>Easy Trip</a>
+    <span class="nav-badge">Beta</span>
+  </nav>
+  <div class="hero">
+    <div class="hero-tag">✦ Concierge de viagens com IA</div>
+    <h1>Planeje sua viagem<br/>em <em>minutos</em>, não em horas</h1>
+    <p>Responda algumas perguntas e receba um roteiro completo e personalizado — com voos, hotéis, passeios e links reais para reservar.</p>
+    <button class="hero-cta" onclick="goTo('wizard')">Planejar minha viagem →</button>
+    <div class="hero-features">
+      <span class="hero-feat"><span class="hero-feat-dot"></span>Roteiro dia a dia</span>
+      <span class="hero-feat"><span class="hero-feat-dot"></span>Links reais de reserva</span>
+      <span class="hero-feat"><span class="hero-feat-dot"></span>3 opções de orçamento</span>
+      <span class="hero-feat"><span class="hero-feat-dot"></span>Chat com IA integrado</span>
+    </div>
+  </div>
+  <footer>© 2026 Easy Trip · Seu concierge de viagens pessoal</footer>
+</div>
+
+<!-- ══════════════ WIZARD ══════════════ -->
+<div id="page-wizard" class="page">
+  <div class="wizard-nav">
+    <div class="nav-logo" style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px;">
+      <span class="nav-dot" style="width:8px;height:8px"></span>Easy Trip
+    </div>
+    <span class="step-count" id="step-count"></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  <div class="wizard-body">
+    <div class="wizard-card" id="wizard-card"></div>
+  </div>
+  <footer>© 2026 Easy Trip · Seu concierge de viagens pessoal</footer>
+</div>
+
+<!-- ══════════════ CHAT ══════════════ -->
+<div id="page-chat" class="page">
+  <nav>
+    <a class="nav-logo" href="#" onclick="goTo('landing')"><span class="nav-dot"></span>Easy Trip</a>
+    <span class="nav-badge">Beta</span>
+  </nav>
+  <div class="chat-layout">
+    <div class="chat-header-box">
+      <div class="chat-av">🤖</div>
+      <div>
+        <div class="chat-info-name">Concierge Easy Trip</div>
+        <div class="chat-info-status">Online agora</div>
+      </div>
+      <button class="chat-new-btn" onclick="goTo('wizard')">↺ Nova viagem</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-box">
+      <textarea class="chat-input" id="chat-input" rows="1"
+        placeholder="Pergunte mais detalhes, ajuste o roteiro..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ NAVEGAÇÃO ══
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo(0,0);
+  if (page === 'wizard') { step = 0; answers = {}; multiSelected = new Set(); render(); }
+}
+
+// ══ WIZARD DATA ══
+const STEPS = [
+  { key:'destino', label:'Destino', title:'Para onde você quer ir?', type:'text', placeholder:'Ex: Portugal, Cancún, Paris, Bariloche...' },
+  { key:'periodo', label:'Período & duração', title:'Quando e por quantos dias?', type:'double-text',
+    fields:[
+      { key:'periodo', placeholder:'Período — Ex: julho de 2026, de 10/08 a 20/08...' },
+      { key:'dias', placeholder:'Duração — Ex: 7 dias, 2 semanas...' }
+    ]
+  },
+  { key:'viajantes', label:'Viajantes', title:'Quem vai na viagem?', type:'options',
+    options:[
+      {value:'casal', label:'Casal', icon:'💑'},
+      {value:'familia', label:'Família com crianças', icon:'👨‍👩‍👧'},
+      {value:'amigos', label:'Amigos / grupo', icon:'👫'},
+      {value:'solo', label:'Sozinho(a)', icon:'🧳'},
+    ]
+  },
+  { key:'estilo', label:'Estilo', title:'Qual é o estilo da viagem?', type:'options',
+    options:[
+      {value:'praia', label:'Praia & relaxamento', icon:'🏖️'},
+      {value:'aventura', label:'Aventura & natureza', icon:'🏔️'},
+      {value:'cultural', label:'Cultural & gastronômico', icon:'🏛️'},
+      {value:'luxo', label:'Luxo & premium', icon:'💎'},
+      {value:'economico', label:'Econômico', icon:'💰'},
+      {value:'neve', label:'Neve & montanha', icon:'⛷️'},
+    ]
+  },
+  { key:'orcamento', label:'Orçamento', title:'Orçamento estimado por pessoa?', type:'options', grid:'single',
+    options:[
+      {value:'ate5k', label:'Até R$ 5.000', icon:'💵'},
+      {value:'5k10k', label:'R$ 5.000 a R$ 10.000', icon:'💵'},
+      {value:'10k20k', label:'R$ 10.000 a R$ 20.000', icon:'💵'},
+      {value:'acima20k', label:'Acima de R$ 20.000', icon:'💵'},
+    ]
+  },
+  { key:'cidade_saida', label:'Cidade de partida', title:'De qual cidade você vai partir?', type:'text', placeholder:'Ex: São Paulo, Cuiabá, Brasília...' },
+  { key:'extras', label:'Extras', title:'O que mais deseja incluir?', type:'multi', hint:'Selecione tudo que quiser no seu roteiro',
+    options:[
+      {value:'carro', label:'Aluguel de carro', icon:'🚗'},
+      {value:'passeios', label:'Passeios guiados', icon:'🗺️'},
+      {value:'restaurantes', label:'Restaurantes', icon:'🍽️'},
+      {value:'seguro', label:'Seguro viagem', icon:'🛡️'},
+      {value:'esim', label:'eSIM / internet', icon:'📶'},
+      {value:'transfer', label:'Transfer aeroporto', icon:'🚌'},
+    ]
+  },
+];
+
+const labelMap = {
+  viajantes: {casal:'Casal',familia:'Família com crianças',amigos:'Amigos/grupo',solo:'Solo'},
+  estilo: {praia:'Praia & relaxamento',aventura:'Aventura & natureza',cultural:'Cultural & gastronômico',luxo:'Luxo & premium',economico:'Econômico',neve:'Neve & montanha'},
+  orcamento: {ate5k:'Até R$5.000','5k10k':'R$5.000–10.000','10k20k':'R$10.000–20.000',acima20k:'Acima de R$20.000'},
+};
+
+let answers = {}, multiSelected = new Set(), step = 0;
+
+function updateProgress() {
+  const pct = Math.min((step / STEPS.length) * 100, 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  const sc = document.getElementById('step-count');
+  if(sc) sc.textContent = step < STEPS.length ? `${step+1} de ${STEPS.length}` : '';
+}
+
+function render() {
+  updateProgress();
+  if(step >= STEPS.length) { renderDone(); return; }
+  const s = STEPS[step];
+  let html = `<div class="step-label">${s.label}</div><div class="step-title">${s.title}</div>`;
+  if(s.hint) html += `<div class="step-hint">${s.hint}</div>`;
+
+  if(s.type==='text') {
+    html += `<input class="text-field" type="text" id="fi-${s.key}" placeholder="${s.placeholder}" value="${answers[s.key]||''}" oninput="answers['${s.key}']=this.value" />`;
+  } else if(s.type==='double-text') {
+    s.fields.forEach(f => {
+      html += `<input class="text-field" type="text" id="fi-${f.key}" placeholder="${f.placeholder}" value="${answers[f.key]||''}" oninput="answers['${f.key}']=this.value" />`;
+    });
+  } else if(s.type==='options') {
+    const gc = s.grid==='single'?'options-grid single':'options-grid';
+    html += `<div class="${gc}">`;
+    s.options.forEach(o => {
+      const sel = answers[s.key]===o.value?'selected':'';
+      html += `<button class="opt ${sel}" onclick="pick('${s.key}','${o.value}',this)"><span class="opt-icon">${o.icon}</span>${o.label}</button>`;
+    });
+    html += `</div>`;
+  } else if(s.type==='multi') {
+    html += `<div class="options-grid">`;
+    s.options.forEach(o => {
+      const sel = multiSelected.has(o.value)?'selected':'';
+      html += `<button class="opt ${sel}" onclick="toggleMulti('${o.value}',this)"><span class="opt-icon">${o.icon}</span>${o.label}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="nav-btns">
+    ${step>0?`<button class="btn-back" onclick="back()">← Voltar</button>`:''}
+    <button class="btn-next" onclick="next()">${step<STEPS.length-1?'Próximo →':'Revisar ✓'}</button>
+  </div>`;
+  document.getElementById('wizard-card').innerHTML = html;
+  setTimeout(() => { const f = document.querySelector('.text-field'); if(f) f.focus(); }, 80);
+}
+
+function renderDone() {
+  updateProgress();
+  const tags = [answers.destino, answers.periodo, answers.dias,
+    labelMap.viajantes[answers.viajantes], labelMap.estilo[answers.estilo],
+    labelMap.orcamento[answers.orcamento], answers.cidade_saida].filter(Boolean);
+  const extrasMap = {carro:'🚗 Carro',passeios:'🗺️ Passeios',restaurantes:'🍽️ Restaurantes',seguro:'🛡️ Seguro',esim:'📶 eSIM',transfer:'🚌 Transfer'};
+  const pills = ['✈️ Voos','🏨 Hotéis',...[...multiSelected].map(k=>extrasMap[k]).filter(Boolean)];
+
+  document.getElementById('wizard-card').innerHTML = `
+    <div class="summary-box">
+      <div class="summary-box-title">Resumo da sua viagem</div>
+      <div class="tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+    <div class="done-center">
+      <div class="done-icon-wrap">🔍</div>
+      <div class="done-title">Tudo pronto!</div>
+      <div class="done-sub">O concierge vai pesquisar e incluir links reais para:</div>
+      <div class="search-pills">${pills.map(p=>`<span class="search-pill">${p}</span>`).join('')}</div>
+      <button class="btn-generate" onclick="startChat()">🚀 Gerar roteiro completo</button>
+      <br><button class="btn-restart" onclick="goTo('wizard')">↺ Recomeçar</button>
+    </div>`;
+}
+
+function pick(key, val, btn) {
+  answers[key] = val;
+  btn.closest('.options-grid').querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function toggleMulti(val, btn) {
+  if(multiSelected.has(val)){multiSelected.delete(val);btn.classList.remove('selected');}
+  else{multiSelected.add(val);btn.classList.add('selected');}
+}
+function next() {
+  const s = STEPS[step];
+  if(s.type==='text'){const el=document.getElementById('fi-'+s.key);if(el)answers[s.key]=el.value.trim();}
+  else if(s.type==='double-text'){s.fields.forEach(f=>{const el=document.getElementById('fi-'+f.key);if(el)answers[f.key]=el.value.trim();});}
+  step++; render();
+}
+function back(){if(step>0){step--;render();}}
+
+// ══ CHAT ══
+let chatHistory = [];
+
+function buildSystem() {
+  const orcMap = {ate5k:'até R$5.000','5k10k':'entre R$5.000 e R$10.000','10k20k':'entre R$10.000 e R$20.000',acima20k:'acima de R$20.000'};
+  const extras = [...multiSelected];
+  return `Você é o concierge de viagens do Easy Trip, um assistente premium de planejamento de viagens. Responda SEMPRE em português brasileiro. Seja detalhado, organizado e use emojis para separar seções.
+
+PERFIL DO VIAJANTE:
+- Destino: ${answers.destino||'não informado'}
+- Período: ${answers.periodo||'não informado'}
+- Duração: ${answers.dias||'não informado'}
+- Viajantes: ${labelMap.viajantes[answers.viajantes]||'não informado'}
+- Estilo: ${labelMap.estilo[answers.estilo]||'não informado'}
+- Orçamento por pessoa: ${orcMap[answers.orcamento]||'não informado'}
+- Cidade de partida: ${answers.cidade_saida||'não informado'}
+- Extras: ${extras.length?extras.join(', '):'nenhum'}
+
+Na primeira mensagem, monte um roteiro completo incluindo:
+✈️ Voos — origem, destino, companhias, faixa de preço, links de busca (Decolar, Google Flights, LATAM)
+🏨 Hotéis — 3 categorias (econômico/intermediário/premium), regiões recomendadas, links de reserva (Booking.com, Hotels.com, Decolar)
+${extras.includes('carro')?'🚗 Aluguel de carro — locadoras com links (Localiza, Movida, Hertz)':''}
+${extras.includes('passeios')?'🗺️ Passeios — tours com links (GetYourGuide, Civitatis, Viator)':''}
+${extras.includes('restaurantes')?'🍽️ Restaurantes — top opções com links (TripAdvisor, TheFork)':''}
+${extras.includes('transfer')?'🚌 Transfer — opções e preços com links':''}
+${extras.includes('seguro')?'🛡️ Seguro viagem — comparativo com links (Assist Card, Allianz, Zurich)':''}
+${extras.includes('esim')?'📶 eSIM — opções com links (Airalo, Holafly)':''}
+📅 Roteiro dia a dia detalhado
+💰 Estimativa de orçamento total (separado por categoria)
+💡 Dicas extras (documentos, câmbio, clima, segurança)
+
+Sempre inclua links reais e clicáveis. Quando não souber um preço exato, indique como estimativa.`;
+}
+
+async function startChat() {
+  chatHistory = [];
+  document.getElementById('chat-messages').innerHTML = '';
+  goTo('chat');
+  await callAPI('Olá! Acabei de preencher meu perfil de viagem. Por favor, monte meu roteiro completo com links para reservas!');
+}
+
+function addMsg(role, text) {
+  const box = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  const formatted = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;">$1</a>')
+    .replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;">$1</a>');
+  if(role==='ai') {
+    d.innerHTML = `<div class="msg-av-sm">🤖</div><div class="msg-bubble">${formatted}</div>`;
+  } else {
+    d.innerHTML = `<div class="msg-bubble">${formatted}</div>`;
+  }
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addTyping() {
+  const box = document.getElementById('chat-messages');
+  const d = document.createElement('div');
+  d.className = 'typing-wrap';
+  d.id = 'typing-indicator';
+  d.innerHTML = `<div class="msg-av-sm">🤖</div><div class="typing-bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if(t) t.remove();
+}
+
+async function callAPI(userText) {
+  chatHistory.push({role:'user', content: userText});
+  const btn = document.getElementById('send-btn');
+  if(btn) btn.disabled = true;
+  addTyping();
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        system: buildSystem(),
+        messages: chatHistory,
+      })
+    });
+
+    const data = await res.json();
+    removeTyping();
+
+    if(data.error) throw new Error(data.error);
+    chatHistory.push({role:'assistant', content: data.reply});
+    addMsg('ai', data.reply);
+
+  } catch(e) {
+    removeTyping();
+    addMsg('ai', '⚠️ Erro ao conectar com o concierge. Verifique sua conexão e tente novamente.\n\nDetalhe: ' + e.message);
+  }
+
+  if(btn) btn.disabled = false;
+  const inp = document.getElementById('chat-input');
+  if(inp) inp.focus();
+}
+
+async function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = ''; inp.style.height = 'auto';
+  addMsg('user', txt);
+  await callAPI(txt);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// Inicia
+render();
+</script>
+</body>
+</html>
