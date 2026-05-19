@@ -343,8 +343,7 @@ function calClear() { calState.start=null;calState.end=null; document.getElement
 
 // ══ RENDER ══
 function buildStepHTML() {
-  const activeSteps = getActiveSteps();
-  const s = activeSteps[step];
+  const s = getActiveSteps()[step];
   let html = `<div class="step-label">${s.label}</div><div class="step-title">${s.title}</div>`;
   if(s.hint) html += `<div class="step-hint">${s.hint}</div>`;
 
@@ -404,71 +403,73 @@ function buildStepHTML() {
     html += `</div>`;
 
   } else if(s.type==='criancas_familia') {
-    const num = answers.num_criancas || 1;
-    html += `<div style="margin-bottom:1rem">
-      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Número de crianças</label>
-      <select class="text-field" id="fi-num-criancas" onchange="updateIdadesFamilia(this.value)" style="cursor:pointer">
-        ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${num==n?'selected':''}>${n} criança${n>1?'s':''}</option>`).join('')}
-      </select>
-    </div>
-    <div id="idades-wrap-familia">`;
+    const num = parseInt(answers.num_criancas) || 1;
+    const optsF = [1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(num===n?' selected':'')+'>'+n+' criança'+(n>1?'s':'')+'</option>').join('');
+    html += '<div style="margin-bottom:1rem">'
+      + '<label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Número de crianças</label>'
+      + '<select class="text-field" id="fi-num-criancas" onchange="updateIdadesFamilia(this.value)" style="cursor:pointer">' + optsF + '</select>'
+      + '</div><div id="idades-wrap-familia">';
     for(let i=0;i<num;i++){
       const val = (answers.idades_criancas||[])[i]||'';
-      html += `<div style="margin-bottom:8px">
-        <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
-        <input class="text-field fi-idade" type="number" min="0" max="17" placeholder="Ex: 5 anos" value="${val}" />
-      </div>`;
+      const ord = i+1;
+      html += '<div style="margin-bottom:8px">'
+        + '<label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da '+ord+'ª criança</label>'
+        + '<input class="text-field fi-idade" type="number" min="0" max="17" placeholder="Ex: 5 anos" value="'+val+'" />'
+        + '</div>';
     }
-    html += `</div>`;
+    html += '</div>';
 
   } else if(s.type==='info_grupo') {
-    html += `<div style="margin-bottom:1.25rem">
-      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Total de pessoas (incluindo você)</label>
-      <select class="text-field" id="fi-num-pessoas" style="cursor:pointer">
-        ${[2,3,4,5,6,7,8,9,10,'Mais de 10'].map(n=>`<option value="${n}" ${answers.num_pessoas==n?'selected':''}>${n} pessoas</option>`).join('')}
-      </select>
-    </div>
-    <div>
-      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:8px">Há crianças no grupo?</label>
-      <div style="display:flex;gap:10px">
-        <label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;background:${answers.grupo_tem_criancas==='sim'?'var(--green-light)':'var(--bg)'};border-color:${answers.grupo_tem_criancas==='sim'?'var(--green)':'var(--border)'}">
-          <input type="radio" name="grupo_criancas" value="sim" ${answers.grupo_tem_criancas==='sim'?'checked':''} onchange="answers.grupo_tem_criancas='sim'" style="accent-color:var(--green)">
-          <span style="font-size:14px">👶 Sim, há crianças</span>
-        </label>
-        <label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;background:${answers.grupo_tem_criancas==='nao'?'var(--green-light)':'var(--bg)'};border-color:${answers.grupo_tem_criancas==='nao'?'var(--green)':'var(--border)'}">
-          <input type="radio" name="grupo_criancas" value="nao" ${answers.grupo_tem_criancas==='nao'?'checked':''} onchange="answers.grupo_tem_criancas='nao'" style="accent-color:var(--green)">
-          <span style="font-size:14px">🙅 Não</span>
-        </label>
-      </div>
-    </div>`;
+    const simSel = answers.grupo_tem_criancas==='sim';
+    const naoSel = answers.grupo_tem_criancas==='nao';
+    const simBg = simSel ? 'var(--green-light)' : 'var(--bg)';
+    const naoBg = naoSel ? 'var(--green-light)' : 'var(--bg)';
+    const simBorder = simSel ? 'var(--green)' : 'var(--border)';
+    const naoBorder = naoSel ? 'var(--green)' : 'var(--border)';
+    const pessoasOpts = [2,3,4,5,6,7,8,9,10,'Mais de 10'].map(n=>'<option value="'+n+'"'+(answers.num_pessoas==n?' selected':'')+'>'+n+' pessoas</option>').join('');
+    html += '<div style="margin-bottom:1.25rem">'
+      + '<label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Total de pessoas (incluindo você)</label>'
+      + '<select class="text-field" id="fi-num-pessoas" style="cursor:pointer">' + pessoasOpts + '</select>'
+      + '</div>'
+      + '<div><label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:8px">Há crianças no grupo?</label>'
+      + '<div style="display:flex;gap:10px">'
+      + '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid '+simBorder+';border-radius:var(--radius-sm);cursor:pointer;background:'+simBg+'">'
+      + '<input type="radio" name="grupo_criancas" value="sim"'+(simSel?' checked':'')+' onchange="setGrupoCriancas(\"sim\")" style="accent-color:var(--green)">'
+      + '<span style="font-size:14px">👶 Sim, há crianças</span></label>'
+      + '<label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid '+naoBorder+';border-radius:var(--radius-sm);cursor:pointer;background:'+naoBg+'">'
+      + '<input type="radio" name="grupo_criancas" value="nao"'+(naoSel?' checked':'')+' onchange="setGrupoCriancas(\"nao\")" style="accent-color:var(--green)">'
+      + '<span style="font-size:14px">🙅 Não</span></label>'
+      + '</div></div>';
 
   } else if(s.type==='criancas_grupo') {
-    html += `<div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;font-weight:300">Informe a idade de cada criança do grupo para personalizar as sugestões</div>`;
     const numCriancas = parseInt(answers.num_criancas_grupo) || 1;
-    html += `<div style="margin-bottom:1rem">
-      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Quantas crianças?</label>
-      <select class="text-field" id="fi-num-criancas-grupo" onchange="updateIdadesGrupo(this.value)" style="cursor:pointer">
-        ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${numCriancas==n?'selected':''}>${n} criança${n>1?'s':''}</option>`).join('')}
-      </select>
-    </div>
-    <div id="idades-wrap-grupo">`;
+    const optsG = [1,2,3,4,5,6].map(n=>'<option value="'+n+'"'+(numCriancas===n?' selected':'')+'>'+n+' criança'+(n>1?'s':'')+'</option>').join('');
+    html += '<div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;font-weight:300">Informe a idade de cada criança do grupo para personalizar as sugestões</div>'
+      + '<div style="margin-bottom:1rem">'
+      + '<label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Quantas crianças?</label>'
+      + '<select class="text-field" id="fi-num-criancas-grupo" onchange="updateIdadesGrupo(this.value)" style="cursor:pointer">' + optsG + '</select>'
+      + '</div><div id="idades-wrap-grupo">';
     for(let i=0;i<numCriancas;i++){
       const val = (criancasGrupo||[])[i]||'';
-      html += `<div style="margin-bottom:8px">
-        <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
-        <input class="text-field fi-idade-grupo" type="number" min="0" max="17" placeholder="Ex: 7 anos" value="${val}" />
-      </div>`;
+      const ord = i+1;
+      html += '<div style="margin-bottom:8px">'
+        + '<label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da '+ord+'ª criança</label>'
+        + '<input class="text-field fi-idade-grupo" type="number" min="0" max="17" placeholder="Ex: 7 anos" value="'+val+'" />'
+        + '</div>';
     }
-    html += `</div>`;
+    html += '</div>';
   }
 
-  const activeSteps = getActiveSteps();
+  const totalSteps = getActiveSteps().length;
   html += `<div class="nav-btns">
     ${step>0?`<button class="btn-back" onclick="back()">← Voltar</button>`:''}
-    <button class="btn-next" onclick="next()">${step<activeSteps.length-1?'Próximo →':'Revisar ✓'}</button>
+    <button class="btn-next" onclick="next()">${step<totalSteps-1?'Próximo →':'Revisar ✓'}</button>
   </div>`;
   return html;
 }
+
+// Helper para setar grupo_tem_criancas sem conflito de aspas
+function setGrupoCriancas(val) { answers.grupo_tem_criancas = val; }
 
 // Atualiza dinamicamente os campos de idade (família)
 function updateIdadesFamilia(num) {
