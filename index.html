@@ -221,6 +221,7 @@ footer { text-align: center; padding: 1.25rem; font-size: 12px; color: var(--tex
 let answers = {}, estiloSelected = new Set(), multiSelected = new Set();
 let destinos = [''], step = 0;
 let calState = { start: null, end: null, month: new Date().getMonth(), year: new Date().getFullYear() };
+let criancasGrupo = []; // idades quando grupo tem crianças
 
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DOWS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
@@ -270,7 +271,7 @@ function goTo(page) {
   window.scrollTo(0,0);
   if(page === 'wizard') {
     answers = {}; estiloSelected = new Set(); multiSelected = new Set();
-    destinos = ['']; step = 0;
+    destinos = ['']; step = 0; criancasGrupo = [];
     calState = { start:null, end:null, month:new Date().getMonth(), year:new Date().getFullYear() };
     render();
   }
@@ -278,9 +279,10 @@ function goTo(page) {
 
 // ══ PROGRESSO ══
 function updateProgress() {
-  document.getElementById('prog-fill').style.width = Math.min((step/STEPS.length)*100,100) + '%';
+  const activeSteps = getActiveSteps();
+  document.getElementById('prog-fill').style.width = Math.min((step/activeSteps.length)*100,100) + '%';
   const sc = document.getElementById('step-count');
-  if(sc) sc.textContent = step < STEPS.length ? `${step+1} de ${STEPS.length}` : '';
+  if(sc) sc.textContent = step < activeSteps.length ? `${step+1} de ${activeSteps.length}` : '';
 }
 
 // ══ CALENDÁRIO ══
@@ -341,7 +343,8 @@ function calClear() { calState.start=null;calState.end=null; document.getElement
 
 // ══ RENDER ══
 function buildStepHTML() {
-  const s = STEPS[step];
+  const activeSteps = getActiveSteps();
+  const s = activeSteps[step];
   let html = `<div class="step-label">${s.label}</div><div class="step-title">${s.title}</div>`;
   if(s.hint) html += `<div class="step-hint">${s.hint}</div>`;
 
@@ -399,18 +402,110 @@ function buildStepHTML() {
       html += `<button class="opt ${sel}" onclick="toggleMulti('${o.value}',this)"><div class="opt-row"><span class="opt-icon">${o.icon}</span><span class="opt-label">${o.label}</span></div></button>`;
     });
     html += `</div>`;
+
+  } else if(s.type==='criancas_familia') {
+    const num = answers.num_criancas || 1;
+    html += `<div style="margin-bottom:1rem">
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Número de crianças</label>
+      <select class="text-field" id="fi-num-criancas" onchange="updateIdadesFamilia(this.value)" style="cursor:pointer">
+        ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${num==n?'selected':''}>${n} criança${n>1?'s':''}</option>`).join('')}
+      </select>
+    </div>
+    <div id="idades-wrap-familia">`;
+    for(let i=0;i<num;i++){
+      const val = (answers.idades_criancas||[])[i]||'';
+      html += `<div style="margin-bottom:8px">
+        <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
+        <input class="text-field fi-idade" type="number" min="0" max="17" placeholder="Ex: 5 anos" value="${val}" />
+      </div>`;
+    }
+    html += `</div>`;
+
+  } else if(s.type==='info_grupo') {
+    html += `<div style="margin-bottom:1.25rem">
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Total de pessoas (incluindo você)</label>
+      <select class="text-field" id="fi-num-pessoas" style="cursor:pointer">
+        ${[2,3,4,5,6,7,8,9,10,'Mais de 10'].map(n=>`<option value="${n}" ${answers.num_pessoas==n?'selected':''}>${n} pessoas</option>`).join('')}
+      </select>
+    </div>
+    <div>
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:8px">Há crianças no grupo?</label>
+      <div style="display:flex;gap:10px">
+        <label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;background:${answers.grupo_tem_criancas==='sim'?'var(--green-light)':'var(--bg)'};border-color:${answers.grupo_tem_criancas==='sim'?'var(--green)':'var(--border)'}">
+          <input type="radio" name="grupo_criancas" value="sim" ${answers.grupo_tem_criancas==='sim'?'checked':''} onchange="answers.grupo_tem_criancas='sim'" style="accent-color:var(--green)">
+          <span style="font-size:14px">👶 Sim, há crianças</span>
+        </label>
+        <label style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;background:${answers.grupo_tem_criancas==='nao'?'var(--green-light)':'var(--bg)'};border-color:${answers.grupo_tem_criancas==='nao'?'var(--green)':'var(--border)'}">
+          <input type="radio" name="grupo_criancas" value="nao" ${answers.grupo_tem_criancas==='nao'?'checked':''} onchange="answers.grupo_tem_criancas='nao'" style="accent-color:var(--green)">
+          <span style="font-size:14px">🙅 Não</span>
+        </label>
+      </div>
+    </div>`;
+
+  } else if(s.type==='criancas_grupo') {
+    html += `<div style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;font-weight:300">Informe a idade de cada criança do grupo para personalizar as sugestões</div>`;
+    const numCriancas = parseInt(answers.num_criancas_grupo) || 1;
+    html += `<div style="margin-bottom:1rem">
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px">Quantas crianças?</label>
+      <select class="text-field" id="fi-num-criancas-grupo" onchange="updateIdadesGrupo(this.value)" style="cursor:pointer">
+        ${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${numCriancas==n?'selected':''}>${n} criança${n>1?'s':''}</option>`).join('')}
+      </select>
+    </div>
+    <div id="idades-wrap-grupo">`;
+    for(let i=0;i<numCriancas;i++){
+      const val = (criancasGrupo||[])[i]||'';
+      html += `<div style="margin-bottom:8px">
+        <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
+        <input class="text-field fi-idade-grupo" type="number" min="0" max="17" placeholder="Ex: 7 anos" value="${val}" />
+      </div>`;
+    }
+    html += `</div>`;
   }
 
+  const activeSteps = getActiveSteps();
   html += `<div class="nav-btns">
     ${step>0?`<button class="btn-back" onclick="back()">← Voltar</button>`:''}
-    <button class="btn-next" onclick="next()">${step<STEPS.length-1?'Próximo →':'Revisar ✓'}</button>
+    <button class="btn-next" onclick="next()">${step<activeSteps.length-1?'Próximo →':'Revisar ✓'}</button>
   </div>`;
   return html;
 }
 
+// Atualiza dinamicamente os campos de idade (família)
+function updateIdadesFamilia(num) {
+  answers.num_criancas = parseInt(num);
+  const wrap = document.getElementById('idades-wrap-familia');
+  if(!wrap) return;
+  let html = '';
+  for(let i=0;i<num;i++){
+    const val=(answers.idades_criancas||[])[i]||'';
+    html+=`<div style="margin-bottom:8px">
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
+      <input class="text-field fi-idade" type="number" min="0" max="17" placeholder="Ex: 5 anos" value="${val}" />
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+// Atualiza dinamicamente os campos de idade (grupo)
+function updateIdadesGrupo(num) {
+  answers.num_criancas_grupo = parseInt(num);
+  const wrap = document.getElementById('idades-wrap-grupo');
+  if(!wrap) return;
+  let html = '';
+  for(let i=0;i<num;i++){
+    const val=(criancasGrupo||[])[i]||'';
+    html+=`<div style="margin-bottom:8px">
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px">Idade da ${i+1}ª criança</label>
+      <input class="text-field fi-idade-grupo" type="number" min="0" max="17" placeholder="Ex: 7 anos" value="${val}" />
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
 function render() {
   updateProgress();
-  if(step>=STEPS.length){renderDone();return;}
+  const activeSteps = getActiveSteps();
+  if(step >= activeSteps.length){renderDone();return;}
   document.getElementById('wizard-card').innerHTML = buildStepHTML();
   setTimeout(()=>{const f=document.querySelector('.text-field');if(f)f.focus();},80);
 }
@@ -421,7 +516,18 @@ function renderDone() {
   const estilosLabel = [...estiloSelected].map(k=>labelMap.estilo[k]).join(', ');
   let datasLabel = '';
   if(calState.start&&calState.end){const n=Math.round((calState.end-calState.start)/86400000);datasLabel=`${formatDate(calState.start)} → ${formatDate(calState.end)} (${n} noite${n>1?'s':''})`;}
-  const tags = [destLabel,datasLabel,labelMap.viajantes[answers.viajantes],estilosLabel,labelMap.orcamento[answers.orcamento],answers.cidade_saida].filter(Boolean);
+  // Monta label detalhado de viajantes
+  let viaLabel = labelMap.viajantes[answers.viajantes] || '';
+  if(answers.viajantes==='familia' && answers.num_criancas) {
+    viaLabel += ` + ${answers.num_criancas} criança${answers.num_criancas>1?'s':''}`;
+    if(answers.idades_criancas&&answers.idades_criancas.length) viaLabel += ` (${answers.idades_criancas.map(i=>i+' ano'+( i==1?'':'s')).join(', ')})`;
+  }
+  if(answers.viajantes==='amigos' && answers.num_pessoas) {
+    viaLabel += ` · ${answers.num_pessoas} pessoas`;
+    if(answers.grupo_tem_criancas==='sim' && answers.idades_criancas_grupo&&answers.idades_criancas_grupo.length)
+      viaLabel += ` · crianças: ${answers.idades_criancas_grupo.map(i=>i+' ano'+(i==1?'':'s')).join(', ')}`;
+  }
+  const tags = [destLabel,datasLabel,viaLabel,estilosLabel,labelMap.orcamento[answers.orcamento],answers.cidade_saida].filter(Boolean);
   const extrasMap = {carro:'🚗 Carro',passeios:'🗺️ Passeios',restaurantes:'🍽️ Restaurantes',seguro:'🛡️ Seguro',esim:'📶 eSIM',transfer:'🚌 Transfer'};
   const pills = ['✈️ Voos','🏨 Hotéis',...[...multiSelected].map(k=>extrasMap[k]).filter(Boolean)];
 
@@ -449,8 +555,56 @@ function removeDest(i) { destinos.splice(i,1); document.getElementById('wizard-c
 function pick(key,val,btn) { answers[key]=val; btn.closest('.options-grid').querySelectorAll('.opt').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
 function toggleEstilo(val,btn) { if(estiloSelected.has(val)){estiloSelected.delete(val);btn.classList.remove('selected');}else{estiloSelected.add(val);btn.classList.add('selected');} }
 function toggleMulti(val,btn) { if(multiSelected.has(val)){multiSelected.delete(val);btn.classList.remove('selected');}else{multiSelected.add(val);btn.classList.add('selected');} }
-function next() { const s=STEPS[step]; if(s.type==='text'){const el=document.getElementById('fi-'+s.key);if(el)answers[s.key]=el.value.trim();} step++;render(); }
-function back() { if(step>0){step--;render();} }
+// ══ STEPS DINÂMICOS ══
+// Retorna a sequência de steps ativa com base nas respostas
+function getActiveSteps() {
+  const base = [...STEPS];
+  const viajante = answers.viajantes;
+  const resultado = [];
+  for(const s of base) {
+    resultado.push(s);
+    // Após viajantes, injeta step condicional
+    if(s.key === 'viajantes') {
+      if(viajante === 'familia') {
+        resultado.push({ key:'criancas_familia', label:'Sobre as crianças', title:'Quantas crianças e quais as idades?', type:'criancas_familia' });
+      } else if(viajante === 'amigos') {
+        resultado.push({ key:'info_grupo', label:'Sobre o grupo', title:'Quantas pessoas no grupo?', type:'info_grupo' });
+        if(answers.grupo_tem_criancas === 'sim') {
+          resultado.push({ key:'criancas_grupo', label:'Crianças no grupo', title:'Quais as idades das crianças?', type:'criancas_grupo' });
+        }
+      }
+    }
+  }
+  return resultado;
+}
+
+function next() {
+  const activeSteps = getActiveSteps();
+  const s = activeSteps[step];
+  if(s.type==='text'){const el=document.getElementById('fi-'+s.key);if(el)answers[s.key]=el.value.trim();}
+  if(s.type==='criancas_familia'){
+    const n=document.getElementById('fi-num-criancas'); if(n) answers.num_criancas=n.value;
+    const idades=[]; document.querySelectorAll('.fi-idade').forEach(el=>{if(el.value.trim())idades.push(el.value.trim());});
+    answers.idades_criancas = idades;
+  }
+  if(s.type==='info_grupo'){
+    const n=document.getElementById('fi-num-pessoas'); if(n) answers.num_pessoas=n.value;
+    const tc=document.querySelector('input[name="grupo_criancas"]:checked'); if(tc) answers.grupo_tem_criancas=tc.value;
+  }
+  if(s.type==='criancas_grupo'){
+    const idades=[]; document.querySelectorAll('.fi-idade-grupo').forEach(el=>{if(el.value.trim())idades.push(el.value.trim());});
+    criancasGrupo = idades; answers.idades_criancas_grupo = idades;
+  }
+  step++;
+  // Recalcula steps pois respostas podem ter mudado
+  const newActive = getActiveSteps();
+  if(step >= newActive.length) { renderDone(); updateProgress(); return; }
+  render();
+}
+
+function back() {
+  if(step > 0) { step--; render(); }
+}
 
 // ══ CHAT ══
 let chatHistory = [];
