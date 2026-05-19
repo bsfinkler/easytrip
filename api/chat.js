@@ -26,6 +26,12 @@ export default async function handler(req, res) {
         max_tokens: 8000,
         system: system || '',
         messages,
+        tools: [
+          {
+            type: 'web_search_20250305',
+            name: 'web_search',
+          }
+        ],
       }),
     });
 
@@ -35,7 +41,12 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: data.error?.message || 'Erro na API' });
     }
 
-    const text = data.content.map(b => b.text || '').join('');
+    // Extrai apenas blocos de texto da resposta (ignora tool_use e tool_result)
+    const text = (data.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text || '')
+      .join('');
+
     return res.status(200).json({ reply: text });
 
   } catch (err) {
