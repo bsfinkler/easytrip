@@ -797,20 +797,41 @@ PERFIL DO VIAJANTE:
   })()}
 ${answers.extra?`- Informações extras: ${answers.extra}`:''}
 
-Monte um roteiro completo incluindo:
-✈️ Voos — companhias, faixa de preço, links (Decolar, Google Flights, LATAM, Gol)
-🏨 Hotéis — 3 categorias alinhadas ao perfil "${orcLabel}", links (Booking.com, Hotels.com, Decolar)
-${extras.includes('carro')?'🚗 Aluguel de carro — locadoras com links (Localiza, Movida, Hertz)':''}
-${extras.includes('passeios')?'🗺️ Passeios — tours com links (GetYourGuide, Civitatis, Viator)':''}
-${extras.includes('restaurantes')?'🍽️ Restaurantes — top opções com links (TripAdvisor, TheFork)':''}
-${extras.includes('transfer')?'🚌 Transfer — opções com links':''}
-${extras.includes('seguro')?'🛡️ Seguro viagem — links (Assist Card, Allianz, Zurich)':''}
-${extras.includes('esim')?'📶 eSIM — links (Airalo, Holafly)':''}
-📅 Roteiro dia a dia detalhado${destinos.filter(Boolean).length>1?' (roteiro entre múltiplos destinos)':', '}
-💰 Estimativa de orçamento total por categoria
-💡 Dicas extras (documentos, câmbio, clima, segurança)
+INSTRUÇÕES OBRIGATÓRIAS PARA HOTÉIS — SIGA EXATAMENTE:
+Antes de sugerir qualquer hotel, você DEVE pesquisar ativamente na web seguindo este processo:
 
-Inclua links reais e clicáveis. Indique estimativas quando necessário.`;
+1. Pesquise no TripAdvisor: "melhores hotéis ${destLabel} ${orcLabel}" e anote os mais bem avaliados (nota mínima 4.0/5)
+2. Pesquise no Booking.com: "hotéis ${destLabel}" filtrando pela região preferida do viajante e perfil de orçamento
+3. Para cada categoria (econômico/intermediário/premium), selecione 2-3 hotéis com:
+   - Nome real do hotel
+   - Nota de avaliação (ex: 9.2/10 no Booking, 4.5/5 no TripAdvisor)
+   - Número de avaliações (ex: "baseado em 2.847 avaliações")
+   - Faixa de preço por noite em reais (estimativa)
+   - Região/bairro onde fica
+   - Link direto para reserva no Booking.com ou Hotels.com
+   - 1 frase destacando o diferencial (ex: "café da manhã incluído", "piscina rooftop", "a 200m do metrô")
+
+Formato obrigatório para cada hotel:
+🏨 [Nome do Hotel] ⭐ [nota]/10 ([X] avaliações)
+📍 [Bairro/Região]
+💵 A partir de R$ [valor]/noite
+✅ [Diferencial principal]
+🔗 [Link Booking.com ou Hotels.com]
+
+Monte um roteiro completo incluindo:
+✈️ Voos — pesquise voos reais de ${answers.cidade_saida||'Brasil'} para ${destLabel} nas datas ${datasLabel}. Informe companhias, escala ou direto, tempo de voo e faixa de preço atual. Links: Decolar, Google Flights, LATAM, Gol, Azul.
+🏨 Hotéis — OBRIGATÓRIO: pesquise e apresente hotéis reais e bem avaliados conforme instruções acima, separados em 3 categorias alinhadas ao perfil "${orcLabel}" e à região preferida do viajante.
+${extras.includes('carro')?'🚗 Aluguel de carro — pesquise preços atuais em Localiza, Movida, Hertz. Inclua links diretos com filtro de datas.':''}
+${extras.includes('passeios')?'🗺️ Passeios — pesquise tours disponíveis com avaliações no GetYourGuide, Civitatis e Viator. Inclua nota, preço e link.':''}
+${extras.includes('restaurantes')?'🍽️ Restaurantes — pesquise os mais bem avaliados na região com nota no TripAdvisor ou Google. Inclua links.':''}
+${extras.includes('transfer')?'🚌 Transfer — pesquise opções de transfer aeroporto com preços e links.':''}
+${extras.includes('seguro')?'🛡️ Seguro viagem — compare planos para o destino em Assist Card, Allianz e Zurich com links.':''}
+${extras.includes('esim')?'📶 eSIM — pesquise planos disponíveis para o destino em Airalo e Holafly com preços atuais e links.':''}
+📅 Roteiro dia a dia detalhado${destinos.filter(Boolean).length>1?' considerando deslocamentos entre múltiplos destinos':''} — sugira atividades pela manhã, tarde e noite.
+💰 Estimativa de orçamento total por categoria (voos, hospedagem, alimentação, transporte, passeios)
+💡 Dicas extras (documentos necessários, câmbio, clima no período, segurança, apps úteis)
+
+IMPORTANTE: Sempre informe a fonte e a data aproximada das avaliações. Se não encontrar um hotel específico via busca, use seu conhecimento mas indique claramente. Nunca invente avaliações ou preços — se não souber, estime e sinalize como estimativa.`;
 }
 
 async function startChat() {
