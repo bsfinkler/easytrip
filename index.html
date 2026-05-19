@@ -222,6 +222,9 @@ let answers = {}, estiloSelected = new Set(), multiSelected = new Set();
 let destinos = [''], step = 0;
 let calState = { start: null, end: null, month: new Date().getMonth(), year: new Date().getFullYear() };
 let criancasGrupo = []; // idades quando grupo tem crianças
+let bairrosData = {};       // { "Nova York": [{value, label, desc}, ...] }
+let bairrosSelected = {};   // { "Nova York": Set(['Manhattan', ...]) }
+let bairrosLoading = false;
 
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DOWS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
@@ -236,12 +239,12 @@ const ORCAMENTO_OPTS = [
 ];
 
 const STEPS = [
-  { key:'destino',    label:'Passo 1 de 7 — Destino',    title:'Para onde você quer ir?',           type:'destino' },
-  { key:'datas',      label:'Passo 2 de 7 — Datas',      title:'Quando você quer viajar?',          type:'calendar', hint:'Clique na data de ida e depois na data de volta' },
-  { key:'viajantes',  label:'Passo 3 de 7 — Viajantes',  title:'Quem vai na viagem?',               type:'options',
+  { key:'destino',    label:'Passo 1 de 8 — Destino',    title:'Para onde você quer ir?',           type:'destino' },
+  { key:'datas',      label:'Passo 2 de 8 — Datas',      title:'Quando você quer viajar?',          type:'calendar', hint:'Clique na data de ida e depois na data de volta' },
+  { key:'viajantes',  label:'Passo 3 de 8 — Viajantes',  title:'Quem vai na viagem?',               type:'options',
     options:[{value:'casal',label:'Casal',icon:'💑'},{value:'familia',label:'Família com crianças',icon:'👨‍👩‍👧'},{value:'amigos',label:'Amigos / grupo',icon:'👫'},{value:'solo',label:'Sozinho(a)',icon:'🧳'}]
   },
-  { key:'estilo',     label:'Passo 4 de 7 — Estilo',     title:'Qual é o estilo da viagem?',        type:'multi-estilo', hint:'Pode selecionar mais de um',
+  { key:'estilo',     label:'Passo 4 de 8 — Estilo',     title:'Qual é o estilo da viagem?',        type:'multi-estilo', hint:'Pode selecionar mais de um',
     options:[
       {value:'praia',    label:'Praia',     icon:'🏖️', desc:'Sol, mar e relaxamento'},
       {value:'aventura', label:'Aventura',  icon:'🏔️', desc:'Trilhas, natureza e adrenalina'},
@@ -251,9 +254,10 @@ const STEPS = [
       {value:'neve',     label:'Neve',      icon:'⛷️', desc:'Ski, snowboard e paisagens nevadas'},
     ]
   },
-  { key:'orcamento',   label:'Passo 5 de 7 — Orçamento',  title:'Qual é o seu perfil de gasto?',    type:'orcamento' },
-  { key:'cidade_saida',label:'Passo 6 de 7 — Partida',    title:'De qual cidade você vai partir?',  type:'text', placeholder:'Ex: São Paulo, Cuiabá, Brasília...' },
-  { key:'extras',      label:'Passo 7 de 7 — Extras',     title:'O que mais deseja incluir?',       type:'multi', hint:'Selecione tudo que quiser no roteiro',
+  { key:'orcamento',   label:'Passo 5 de 8 — Orçamento',  title:'Qual é o seu perfil de gasto?',    type:'orcamento' },
+  { key:'bairros',     label:'Passo 6 — Hospedagem',      title:'Onde prefere se hospedar?',         type:'bairros' },
+  { key:'cidade_saida',label:'Passo 7 — Partida',    title:'De qual cidade você vai partir?',  type:'text', placeholder:'Ex: São Paulo, Cuiabá, Brasília...' },
+  { key:'extras',      label:'Passo 8 de 8 — Extras',     title:'O que mais deseja incluir?',       type:'multi', hint:'Selecione tudo que quiser no roteiro',
     options:[{value:'carro',label:'Aluguel de carro',icon:'🚗'},{value:'passeios',label:'Passeios guiados',icon:'🗺️'},{value:'restaurantes',label:'Restaurantes',icon:'🍽️'},{value:'seguro',label:'Seguro viagem',icon:'🛡️'},{value:'esim',label:'eSIM / internet',icon:'📶'},{value:'transfer',label:'Transfer aeroporto',icon:'🚌'}]
   },
 ];
@@ -271,7 +275,7 @@ function goTo(page) {
   window.scrollTo(0,0);
   if(page === 'wizard') {
     answers = {}; estiloSelected = new Set(); multiSelected = new Set();
-    destinos = ['']; step = 0; criancasGrupo = [];
+    destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {};
     calState = { start:null, end:null, month:new Date().getMonth(), year:new Date().getFullYear() };
     render();
   }
@@ -394,6 +398,57 @@ function buildStepHTML() {
     });
     html += `</div>`;
 
+  } else if(s.type==='bairros') {
+    const destList = destinos.filter(Boolean);
+    if(destList.length === 0) {
+      html += '<div style="text-align:center;padding:2rem;color:var(--text-muted)">Nenhum destino informado. Volte e preencha o destino.</div>';
+    } else if(bairrosLoading) {
+      html += '<div style="text-align:center;padding:2rem">'
+        + '<div style="font-size:28px;margin-bottom:12px">🔍</div>'
+        + '<div style="font-size:14px;color:var(--text-muted)">Buscando os melhores bairros para você...</div>'
+        + '<div style="margin-top:12px;display:flex;gap:5px;justify-content:center">'
+        + '<div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+    } else {
+      destList.forEach(dest => {
+        const bairros = bairrosData[dest] || [];
+        const sel = bairrosSelected[dest] || new Set();
+        html += '<div style="margin-bottom:1.5rem">';
+        if(destList.length > 1) {
+          html += '<div style="font-size:12px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">📍 '+dest+'</div>';
+        }
+        if(bairros.length === 0) {
+          html += '<div style="font-size:13px;color:var(--text-muted);padding:12px;border:1px dashed var(--border);border-radius:var(--radius-sm);text-align:center">Clique em "Carregar sugestões" para ver os bairros recomendados</div>';
+        } else {
+          html += '<div class="options-grid">';
+          bairros.forEach(b => {
+            const isSel = sel.has(b.value);
+            html += '<button class="opt '+(isSel?'selected':'')
+              +' data-dest="'+dest.replace(/"/g,'&quot;')+'" data-val="'+b.value.replace(/"/g,'&quot;')+'"'
+              +' onclick="toggleBairroBtn(this)">'
+              + '<div class="opt-row"><span class="opt-icon">'+b.icon+'</span><span class="opt-label">'+b.label+'</span></div>'
+              + '<div class="opt-desc">'+b.desc+'</div>'
+              + '</button>';
+          });
+          html += '</div>';
+          const selCount = sel.size;
+          if(selCount > 0) {
+            html += '<div style="font-size:12px;color:var(--green-dark);margin-top:6px;font-weight:500">'+selCount+' região'+(selCount>1?'s':'')+' selecionada'+(selCount>1?'s':'')+' (máx. 3)</div>';
+          }
+        }
+        html += '</div>';
+      });
+      if(Object.keys(bairrosData).length === 0) {
+        html += '<div style="text-align:center;margin-top:0.5rem">'
+          + '<button onclick="carregarBairros()" style="background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer">🔍 Carregar sugestões de bairros</button>'
+          + '</div>';
+      } else {
+        html += '<div style="text-align:center;margin-top:0.5rem">'
+          + '<button onclick="carregarBairros()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 18px;font-size:13px;color:var(--text-muted);cursor:pointer">↺ Recarregar sugestões</button>'
+          + '</div>';
+      }
+      html += '<div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px;font-weight:300">Selecione até 3 regiões por destino — ou pule para não restringir</div>';
+    }
+
   } else if(s.type==='multi') {
     html += `<div class="options-grid">`;
     s.options.forEach(o => {
@@ -468,6 +523,65 @@ function buildStepHTML() {
   return html;
 }
 
+// ══ BAIRROS ══
+function toggleBairroBtn(btn) {
+  const dest = btn.getAttribute('data-dest');
+  const val  = btn.getAttribute('data-val');
+  toggleBairro(dest, val);
+}
+
+function toggleBairro(dest, val) {
+  if(!bairrosSelected[dest]) bairrosSelected[dest] = new Set();
+  const sel = bairrosSelected[dest];
+  if(sel.has(val)) { sel.delete(val); }
+  else if(sel.size < 3) { sel.add(val); }
+  // Re-render só o card de bairros
+  document.getElementById('wizard-card').innerHTML = buildStepHTML();
+}
+
+async function carregarBairros() {
+  const destList = destinos.filter(Boolean);
+  if(!destList.length) return;
+  bairrosLoading = true;
+  document.getElementById('wizard-card').innerHTML = buildStepHTML();
+
+  try {
+    const prompt = destList.map(d =>
+      'Destino: ' + d
+    ).join('\n');
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: 'Você é um especialista em turismo mundial. Responda APENAS com JSON válido, sem markdown, sem explicações.',
+        messages: [{
+          role: 'user',
+          content: 'Para cada destino abaixo, liste exatamente 6 bairros ou regiões ideais para se hospedar. Considere variedade: centro, bairros turísticos, alternativos, etc. Retorne SOMENTE este JSON:\n\n{'
+            + destList.map(d => '"' + d + '": [{"value":"id_unico","label":"Nome do Bairro","icon":"emoji","desc":"1 frase curta sobre o bairro e por que é bom para se hospedar"}]').join(',')
+            + '}\n\nDestinos:\n' + prompt
+        }]
+      })
+    });
+
+    const data = await res.json();
+    let text = data.reply || '';
+    // Remove markdown code blocks se houver
+    text = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(text);
+    destList.forEach(d => {
+      if(parsed[d]) bairrosData[d] = parsed[d];
+    });
+  } catch(e) {
+    console.error('Erro ao carregar bairros:', e);
+    // Fallback: deixa vazio, usuário pode pular
+    destinos.filter(Boolean).forEach(d => { bairrosData[d] = []; });
+  }
+
+  bairrosLoading = false;
+  document.getElementById('wizard-card').innerHTML = buildStepHTML();
+}
+
 // Helper para setar grupo_tem_criancas sem conflito de aspas
 function setGrupoCriancas(val) { answers.grupo_tem_criancas = val; }
 
@@ -528,7 +642,17 @@ function renderDone() {
     if(answers.grupo_tem_criancas==='sim' && answers.idades_criancas_grupo&&answers.idades_criancas_grupo.length)
       viaLabel += ` · crianças: ${answers.idades_criancas_grupo.map(i=>i+' ano'+(i==1?'':'s')).join(', ')}`;
   }
-  const tags = [destLabel,datasLabel,viaLabel,estilosLabel,labelMap.orcamento[answers.orcamento],answers.cidade_saida].filter(Boolean);
+  // Bairros selecionados
+  const bairrosTag = Object.entries(bairrosSelected)
+    .filter(([,sel]) => sel.size > 0)
+    .map(([dest, sel]) => {
+      const nomes = [...sel].map(v => {
+        const b = (bairrosData[dest]||[]).find(x=>x.value===v);
+        return b ? b.label : v;
+      });
+      return (destinos.filter(Boolean).length > 1 ? dest+': ' : '') + nomes.join(', ');
+    }).join(' | ');
+  const tags = [destLabel,datasLabel,viaLabel,estilosLabel,labelMap.orcamento[answers.orcamento],bairrosTag||'',answers.cidade_saida].filter(Boolean);
   const extrasMap = {carro:'🚗 Carro',passeios:'🗺️ Passeios',restaurantes:'🍽️ Restaurantes',seguro:'🛡️ Seguro',esim:'📶 eSIM',transfer:'🚌 Transfer'};
   const pills = ['✈️ Voos','🏨 Hotéis',...[...multiSelected].map(k=>extrasMap[k]).filter(Boolean)];
 
@@ -627,6 +751,15 @@ PERFIL DO VIAJANTE:
 - Perfil de orçamento: ${orcLabel}
 - Cidade de partida: ${answers.cidade_saida||'não informado'}
 - Extras: ${extras.length?extras.join(', '):'nenhum'}
+- Preferência de bairro/região: ${(()=>{
+    const partes = Object.entries(bairrosSelected)
+      .filter(([,sel])=>sel.size>0)
+      .map(([dest,sel])=>{
+        const nomes=[...sel].map(v=>{const b=(bairrosData[dest]||[]).find(x=>x.value===v);return b?b.label:v;});
+        return (destinos.filter(Boolean).length>1?dest+': ':'')+nomes.join(', ');
+      });
+    return partes.length?partes.join(' | '):'sem preferência definida';
+  })()}
 ${answers.extra?`- Informações extras: ${answers.extra}`:''}
 
 Monte um roteiro completo incluindo:
