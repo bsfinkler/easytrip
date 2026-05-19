@@ -275,7 +275,7 @@ function goTo(page) {
   window.scrollTo(0,0);
   if(page === 'wizard') {
     answers = {}; estiloSelected = new Set(); multiSelected = new Set();
-    destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {};
+    destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {}; answers.bairro_livre = '';
     calState = { start:null, end:null, month:new Date().getMonth(), year:new Date().getFullYear() };
     render();
   }
@@ -405,48 +405,70 @@ function buildStepHTML() {
     } else if(bairrosLoading) {
       html += '<div style="text-align:center;padding:2rem">'
         + '<div style="font-size:28px;margin-bottom:12px">🔍</div>'
-        + '<div style="font-size:14px;color:var(--text-muted)">Buscando os melhores bairros para você...</div>'
+        + '<div style="font-size:14px;color:var(--text-muted)">Buscando os melhores bairros...</div>'
         + '<div style="margin-top:12px;display:flex;gap:5px;justify-content:center">'
         + '<div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
     } else {
+      // ── Seção de opções por destino ──
       destList.forEach(dest => {
         const bairros = bairrosData[dest] || [];
-        const sel = bairrosSelected[dest] || new Set();
+        if(!bairrosSelected[dest]) bairrosSelected[dest] = new Set();
+        const sel = bairrosSelected[dest];
         html += '<div style="margin-bottom:1.5rem">';
         if(destList.length > 1) {
           html += '<div style="font-size:12px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">📍 '+dest+'</div>';
         }
         if(bairros.length === 0) {
-          html += '<div style="font-size:13px;color:var(--text-muted);padding:12px;border:1px dashed var(--border);border-radius:var(--radius-sm);text-align:center">Clique em "Carregar sugestões" para ver os bairros recomendados</div>';
+          html += '<div style="font-size:13px;color:var(--text-muted);padding:12px;border:1px dashed var(--border);border-radius:var(--radius-sm);text-align:center">Clique em Carregar sugestões para ver os bairros recomendados</div>';
         } else {
           html += '<div class="options-grid">';
           bairros.forEach(b => {
             const isSel = sel.has(b.value);
-            html += '<button class="opt '+(isSel?'selected':'')
-              +' data-dest="'+dest.replace(/"/g,'&quot;')+'" data-val="'+b.value.replace(/"/g,'&quot;')+'"'
-              +' onclick="toggleBairroBtn(this)">'
-              + '<div class="opt-row"><span class="opt-icon">'+b.icon+'</span><span class="opt-label">'+b.label+'</span></div>'
-              + '<div class="opt-desc">'+b.desc+'</div>'
+            const selStyle = isSel
+              ? 'border:2px solid var(--green);background:var(--green-light);color:var(--green-dark);font-weight:500;'
+              : 'border:1px solid var(--border);background:var(--bg);';
+            html += '<button'
+              + ' data-dest="'+dest.replace(/"/g,'&quot;')+'"'
+              + ' data-val="'+b.value.replace(/"/g,'&quot;')+'"'
+              + ' onclick="toggleBairroBtn(this)"'
+              + ' style="display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:var(--radius-sm);cursor:pointer;text-align:left;transition:all 0.15s;width:100%;'+selStyle+'">'
+              + '<div style="display:flex;align-items:center;gap:8px">'
+              + '<span style="font-size:20px">'+b.icon+'</span>'
+              + '<span style="font-size:14px;font-weight:500">'+b.label+'</span>'
+              + (isSel ? '<span style="margin-left:auto;font-size:16px">✅</span>' : '')
+              + '</div>'
+              + '<div style="font-size:11px;color:'+(isSel?'var(--green-dark)':'var(--text-muted)')+';padding-left:28px;line-height:1.4;font-weight:300">'+b.desc+'</div>'
               + '</button>';
           });
           html += '</div>';
           const selCount = sel.size;
           if(selCount > 0) {
-            html += '<div style="font-size:12px;color:var(--green-dark);margin-top:6px;font-weight:500">'+selCount+' região'+(selCount>1?'s':'')+' selecionada'+(selCount>1?'s':'')+' (máx. 3)</div>';
+            const nomes = [...sel].map(v => { const b = bairros.find(x=>x.value===v); return b?b.label:v; });
+            html += '<div style="font-size:12px;color:var(--green-dark);margin-top:8px;font-weight:500;background:var(--green-light);border-radius:var(--radius-sm);padding:6px 10px">'
+              + '✅ Selecionado'+(selCount>1?'s':'')+': '+nomes.join(', ')+' ('+selCount+'/3)'
+              + '</div>';
           }
         }
         html += '</div>';
       });
+
+      // ── Botão carregar / recarregar ──
       if(Object.keys(bairrosData).length === 0) {
-        html += '<div style="text-align:center;margin-top:0.5rem">'
+        html += '<div style="text-align:center;margin-bottom:1rem">'
           + '<button onclick="carregarBairros()" style="background:var(--green);color:white;border:none;border-radius:var(--radius-sm);padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer">🔍 Carregar sugestões de bairros</button>'
           + '</div>';
       } else {
-        html += '<div style="text-align:center;margin-top:0.5rem">'
-          + '<button onclick="carregarBairros()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 18px;font-size:13px;color:var(--text-muted);cursor:pointer">↺ Recarregar sugestões</button>'
+        html += '<div style="text-align:center;margin-bottom:1rem">'
+          + '<button onclick="carregarBairros()" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 16px;font-size:13px;color:var(--text-muted);cursor:pointer">↺ Recarregar sugestões</button>'
           + '</div>';
       }
-      html += '<div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:10px;font-weight:300">Selecione até 3 regiões por destino — ou pule para não restringir</div>';
+
+      // ── Campo livre ──
+      html += '<div style="margin-bottom:0.5rem">'
+        + '<div style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Tem algum bairro ou região específica em mente?</div>'
+        + '<textarea id="bairro-livre" style="width:100%;padding:10px 12px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);outline:none;resize:vertical;min-height:70px;line-height:1.5" placeholder="Ex: Quero ficar perto da Times Square, prefiro o bairro de Palermo..." oninput="answers.bairro_livre=this.value">'+(answers.bairro_livre||'')+'</textarea>'
+        + '</div>'
+        + '<div style="font-size:12px;color:var(--text-muted);text-align:center;font-weight:300">Selecione até 3 regiões — ou pule esta etapa</div>';
     }
 
   } else if(s.type==='multi') {
@@ -516,14 +538,26 @@ function buildStepHTML() {
   }
 
   const totalSteps = getActiveSteps().length;
-  html += `<div class="nav-btns">
-    ${step>0?`<button class="btn-back" onclick="back()">← Voltar</button>`:''}
-    <button class="btn-next" onclick="next()">${step<totalSteps-1?'Próximo →':'Revisar ✓'}</button>
-  </div>`;
+  const isBairrosStep = s.type === 'bairros';
+  html += '<div class="nav-btns">'
+    + (step>0 ? '<button class="btn-back" onclick="back()">← Voltar</button>' : '')
+    + (isBairrosStep ? '<button onclick="pularBairros()" style="padding:10px 18px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;color:var(--text-muted);cursor:pointer">Pular →</button>' : '')
+    + '<button class="btn-next" onclick="next()">'+(step<totalSteps-1?'Próximo →':'Revisar ✓')+'</button>'
+    + '</div>';
   return html;
 }
 
 // ══ BAIRROS ══
+function pularBairros() {
+  // Limpa seleções e avança
+  bairrosSelected = {};
+  answers.bairro_livre = '';
+  step++;
+  const newActive = getActiveSteps();
+  if(step >= newActive.length) { renderDone(); updateProgress(); return; }
+  render();
+}
+
 function toggleBairroBtn(btn) {
   const dest = btn.getAttribute('data-dest');
   const val  = btn.getAttribute('data-val');
@@ -752,13 +786,14 @@ PERFIL DO VIAJANTE:
 - Cidade de partida: ${answers.cidade_saida||'não informado'}
 - Extras: ${extras.length?extras.join(', '):'nenhum'}
 - Preferência de bairro/região: ${(()=>{
+    const livreNote = answers.bairro_livre ? ' | Observação do viajante: '+answers.bairro_livre : '';
     const partes = Object.entries(bairrosSelected)
-      .filter(([,sel])=>sel.size>0)
+      .filter(([,sel])=>sel && sel.size>0)
       .map(([dest,sel])=>{
         const nomes=[...sel].map(v=>{const b=(bairrosData[dest]||[]).find(x=>x.value===v);return b?b.label:v;});
         return (destinos.filter(Boolean).length>1?dest+': ':'')+nomes.join(', ');
       });
-    return partes.length?partes.join(' | '):'sem preferência definida';
+    return (partes.length?partes.join(' | '):'sem preferência definida')+livreNote;
   })()}
 ${answers.extra?`- Informações extras: ${answers.extra}`:''}
 
