@@ -829,17 +829,54 @@ function addTyping() {
 }
 function removeTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove();}
 
-async function readStream(res) {
+// Consome um stream SSE no formato `data: {...}\n\n`.
+// Eventos esperados: {t:"texto"}, {err:"mensagem"}, ou linha literal `data: [DONE]`.
+// Chama onChunk(textoAcumulado) a cada delta de texto.
+async function consumeSSE(res, onChunk) {
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
-  let text = '';
-  while(true) {
+  let buffer = '';
+  let fullText = '';
+  let streamErr = null;
+  let finished = false;
+
+  function processBlock(block) {
+    for(const line of block.split('\n')) {
+      if(!line.startsWith('data: ')) continue;
+      const dataStr = line.slice(6).trim();
+      if(dataStr === '[DONE]') { finished = true; return; }
+      let obj;
+      try { obj = JSON.parse(dataStr); } catch { continue; }
+      if(obj.err) { streamErr = obj.err; finished = true; return; }
+      if(typeof obj.t === 'string') {
+        fullText += obj.t;
+        if(onChunk) onChunk(fullText);
+      }
+    }
+  }
+
+  while(!finished) {
     const { done, value } = await reader.read();
     if(done) break;
-    text += decoder.decode(value, { stream: true });
+    buffer += decoder.decode(value, { stream: true });
+    let nl;
+    while((nl = buffer.indexOf('\n\n')) !== -1) {
+      const block = buffer.slice(0, nl);
+      buffer = buffer.slice(nl + 2);
+      processBlock(block);
+      if(finished) break;
+    }
   }
-  text += decoder.decode();
-  return text;
+  // Processa qualquer evento final sem terminador duplo
+  buffer += decoder.decode();
+  if(buffer.trim() && !finished) processBlock(buffer);
+
+  if(streamErr) throw new Error(streamErr);
+  return fullText;
+}
+
+async function readStream(res) {
+  return await consumeSSE(res, null);
 }
 
 function addStreamingMsg() {
@@ -874,29 +911,13 @@ async function fetchChat() {
 }
 
 async function streamIntoBubble(res, bubble) {
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
   const box = document.getElementById('chat-messages');
-  let fullText = '';
   let firstChunk = true;
-  while(true) {
-    const { done, value } = await reader.read();
-    if(done) break;
-    const chunk = decoder.decode(value, { stream: true });
-    if(!chunk) continue;
+  return await consumeSSE(res, (text) => {
     if(firstChunk) { bubble.innerHTML = ''; firstChunk = false; }
-    fullText += chunk;
-    bubble.innerHTML = formatMsg(fullText);
+    bubble.innerHTML = formatMsg(text);
     box.scrollTop = box.scrollHeight;
-  }
-  const tail = decoder.decode();
-  if(tail) {
-    if(firstChunk) { bubble.innerHTML = ''; firstChunk = false; }
-    fullText += tail;
-    bubble.innerHTML = formatMsg(fullText);
-    box.scrollTop = box.scrollHeight;
-  }
-  return fullText;
+  });
 }
 
 async function callAPI(userText) {

@@ -47,10 +47,13 @@ export default async function handler(req, res) {
       });
     }
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-transform');
     res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('Connection', 'keep-alive');
     if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    const sseWrite = (obj) => res.write('data: ' + JSON.stringify(obj) + '\n\n');
 
     const reader = upstream.body.getReader();
     const decoder = new TextDecoder();
@@ -76,15 +79,16 @@ export default async function handler(req, res) {
               data.delta?.type === 'text_delta' &&
               data.delta.text
             ) {
-              res.write(data.delta.text);
+              sseWrite({ t: data.delta.text });
             } else if (data.type === 'error') {
-              res.write('\n\n[Erro: ' + (data.error?.message || 'desconhecido') + ']');
+              sseWrite({ err: data.error?.message || 'erro desconhecido' });
             }
           } catch { /* ignora linhas que não são JSON válido */ }
         }
       }
     }
 
+    res.write('data: [DONE]\n\n');
     res.end();
   } catch (err) {
     console.error('Erro no backend:', err);
