@@ -598,8 +598,14 @@ async function carregarBairros() {
       })
     });
 
-    const data = await res.json();
-    let text = data.reply || '';
+    if(!res.ok) {
+      const errText = await res.text();
+      let errMsg = errText;
+      try { errMsg = JSON.parse(errText).error || errText; } catch {}
+      throw new Error(errMsg);
+    }
+
+    let text = await readStream(res);
     // Remove markdown code blocks se houver
     text = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(text);
@@ -823,6 +829,76 @@ function addTyping() {
 }
 function removeTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove();}
 
+async function readStream(res) {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+  while(true) {
+    const { done, value } = await reader.read();
+    if(done) break;
+    text += decoder.decode(value, { stream: true });
+  }
+  text += decoder.decode();
+  return text;
+}
+
+function addStreamingMsg() {
+  const box = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ai';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+  wrap.innerHTML = '<div class="msg-av-sm">✈</div>';
+  wrap.appendChild(bubble);
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+  return bubble;
+}
+
+async function fetchChat() {
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: buildSystem(), messages: chatHistory })
+  });
+  if(!res.ok) {
+    const errText = await res.text();
+    let errMsg = errText;
+    try { errMsg = JSON.parse(errText).error || errText; } catch {}
+    const err = new Error(errMsg);
+    err.status = res.status;
+    throw err;
+  }
+  return res;
+}
+
+async function streamIntoBubble(res, bubble) {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  const box = document.getElementById('chat-messages');
+  let fullText = '';
+  let firstChunk = true;
+  while(true) {
+    const { done, value } = await reader.read();
+    if(done) break;
+    const chunk = decoder.decode(value, { stream: true });
+    if(!chunk) continue;
+    if(firstChunk) { bubble.innerHTML = ''; firstChunk = false; }
+    fullText += chunk;
+    bubble.innerHTML = formatMsg(fullText);
+    box.scrollTop = box.scrollHeight;
+  }
+  const tail = decoder.decode();
+  if(tail) {
+    if(firstChunk) { bubble.innerHTML = ''; firstChunk = false; }
+    fullText += tail;
+    bubble.innerHTML = formatMsg(fullText);
+    box.scrollTop = box.scrollHeight;
+  }
+  return fullText;
+}
+
 async function callAPI(userText) {
   chatHistory.push({role:'user',content:userText});
 
@@ -832,44 +908,31 @@ async function callAPI(userText) {
   const btn=document.getElementById('send-btn'); if(btn) btn.disabled=true;
   addTyping();
 
-  async function doFetch() {
-    const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 90000);
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system: buildSystem(), messages: chatHistory }),
-        signal: controller.signal
-      });
-      clearTimeout(tid);
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); }
-      catch { throw new Error('Resposta inválida do servidor (status ' + res.status + ')'); }
-      return { ok: res.ok, status: res.status, data };
-    } finally {
-      clearTimeout(tid);
-    }
-  }
-
+  let bubble = null;
   try {
-    const { data } = await doFetch();
-    removeTyping();
-    if(data.error) {
-      if(data.error.includes('rate limit') || data.error.includes('rate_limit')) {
+    let res;
+    try {
+      res = await fetchChat();
+    } catch(e) {
+      const msg = (e.message || '').toLowerCase();
+      if(e.status === 429 || msg.includes('rate limit') || msg.includes('rate_limit')) {
+        removeTyping();
         addMsg('ai','⏳ Muitas requisições simultâneas. Tentando novamente em 10 segundos...');
         await new Promise(r => setTimeout(r, 10000));
-        const retry = await doFetch();
-        if(retry.data.error) throw new Error(retry.data.error);
-        chatHistory.push({role:'assistant',content:retry.data.reply});
-        addMsg('ai',retry.data.reply);
+        addTyping();
+        res = await fetchChat();
       } else {
-        throw new Error(data.error);
+        throw e;
       }
+    }
+
+    removeTyping();
+    bubble = addStreamingMsg();
+    const fullText = await streamIntoBubble(res, bubble);
+    if(!fullText.trim()) {
+      bubble.innerHTML = formatMsg('⚠️ O concierge não retornou conteúdo. Tente novamente.');
     } else {
-      chatHistory.push({role:'assistant',content:data.reply});
-      addMsg('ai',data.reply);
+      chatHistory.push({role:'assistant',content:fullText});
     }
   } catch(e) {
     removeTyping();
@@ -881,7 +944,8 @@ async function callAPI(userText) {
     } else {
       msg += '\n\nDetalhe: ' + e.message;
     }
-    addMsg('ai', msg);
+    if(bubble) bubble.innerHTML = formatMsg(msg);
+    else addMsg('ai', msg);
   }
   if(btn) btn.disabled=false;
   const inp=document.getElementById('chat-input'); if(inp) inp.focus();

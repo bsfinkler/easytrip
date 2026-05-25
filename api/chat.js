@@ -21,11 +21,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Chave da API não configurada no servidor' });
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 55000);
-
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,38 +34,63 @@ export default async function handler(req, res) {
         max_tokens: 4000,
         system: system || '',
         messages,
+        stream: true,
       }),
-      signal: controller.signal,
     });
 
-    clearTimeout(timeoutId);
-
-    const raw = await response.text();
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch (parseErr) {
-      console.error('Resposta não-JSON da Anthropic:', response.status, raw.slice(0, 500));
-      return res.status(502).json({ error: 'Resposta inválida da API (status ' + response.status + ')' });
+    if (!upstream.ok) {
+      const errText = await upstream.text();
+      let errMsg;
+      try { errMsg = JSON.parse(errText).error?.message; } catch {}
+      return res.status(upstream.status).json({
+        error: errMsg || 'Erro na API Anthropic (status ' + upstream.status + ')',
+      });
     }
 
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data.error?.message || 'Erro na API Anthropic' });
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    const reader = upstream.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      let nl;
+      while ((nl = buffer.indexOf('\n\n')) !== -1) {
+        const block = buffer.slice(0, nl);
+        buffer = buffer.slice(nl + 2);
+        for (const line of block.split('\n')) {
+          if (!line.startsWith('data: ')) continue;
+          const dataStr = line.slice(6);
+          if (dataStr === '[DONE]') continue;
+          try {
+            const data = JSON.parse(dataStr);
+            if (
+              data.type === 'content_block_delta' &&
+              data.delta?.type === 'text_delta' &&
+              data.delta.text
+            ) {
+              res.write(data.delta.text);
+            } else if (data.type === 'error') {
+              res.write('\n\n[Erro: ' + (data.error?.message || 'desconhecido') + ']');
+            }
+          } catch { /* ignora linhas que não são JSON válido */ }
+        }
+      }
     }
 
-    const text = (data.content || [])
-      .filter(b => b.type === 'text')
-      .map(b => b.text || '')
-      .join('');
-
-    return res.status(200).json({ reply: text });
-
+    res.end();
   } catch (err) {
-    clearTimeout(timeoutId);
     console.error('Erro no backend:', err);
-    if (err.name === 'AbortError') {
-      return res.status(504).json({ error: 'Tempo limite excedido. Tente uma solicitação mais curta.' });
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'Erro interno: ' + (err.message || 'desconhecido') });
     }
-    return res.status(500).json({ error: 'Erro interno: ' + (err.message || 'desconhecido') });
+    try { res.end(); } catch {}
   }
 }
