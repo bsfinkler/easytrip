@@ -26,17 +26,87 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 .nav-badge { font-size: 11px; background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green-border); border-radius: 20px; padding: 3px 10px; font-weight: 500; }
 
 /* LANDING */
-.hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 1.5rem 3rem; background: linear-gradient(160deg, #E1F5EE 0%, #fafaf8 55%); position: relative; overflow: hidden; }
-.hero::before { content: ''; position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(29,158,117,0.07) 0%, transparent 70%); top: -120px; right: -120px; pointer-events: none; }
-.hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; color: var(--green-dark); background: var(--green-light); border: 1px solid var(--green-border); border-radius: 20px; padding: 5px 14px; margin-bottom: 1.5rem; letter-spacing: 0.06em; text-transform: uppercase; }
-.hero h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 600; line-height: 1.2; color: var(--text); max-width: 680px; margin-bottom: 1.25rem; }
+.hero { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 1.5rem 5rem; background: linear-gradient(160deg, #E1F5EE 0%, #fafaf8 60%); position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(29,158,117,0.08) 0%, transparent 70%); top: -180px; right: -180px; pointer-events: none; }
+.hero::after { content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(29,158,117,0.05) 0%, transparent 70%); bottom: -200px; left: -150px; pointer-events: none; }
+.hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--green-dark); background: var(--green-light); border: 1px solid var(--green-border); border-radius: 20px; padding: 5px 14px; margin-bottom: 1.75rem; letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; }
+.hero h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.05; letter-spacing: -0.025em; color: var(--text); max-width: 880px; margin-bottom: 1.5rem; position: relative; z-index: 1; }
 .hero h1 em { font-style: normal; color: var(--green); }
-.hero p { font-size: 1.05rem; color: var(--text-muted); max-width: 480px; line-height: 1.75; font-weight: 300; margin-bottom: 2.5rem; }
-.hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 500; padding: 14px 32px; border-radius: var(--radius); border: none; cursor: pointer; transition: background 0.2s, transform 0.15s; }
-.hero-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
-.hero-features { display: flex; gap: 2rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+.hero p { font-size: clamp(1.05rem, 1.5vw, 1.25rem); color: var(--text-muted); max-width: 560px; line-height: 1.6; font-weight: 400; margin-bottom: 2.5rem; position: relative; z-index: 1; }
+.hero-cta { display: inline-flex; align-items: center; gap: 8px; background: var(--green); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.05rem; font-weight: 600; padding: 16px 36px; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.2s; position: relative; z-index: 1; box-shadow: 0 4px 14px rgba(29,158,117,0.25); }
+.hero-cta:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(29,158,117,0.35); }
+.hero-features { display: flex; gap: 2rem; margin-top: 2.75rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
 .hero-feat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
 .hero-feat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; }
+
+/* SECTIONS — base */
+.section { padding: 6rem 1.5rem; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-eyebrow { font-size: 12px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 1rem; text-align: center; }
+.section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; text-align: center; margin-bottom: 1rem; color: var(--text); max-width: 720px; margin-left: auto; margin-right: auto; }
+.section-title em { font-style: normal; color: var(--green); }
+.section-sub { font-size: 1.05rem; color: var(--text-muted); text-align: center; max-width: 560px; margin: 0 auto 4rem; line-height: 1.6; font-weight: 400; }
+
+/* COMO FUNCIONA */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; }
+.step-card { text-align: center; padding: 0 1rem; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: var(--green-light); color: var(--green-dark); border: 2px solid var(--green-border); border-radius: 50%; font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+.step-card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem; letter-spacing: -0.01em; color: var(--text); }
+.step-card-desc { font-size: 1rem; color: var(--text-muted); line-height: 1.6; font-weight: 400; }
+
+/* BENEFÍCIOS */
+.benefits-section { background: white; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.benefit-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem 1.75rem; transition: all 0.2s; }
+.benefit-card:hover { border-color: var(--green-mid); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(29,158,117,0.08); }
+.benefit-icon { font-size: 2rem; margin-bottom: 1.25rem; display: block; line-height: 1; }
+.benefit-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); letter-spacing: -0.01em; }
+.benefit-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; font-weight: 400; }
+
+/* DEPOIMENTOS */
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.testimonial-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; display: flex; flex-direction: column; }
+.testimonial-stars { color: #F5B544; margin-bottom: 1rem; font-size: 1rem; letter-spacing: 2px; }
+.testimonial-quote { font-size: 1rem; color: var(--text); line-height: 1.7; margin-bottom: 1.5rem; font-weight: 400; flex: 1; }
+.testimonial-author { display: flex; align-items: center; gap: 0.75rem; }
+.testimonial-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
+.testimonial-name { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+.testimonial-role { font-size: 0.8rem; color: var(--text-muted); }
+
+/* CTA FINAL */
+.cta-final { background: var(--green-dark); padding: 6rem 1.5rem; text-align: center; color: white; position: relative; overflow: hidden; }
+.cta-final::before { content: ''; position: absolute; width: 800px; height: 800px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%); top: -250px; right: -300px; pointer-events: none; }
+.cta-final::after { content: ''; position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(93,202,165,0.12) 0%, transparent 70%); bottom: -250px; left: -200px; pointer-events: none; }
+.cta-final-inner { position: relative; z-index: 1; }
+.cta-final-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; max-width: 700px; margin: 0 auto 1.25rem; color: white; }
+.cta-final-sub { font-size: 1.1rem; opacity: 0.85; max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.6; font-weight: 400; }
+.cta-final-btn { display: inline-flex; align-items: center; gap: 8px; background: white; color: var(--green-dark); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.05rem; font-weight: 600; padding: 16px 36px; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.cta-final-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+/* FOOTER LANDING */
+.landing-footer { background: var(--card); padding: 3rem 1.5rem 2rem; border-top: 1px solid var(--border); }
+.landing-footer-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
+.landing-footer-copy { font-size: 0.85rem; color: var(--text-muted); }
+.landing-footer-tagline { font-size: 0.9rem; color: var(--text-muted); max-width: 400px; line-height: 1.5; }
+
+/* NAV — login button para deslogados */
+.nav-login-btn { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 9px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.15s; }
+.nav-login-btn:hover { background: var(--green-dark); }
+
+/* MOBILE — landing */
+@media (max-width: 768px) {
+  .section { padding: 4rem 1.25rem; }
+  .section-sub { margin-bottom: 3rem; }
+  .steps { grid-template-columns: 1fr; gap: 2.5rem; }
+  .benefits-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .testimonials-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .cta-final { padding: 4rem 1.25rem; }
+  .hero { padding: 4rem 1.25rem 3rem; }
+  .hero-features { gap: 1.25rem; margin-top: 2rem; }
+}
+@media (max-width: 1024px) and (min-width: 769px) {
+  .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* WIZARD */
 .wizard-nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); background: var(--card); flex-shrink: 0; }
@@ -202,7 +272,7 @@ body.auth-ready .app-loader { display: none; }
 <!-- AUTH -->
 <div id="page-auth" class="page">
   <nav>
-    <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <span class="nav-badge">✨ Beta</span>
   </nav>
   <div class="auth-page">
@@ -233,26 +303,155 @@ body.auth-ready .app-loader { display: none; }
 <!-- LANDING -->
 <div id="page-landing" class="page">
   <nav>
-    <a class="nav-logo" href="#"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
-      <span class="nav-badge">✨ Beta</span>
+      <button class="nav-login-btn" id="nav-login-btn" type="button" onclick="goTo('auth')">Entrar</button>
       <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
       <button class="logout-btn" type="button" onclick="logout()">Sair</button>
     </div>
   </nav>
-  <div class="hero">
+
+  <!-- HERO -->
+  <section class="hero">
     <div class="hero-tag">✈ Viaja+Aí · Powered by IA</div>
-    <h1>Seu roteiro, do<br/>seu <em>jeito.</em></h1>
-    <p>Diga onde quer ir. A IA cuida do resto — roteiro completo, hotéis, voos e links reais para reservar.</p>
-    <button class="hero-cta" onclick="goTo('wizard')">Viaja+Aí, vamos! →</button>
+    <h1>Seu roteiro completo<br/>em <em>minutos</em>.</h1>
+    <p>Diga onde quer ir. A IA cuida do resto.</p>
+    <button class="hero-cta" onclick="startJourney()">Começar agora →</button>
     <div class="hero-features">
-      <span class="hero-feat"><span class="hero-feat-dot"></span>Roteiro dia a dia</span>
+      <span class="hero-feat"><span class="hero-feat-dot"></span>Grátis pra começar</span>
       <span class="hero-feat"><span class="hero-feat-dot"></span>Links reais de reserva</span>
-      <span class="hero-feat"><span class="hero-feat-dot"></span>Multidestino</span>
-      <span class="hero-feat"><span class="hero-feat-dot"></span>IA que pesquisa por você</span>
+      <span class="hero-feat"><span class="hero-feat-dot"></span>Pronto em segundos</span>
     </div>
-  </div>
-  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Como funciona</div>
+      <h2 class="section-title">Três passos. <em>Sem complicação.</em></h2>
+      <p class="section-sub">Em menos tempo do que leva pra tomar um café, você tem uma viagem inteira planejada.</p>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3 class="step-card-title">Conte sobre você</h3>
+          <p class="step-card-desc">Responda perguntas rápidas sobre destino, datas, estilo de viagem e orçamento.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3 class="step-card-title">A IA monta seu roteiro</h3>
+          <p class="step-card-desc">Em segundos, a IA pesquisa voos, hotéis, passeios e dicas locais sob medida pra você.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3 class="step-card-title">Reserve com 1 clique</h3>
+          <p class="step-card-desc">Links reais pra Booking, Decolar e GetYourGuide. Sua viagem sai pronta pra reservar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFÍCIOS -->
+  <section class="section benefits-section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Tudo num lugar só</div>
+      <h2 class="section-title">Sua viagem inteira, <em>planejada</em>.</h2>
+      <p class="section-sub">Não precisa abrir 15 abas. O Viaja+Aí pensa em tudo por você.</p>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <span class="benefit-icon">✈️</span>
+          <h3 class="benefit-title">Voos</h3>
+          <p class="benefit-desc">Comparativo entre LATAM, Gol, Decolar e mais — com preços e links reais pra reservar.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">🏨</span>
+          <h3 class="benefit-title">Hotéis</h3>
+          <p class="benefit-desc">3 opções por destino: econômico, conforto e premium. Direto pro Booking.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">🗺️</span>
+          <h3 class="benefit-title">Passeios</h3>
+          <p class="benefit-desc">Roteiros dia a dia com passeios pelo GetYourGuide e dicas dos locais.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">💰</span>
+          <h3 class="benefit-title">Orçamento</h3>
+          <p class="benefit-desc">Custo estimado de toda a viagem antes de fechar — sem surpresa no cartão.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">💡</span>
+          <h3 class="benefit-title">Dicas locais</h3>
+          <p class="benefit-desc">Quando ir, o que evitar, gírias úteis. Os macetes que só quem mora sabe.</p>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-icon">🌍</span>
+          <h3 class="benefit-title">Multidestino</h3>
+          <p class="benefit-desc">Quer combinar Lisboa + Porto + Madrid? O Viaja+Aí monta a rota inteira.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Quem usa, aprova</div>
+      <h2 class="section-title">A diferença que <em>faz</em>.</h2>
+      <p class="section-sub">Viajantes de todo o Brasil já planejaram suas viagens com o Viaja+Aí.</p>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">"Planejei minha lua de mel em Portugal em 5 minutos. O roteiro veio com hotel, restaurante e até bairro pra ficar."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">LB</div>
+            <div>
+              <div class="testimonial-name">Larissa Barbosa</div>
+              <div class="testimonial-role">São Paulo, SP</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">"Fui com a família pra Orlando. A IA entendeu que tinha criança e ajustou o roteiro inteiro. Salvou minha viagem."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">RA</div>
+            <div>
+              <div class="testimonial-name">Ricardo Almeida</div>
+              <div class="testimonial-role">Belo Horizonte, MG</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-quote">"Mochilão de 3 países em 2 semanas com orçamento apertado. O Viaja+Aí montou tudo e ainda achou hostel bom."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">CM</div>
+            <div>
+              <div class="testimonial-name">Camila Mendes</div>
+              <div class="testimonial-role">Florianópolis, SC</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-final">
+    <div class="cta-final-inner">
+      <h2 class="cta-final-title">Sua próxima viagem<br/>começa agora.</h2>
+      <p class="cta-final-sub">Grátis pra começar. Sem cartão. Sem complicação.</p>
+      <button class="cta-final-btn" onclick="startJourney()">Começar agora →</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="landing-footer">
+    <div class="landing-footer-inner">
+      <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+      <div class="landing-footer-tagline">Seu roteiro, do seu jeito. Feito com IA e muito carinho pra quem ama viajar.</div>
+      <div class="landing-footer-copy">© 2026 Viaja+Aí · Todos os direitos reservados</div>
+    </div>
+  </footer>
 </div>
 
 <!-- WIZARD -->
@@ -356,15 +555,20 @@ const labelMap = {
 let supabaseClient = null;
 let currentUser = null;
 let authMode = 'login';
+let authInitError = ''; // guarda erro de config pra exibir só quando o usuário tentar entrar
 
 async function initAuth() {
+  // SEMPRE mostra a landing primeiro — independente do estado de auth.
+  // Sessão e config do Supabase carregam em segundo plano.
+  goTo('landing');
+  document.body.classList.add('auth-ready');
+
   try {
     const res = await fetch('/api/config');
     if(!res.ok) throw new Error('config HTTP ' + res.status);
     const cfg = await res.json();
     if(!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-      goTo('auth');
-      showAuthError('Autenticação não configurada no servidor. Defina SUPABASE_URL e SUPABASE_ANON_KEY no Vercel.');
+      authInitError = 'Autenticação não configurada no servidor. Defina SUPABASE_URL e SUPABASE_ANON_KEY no Vercel.';
       return;
     }
     supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
@@ -375,13 +579,9 @@ async function initAuth() {
     const { data } = await supabaseClient.auth.getSession();
     currentUser = data.session?.user || null;
     updateUserChip();
-    goTo(currentUser ? 'landing' : 'auth');
   } catch(e) {
     console.error('initAuth:', e);
-    goTo('auth');
-    showAuthError('Erro ao inicializar: ' + (e.message || 'desconhecido'));
-  } finally {
-    document.body.classList.add('auth-ready');
+    authInitError = 'Erro ao inicializar autenticação: ' + (e.message || 'desconhecido');
   }
 }
 
@@ -390,6 +590,13 @@ function updateUserChip() {
   document.querySelectorAll('.user-chip-email').forEach(el => { el.textContent = email; });
   document.querySelectorAll('.user-chip').forEach(el => { el.style.display = email ? 'inline-flex' : 'none'; });
   document.querySelectorAll('.logout-btn').forEach(el => { el.style.display = email ? 'inline-block' : 'none'; });
+  const loginBtn = document.getElementById('nav-login-btn');
+  if(loginBtn) loginBtn.style.display = email ? 'none' : 'inline-block';
+}
+
+// Decide para onde levar quando o usuário clica em "Começar agora"
+function startJourney() {
+  goTo(currentUser ? 'wizard' : 'auth');
 }
 
 function switchAuthTab(mode) {
@@ -424,14 +631,14 @@ async function submitAuth() {
       if(error) throw error;
       currentUser = data.user;
       updateUserChip();
-      goTo('landing');
+      goTo('wizard');
     } else {
       const { data, error } = await supabaseClient.auth.signUp({ email, password });
       if(error) throw error;
       if(data.session) {
         currentUser = data.user;
         updateUserChip();
-        goTo('landing');
+        goTo('wizard');
       } else {
         showAuthSuccess('Conta criada! Enviamos um link de confirmação para ' + email + '. Confirme e depois faça login.');
         document.getElementById('auth-password').value = '';
@@ -475,13 +682,13 @@ async function logout() {
   destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {};
   chatHistory = [];
   updateUserChip();
-  goTo('auth');
+  goTo('landing');
 }
 
 // ══ NAVEGAÇÃO ══
 function goTo(page) {
-  // Gate de autenticação: tudo bloqueado, exceto a própria tela de auth
-  if(page !== 'auth' && !currentUser) page = 'auth';
+  // Gate: landing e auth são públicas. Wizard e chat exigem login.
+  if((page === 'wizard' || page === 'chat') && !currentUser) page = 'auth';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('page-' + page);
   if(el) el.classList.add('active');
@@ -493,6 +700,7 @@ function goTo(page) {
     render();
   }
   if(page === 'auth') {
+    if(authInitError) showAuthError(authInitError);
     const emailEl = document.getElementById('auth-email');
     if(emailEl && !emailEl.value) setTimeout(() => emailEl.focus(), 80);
   }
