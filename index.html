@@ -1214,11 +1214,86 @@ function buildSystem() {
     });
     return (partes.length?partes.join(' | '):'qualquer região')+livreNote;
   })();
-  return `Concierge de viagens Viaja+Aí. Responda em português brasileiro com emojis por seção. Seja animado e use o tom de voz "Viaja+Aí" — descontraído, brasileiro e direto.
+
+  // ── Datas ISO (YYYY-MM-DD) para deep links ──
+  const isoDate = (ts) => {
+    if(!ts) return '';
+    const d = new Date(ts);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  };
+  const ida = isoDate(calState.start);
+  const volta = isoDate(calState.end);
+
+  // ── Composição de viajantes (adultos/crianças/idades) ──
+  let adultos = 1, criancas = 0, idades = [];
+  if(answers.viajantes === 'casal') adultos = 2;
+  else if(answers.viajantes === 'familia') {
+    adultos = 2;
+    criancas = parseInt(answers.num_criancas) || 0;
+    idades = (answers.idades_criancas || []).map(i => parseInt(i) || 0);
+  } else if(answers.viajantes === 'amigos') {
+    const n = parseInt(answers.num_pessoas) || 2;
+    if(answers.grupo_tem_criancas === 'sim') {
+      idades = (answers.idades_criancas_grupo || []).map(i => parseInt(i) || 0);
+      criancas = idades.length;
+      adultos = Math.max(1, n - criancas);
+    } else {
+      adultos = n;
+    }
+  }
+  const idadesStr = idades.join(',');
+  const totalPax = adultos + criancas;
+
+  // ── Origem e destino URL-encoded (espaços viram "+") ──
+  const urlEnc = (s) => encodeURIComponent((s||'').trim()).replace(/%20/g, '+');
+  const origemRaw = (answers.cidade_saida || '').trim();
+  const destinoRaw = (destinos.filter(Boolean)[0] || '').trim();
+  const origem = urlEnc(origemRaw);
+  const destino = urlEnc(destinoRaw);
+
+  return `Concierge de viagens Viaja+Aí. Responda em português brasileiro com emojis por seção. Tom descontraído, brasileiro, direto.
 
 VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${labelMap.viajantes[answers.viajantes]||'?'} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}
 
-Monte roteiro com: ✈️ Voos (companhias, preço, links Decolar/LATAM/Gol) | 🏨 Hotéis 3 categorias (nome, nota, preço/noite, link Booking) | 📅 Roteiro dia a dia | 💰 Orçamento total | 💡 Dicas${extras.includes('carro')?' | 🚗 Carro (Localiza/Movida)':''}${extras.includes('passeios')?' | 🗺️ Passeios (GetYourGuide)':''}${extras.includes('restaurantes')?' | 🍽️ Restaurantes':''}${extras.includes('seguro')?' | 🛡️ Seguro (Assist Card)':''}${extras.includes('esim')?' | 📶 eSIM (Airalo)':''}${extras.includes('transfer')?' | 🚌 Transfer':''}`;
+DADOS PRÉ-CALCULADOS PARA DEEP LINKS:
+- Origem: "${origemRaw||'?'}" · Destino principal: "${destinoRaw||'?'}"
+- Check-in/Ida: ${ida||'?'} · Check-out/Volta: ${volta||'?'}
+- Adultos: ${adultos} · Crianças: ${criancas}${idades.length?' (idades: '+idadesStr+')':''} · Total pax: ${totalPax}
+
+TEMPLATES DE DEEP LINKS — copie EXATAMENTE estes formatos. As datas, números de viajantes, origem e destino já estão pré-preenchidos. Você só substitui {HOTEL}, {ATIVIDADE} e os códigos IATA. NUNCA use links genéricos da home (booking.com, latam.com, etc) — SEMPRE com parâmetros:
+
+🏨 HOTÉIS
+• Booking: https://www.booking.com/searchresults.html?ss={HOTEL}+${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}${idades.length?'&age='+idadesStr:''}&no_rooms=1
+• Hotels.com: https://www.hotels.com/Hotel-Search?destination={HOTEL}+${destino}&startDate=${ida}&endDate=${volta}&adults=${adultos}&children=${criancas}
+• Decolar hotéis: https://www.decolar.com/hoteis/?destination=${destino}&checkin=${ida}&checkout=${volta}&adults=${adultos}&children=${criancas}
+
+✈️ VOOS (use IATA — GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago)
+• Google Flights: https://www.google.com/travel/flights?q=Voos+de+${origem}+para+${destino}+ida+${ida}+volta+${volta}+${totalPax}+passageiros
+• LATAM: https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${ida}&inbound=${volta}&adt=${adultos}&chd=${criancas}&inf=0&trip=RT&cabin=Economy
+• GOL: https://www.voegol.com.br/Booking/Flights/Search?o1={ORIGEM_IATA}&d1={DESTINO_IATA}&dd1=${ida}&dd2=${volta}&ADT=${adultos}&CHD=${criancas}&r=true
+• Azul: https://www.voeazul.com.br/br/pt/home/selecao-voo?ORIGIN={ORIGEM_IATA}&DESTINATION={DESTINO_IATA}&OUTBOUND=${ida}&INBOUND=${volta}&ADULTS=${adultos}&CHILDREN=${criancas}
+• Decolar voos: https://www.decolar.com/passagens-aereas/?from={ORIGEM_IATA}&to={DESTINO_IATA}&dep_date=${ida}&ret_date=${volta}&adults=${adultos}&children=${criancas}
+
+🗺️ PASSEIOS
+• GetYourGuide: https://www.getyourguide.com/s/?q={ATIVIDADE}+${destino}&date_from=${ida}&date_to=${volta}
+• Civitatis: https://www.civitatis.com/pt/search/?q={ATIVIDADE}+${destino}&date=${ida}
+• Viator: https://www.viator.com/searchResults/all?text={ATIVIDADE}+${destino}&start_date=${ida}&end_date=${volta}
+
+🚗 ALUGUEL DE CARRO
+• Localiza: https://www.localiza.com/brasil/pt-br/aluguel-de-carros/resultado?retirada=${destino}&dataRetirada=${ida}&horaRetirada=10:00&devolucao=${destino}&dataDevolucao=${volta}&horaDevolucao=10:00
+• Movida: https://www.movida.com.br/resultado?retirada-local=${destino}&retirada-data=${ida}&devolucao-data=${volta}
+• Hertz: https://www.hertz.com/rentacar/reservation/?pickuploc=${destino}&dropoffloc=${destino}&pickupdate=${ida}&dropoffdate=${volta}&pickuptime=1000&dropofftime=1000
+
+REGRAS DE LINKS:
+1. SEMPRE deep link com parâmetros — JAMAIS link genérico da home.
+2. Markdown: [Reservar no Booking](URL completa).
+3. Substitua {HOTEL} pelo nome do hotel com "+" no lugar dos espaços. Ex: "Hilton+Copacabana".
+4. Substitua {ATIVIDADE} pelo nome da atividade com "+". Ex: "Tour+Cristo+Redentor".
+5. Para cada hotel/passeio específico recomendado, gere um link próprio com {HOTEL} ou {ATIVIDADE} preenchido.
+6. Se houver múltiplos destinos, repita as seções de hotéis/passeios para cada um.
+7. Em caso de dúvida sobre IATA, use o Google Flights (aceita nome completo).
+
+SEÇÕES DO ROTEIRO: ✈️ Voos (2-3 opções com link de cada) | 🏨 Hotéis 3 categorias (econômico/conforto/premium, cada um com link Booking específico) | 📅 Roteiro dia a dia | 💰 Orçamento total estimado | 💡 Dicas locais${extras.includes('carro')?' | 🚗 Carro (Localiza/Movida/Hertz)':''}${extras.includes('passeios')?' | 🗺️ Passeios (GetYourGuide/Civitatis/Viator)':''}${extras.includes('restaurantes')?' | 🍽️ Restaurantes':''}${extras.includes('seguro')?' | 🛡️ Seguro (Assist Card)':''}${extras.includes('esim')?' | 📶 eSIM (Airalo)':''}${extras.includes('transfer')?' | 🚌 Transfer':''}`;
 }
 
 async function startChat() {
