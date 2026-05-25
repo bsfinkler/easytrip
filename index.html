@@ -6,6 +6,7 @@
 <title>Viaja+Aí — Seu roteiro, do seu jeito</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
@@ -142,6 +143,42 @@ textarea.text-field { resize: vertical; min-height: 90px; line-height: 1.6; }
 
 footer { text-align: center; padding: 1.25rem; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--card); flex-shrink: 0; }
 
+/* AUTH */
+.auth-page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2.5rem 1.5rem; background: linear-gradient(160deg, #E1F5EE 0%, #fafaf8 55%); position: relative; overflow: hidden; }
+.auth-page::before { content: ''; position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(29,158,117,0.07) 0%, transparent 70%); top: -120px; right: -120px; pointer-events: none; }
+.auth-card { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem 1.75rem; width: 100%; max-width: 420px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); z-index: 1; }
+.auth-tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--bg); border-radius: var(--radius-sm); padding: 4px; }
+.auth-tab { flex: 1; padding: 9px 8px; font-size: 13px; font-weight: 500; border: none; background: none; border-radius: 6px; cursor: pointer; color: var(--text-muted); font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.15s; }
+.auth-tab.active { background: var(--card); color: var(--green); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.auth-title { font-weight: 600; font-size: 1.3rem; margin-bottom: 0.35rem; color: var(--text); }
+.auth-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; font-weight: 300; line-height: 1.5; }
+.auth-field { margin-bottom: 12px; }
+.auth-label { font-size: 11px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+.auth-submit { width: 100%; padding: 12px; font-size: 14px; font-weight: 500; border: none; border-radius: var(--radius-sm); background: var(--green); color: white; cursor: pointer; transition: background 0.15s; margin-top: 8px; font-family: 'Plus Jakarta Sans', sans-serif; }
+.auth-submit:hover:not(:disabled) { background: var(--green-dark); }
+.auth-submit:disabled { background: var(--green-mid); cursor: wait; opacity: 0.75; }
+.auth-msg { font-size: 13px; padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 14px; line-height: 1.5; }
+.auth-msg.error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FCA5A5; }
+.auth-msg.success { background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green-border); }
+
+/* LOADER inicial */
+.app-loader { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #E1F5EE 0%, #fafaf8 55%); z-index: 9999; }
+body.auth-ready .app-loader { display: none; }
+.app-loader-dot { display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; margin: 0 3px; animation: bounce 1.2s infinite; }
+.app-loader-dot:nth-child(2) { animation-delay: 0.2s; }
+.app-loader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* MENU DE USUÁRIO no nav */
+.user-menu { display: flex; align-items: center; gap: 10px; }
+.user-chip { font-size: 12px; color: var(--text-muted); display: none; align-items: center; gap: 6px; max-width: 200px; }
+.user-chip-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.logout-btn { display: none; font-size: 12px; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; padding: 5px 11px; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.15s; }
+.logout-btn:hover { border-color: var(--green); color: var(--green); }
+@media (max-width: 520px) {
+  .user-chip { max-width: 110px; font-size: 11px; }
+}
+
 @media (max-width: 520px) {
   nav, .wizard-nav { padding: 1rem; }
   .hero { padding: 3rem 1.25rem 2rem; }
@@ -154,11 +191,54 @@ footer { text-align: center; padding: 1.25rem; font-size: 12px; color: var(--tex
 </head>
 <body>
 
+<!-- LOADER inicial (some quando auth está pronta) -->
+<div class="app-loader" id="app-loader">
+  <div style="text-align:center">
+    <div style="font-size:38px;margin-bottom:14px">✈</div>
+    <div><span class="app-loader-dot"></span><span class="app-loader-dot"></span><span class="app-loader-dot"></span></div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="page-auth" class="page">
+  <nav>
+    <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <span class="nav-badge">✨ Beta</span>
+  </nav>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="auth-tab-login" type="button" onclick="switchAuthTab('login')">Entrar</button>
+        <button class="auth-tab" id="auth-tab-signup" type="button" onclick="switchAuthTab('signup')">Criar conta</button>
+      </div>
+      <div class="auth-title" id="auth-title">Bem-vindo de volta</div>
+      <div class="auth-sub" id="auth-sub">Entre para criar e salvar seus roteiros.</div>
+      <form id="auth-form" onsubmit="event.preventDefault(); submitAuth();">
+        <div class="auth-field">
+          <label class="auth-label" for="auth-email">E-mail</label>
+          <input class="text-field" type="email" id="auth-email" required placeholder="voce@email.com" autocomplete="email" />
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="auth-password">Senha</label>
+          <input class="text-field" type="password" id="auth-password" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="current-password" />
+        </div>
+        <button class="auth-submit" id="auth-submit" type="submit">Entrar</button>
+      </form>
+      <div id="auth-msg"></div>
+    </div>
+  </div>
+  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+</div>
+
 <!-- LANDING -->
-<div id="page-landing" class="page active">
+<div id="page-landing" class="page">
   <nav>
     <a class="nav-logo" href="#"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
-    <span class="nav-badge">✨ Beta</span>
+    <div class="user-menu">
+      <span class="nav-badge">✨ Beta</span>
+      <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
+      <button class="logout-btn" type="button" onclick="logout()">Sair</button>
+    </div>
   </nav>
   <div class="hero">
     <div class="hero-tag">✈ Viaja+Aí · Powered by IA</div>
@@ -194,7 +274,11 @@ footer { text-align: center; padding: 1.25rem; font-size: 12px; color: var(--tex
 <div id="page-chat" class="page">
   <nav>
     <a class="nav-logo" href="#" onclick="goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
-    <span class="nav-badge">✨ Beta</span>
+    <div class="user-menu">
+      <span class="nav-badge">✨ Beta</span>
+      <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
+      <button class="logout-btn" type="button" onclick="logout()">Sair</button>
+    </div>
   </nav>
   <div class="chat-layout">
     <div class="chat-header-box">
@@ -268,16 +352,149 @@ const labelMap = {
   orcamento: {mochileiro:'Mochileiro',economico:'Econômico',moderado:'Moderado',confortavel:'Confortável',luxo:'Luxo',ultraluxo:'Ultra Luxo'},
 };
 
+// ══ AUTENTICAÇÃO (SUPABASE) ══
+let supabaseClient = null;
+let currentUser = null;
+let authMode = 'login';
+
+async function initAuth() {
+  try {
+    const res = await fetch('/api/config');
+    if(!res.ok) throw new Error('config HTTP ' + res.status);
+    const cfg = await res.json();
+    if(!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+      goTo('auth');
+      showAuthError('Autenticação não configurada no servidor. Defina SUPABASE_URL e SUPABASE_ANON_KEY no Vercel.');
+      return;
+    }
+    supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      currentUser = session?.user || null;
+      updateUserChip();
+    });
+    const { data } = await supabaseClient.auth.getSession();
+    currentUser = data.session?.user || null;
+    updateUserChip();
+    goTo(currentUser ? 'landing' : 'auth');
+  } catch(e) {
+    console.error('initAuth:', e);
+    goTo('auth');
+    showAuthError('Erro ao inicializar: ' + (e.message || 'desconhecido'));
+  } finally {
+    document.body.classList.add('auth-ready');
+  }
+}
+
+function updateUserChip() {
+  const email = currentUser?.email || '';
+  document.querySelectorAll('.user-chip-email').forEach(el => { el.textContent = email; });
+  document.querySelectorAll('.user-chip').forEach(el => { el.style.display = email ? 'inline-flex' : 'none'; });
+  document.querySelectorAll('.logout-btn').forEach(el => { el.style.display = email ? 'inline-block' : 'none'; });
+}
+
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
+  document.getElementById('auth-tab-signup').classList.toggle('active', mode === 'signup');
+  document.getElementById('auth-title').textContent = mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta';
+  document.getElementById('auth-sub').textContent = mode === 'login'
+    ? 'Entre para criar e salvar seus roteiros.'
+    : 'É grátis. Comece a planejar suas viagens em segundos.';
+  document.getElementById('auth-submit').textContent = mode === 'login' ? 'Entrar' : 'Criar conta';
+  document.getElementById('auth-password').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
+  document.getElementById('auth-msg').innerHTML = '';
+}
+
+async function submitAuth() {
+  if(!supabaseClient) {
+    showAuthError('Sistema de autenticação não está pronto. Recarregue a página.');
+    return;
+  }
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  if(!email || !password) return;
+  const btn = document.getElementById('auth-submit');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Entrando...' : 'Criando conta...';
+  document.getElementById('auth-msg').innerHTML = '';
+  try {
+    if(authMode === 'login') {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if(error) throw error;
+      currentUser = data.user;
+      updateUserChip();
+      goTo('landing');
+    } else {
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      if(error) throw error;
+      if(data.session) {
+        currentUser = data.user;
+        updateUserChip();
+        goTo('landing');
+      } else {
+        showAuthSuccess('Conta criada! Enviamos um link de confirmação para ' + email + '. Confirme e depois faça login.');
+        document.getElementById('auth-password').value = '';
+        switchAuthTab('login');
+      }
+    }
+  } catch(e) {
+    showAuthError(translateAuthError(e.message || 'Erro desconhecido'));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+function translateAuthError(msg) {
+  const m = (msg || '').toLowerCase();
+  if(m.includes('invalid login') || m.includes('invalid credentials')) return 'E-mail ou senha incorretos.';
+  if(m.includes('email not confirmed')) return 'Confirme seu e-mail antes de entrar. Veja sua caixa de entrada.';
+  if(m.includes('already registered') || m.includes('already exists') || m.includes('user already')) return 'Já existe uma conta com esse e-mail. Tente entrar.';
+  if(m.includes('password should be at least') || m.includes('weak password')) return 'A senha precisa ter no mínimo 6 caracteres.';
+  if(m.includes('rate limit') || m.includes('too many')) return 'Muitas tentativas. Aguarde um momento e tente novamente.';
+  if(m.includes('invalid email') || m.includes('email address')) return 'E-mail inválido.';
+  if(m.includes('user not found')) return 'Conta não encontrada. Tente criar uma conta.';
+  return msg;
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-msg');
+  if(el) el.innerHTML = '<div class="auth-msg error">⚠️ ' + msg + '</div>';
+}
+function showAuthSuccess(msg) {
+  const el = document.getElementById('auth-msg');
+  if(el) el.innerHTML = '<div class="auth-msg success">✅ ' + msg + '</div>';
+}
+
+async function logout() {
+  if(!supabaseClient) return;
+  try { await supabaseClient.auth.signOut(); } catch(e) { console.error('logout:', e); }
+  currentUser = null;
+  answers = {}; estiloSelected = new Set(); multiSelected = new Set();
+  destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {};
+  chatHistory = [];
+  updateUserChip();
+  goTo('auth');
+}
+
 // ══ NAVEGAÇÃO ══
 function goTo(page) {
+  // Gate de autenticação: tudo bloqueado, exceto a própria tela de auth
+  if(page !== 'auth' && !currentUser) page = 'auth';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+  const el = document.getElementById('page-' + page);
+  if(el) el.classList.add('active');
   window.scrollTo(0,0);
   if(page === 'wizard') {
     answers = {}; estiloSelected = new Set(); multiSelected = new Set();
     destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {}; answers.bairro_livre = '';
     calState = { start:null, end:null, month:new Date().getMonth(), year:new Date().getFullYear() };
     render();
+  }
+  if(page === 'auth') {
+    const emailEl = document.getElementById('auth-email');
+    if(emailEl && !emailEl.value) setTimeout(() => emailEl.focus(), 80);
   }
 }
 
@@ -980,7 +1197,7 @@ async function sendMsg() {
 
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
 
-render();
+initAuth();
 </script>
 </body>
 </html>
