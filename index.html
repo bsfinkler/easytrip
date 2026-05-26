@@ -249,6 +249,10 @@ textarea.text-field { resize: vertical; min-height: 90px; line-height: 1.6; }
 .hotel-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: white; padding: 7px 14px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); margin-top: 10px; transition: background 0.15s; }
 .hotel-btn:hover { background: var(--green-dark); }
 
+/* SEÇÃO ACOMODAÇÕES ALTERNATIVAS */
+.alt-section { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; padding-top: 18px; border-top: 1px dashed var(--border); }
+.alt-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 4px; }
+
 /* DIA CARD */
 .dia-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
 .dia-head { display: flex; align-items: center; gap: 12px; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border); }
@@ -1460,6 +1464,7 @@ function buildContext() {
     bookingTemplate: `https://www.booking.com/searchresults.pt-br.html?ss={NOME_DO_HOTEL}+${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
     hotelsCom:       `https://www.hotels.com/search.do?q-destination=${destino}&q-check-in=${ida}&q-check-out=${volta}&q-rooms=1&q-room-0-adults=${adultos}&q-room-0-children=${criancas}`,
     decolarHoteis:   `https://www.decolar.com/hospedagem/${destinoSlug}/${ida}/${volta}/${adultos}/${criancas}`,
+    airbnb:          `https://www.airbnb.com.br/s/${destino}/homes?checkin=${ida}&checkout=${volta}&adults=${adultos}&children=${criancas}`,
     // CARROS
     localiza:    `https://www.localiza.com/brasil/pt-br/aluguel-de-carros?retiradaLocal=${destino}&dataRetirada=${ida}&dataDevolucao=${volta}`,
     movida:      `https://www.movida.com.br/aluguel-de-carros?local=${destino}&dataInicio=${ida}&dataFim=${volta}`,
@@ -1539,6 +1544,9 @@ ${c.links.bookingTemplate}
 
 • Hotels.com (alternativa): ${c.links.hotelsCom}
 • Decolar hotéis (alternativa): ${c.links.decolarHoteis}
+• Airbnb (apartamentos/casas — ideal família e grupos): ${c.links.airbnb}
+
+OBS: o card do Airbnb é renderizado AUTOMATICAMENTE pelo frontend abaixo dos 3 hotéis (você NÃO precisa incluir Airbnb no JSON). Apenas retorne os 3 hotéis Booking conforme o formato.
 
 Formato EXATO:
 {
@@ -1564,7 +1572,8 @@ REGRAS:
 1. EXATAMENTE 3 hotéis (estilo: "Econômico", "Intermediário", "Premium" — nessa ordem).
 2. Cada hotel usa o template "POR HOTEL ESPECÍFICO" com {NOME_DO_HOTEL} substituído pelo nome real (espaços viram "+").
 3. Campo "destaques" com 2 itens curtos.
-4. APENAS o JSON acima.`;
+4. NÃO inclua Airbnb no JSON — o card do Airbnb é adicionado automaticamente pelo frontend.${c.viajantesLabel.match(/Fam|amigos/i) ? ' Quando o usuário perguntar sobre hospedagem no chat, recomende o Airbnb como alternativa ideal para este perfil (família/grupo).' : ''}
+5. APENAS o JSON acima.`;
   }
 
   if (section === 'roteiro') {
@@ -1686,6 +1695,7 @@ Quando precisar dar links use deep links com parâmetros já pré-montados (use 
 - Hotéis por nome (Booking, troque {NOME_DO_HOTEL} pelo nome real com '+' nos espaços): ${c.links.bookingTemplate}
 - Hotels.com: ${c.links.hotelsCom}
 - Decolar hotéis: ${c.links.decolarHoteis}
+- Airbnb (apartamentos/casas — recomende para famílias e grupos): ${c.links.airbnb}
 - Aluguel de carro Localiza: ${c.links.localiza}
 - Aluguel de carro Movida: ${c.links.movida}
 - Aluguel de carro Kayak: ${c.links.kayakCarros}
@@ -1954,9 +1964,29 @@ function renderVoos(voos) {
   ).join('');
 }
 
+function renderAirbnbCard() {
+  const c = buildContext();
+  return '<div class="alt-section">'
+    + '<div class="alt-section-title">🏠 Acomodações alternativas</div>'
+    + '<div class="hotel-card">'
+      + '<div class="hotel-emoji">🏠</div>'
+      + '<div class="hotel-body">'
+        + '<div class="hotel-nome">Airbnb — Apartamentos, casas e quartos</div>'
+        + (c.destinoRaw ? '<div class="hotel-bairro">📍 ' + esc(c.destinoRaw) + '</div>' : '')
+        + '<div class="hotel-rating">'
+          + '<span class="hotel-cat">' + c.totalPax + ' pessoas · ' + c.noitesNum + ' noites</span>'
+        + '</div>'
+        + '<div class="hotel-destaque">Apartamentos, casas e quartos — ideal para famílias e grupos.</div>'
+        + '<a class="hotel-btn" href="' + esc(c.links.airbnb) + '" target="_blank" rel="noopener">Buscar no Airbnb →</a>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+
 function renderHoteis(hoteis) {
+  const airbnb = renderAirbnbCard();
   if(!Array.isArray(hoteis) || !hoteis.length) {
-    document.getElementById('tab-hoteis').innerHTML = '<div class="empty-state">Nenhum hotel sugerido.</div>';
+    document.getElementById('tab-hoteis').innerHTML = '<div class="empty-state">Nenhum hotel sugerido.</div>' + airbnb;
     return;
   }
   document.getElementById('tab-hoteis').innerHTML = hoteis.map(h => {
@@ -1982,7 +2012,7 @@ function renderHoteis(hoteis) {
         + (h.link ? '<a class="hotel-btn" href="' + esc(h.link) + '" target="_blank" rel="noopener">Reservar no Booking →</a>' : '')
       + '</div>'
       + '</div>';
-  }).join('');
+  }).join('') + airbnb;
 }
 
 function renderRoteiroDias(roteiro) {
