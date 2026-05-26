@@ -1448,7 +1448,7 @@ ESTRUTURA OBRIGATÓRIA — responda EXATAMENTE com este formato:
   "orcamento": {
     "itens": [
       { "categoria": "Voos", "valor": "R$ 4.500", "detalhe": "ida e volta · ${c.totalPax} passageiros" },
-      { "categoria": "Hospedagem", "valor": "R$ 4.060", "detalhe": "${c.noitesNum} noites · categoria Conforto" },
+      { "categoria": "Hospedagem", "valor": "R$ 4.060", "detalhe": "${c.noitesNum} noites · Intermediário" },
       { "categoria": "Alimentação", "valor": "R$ 1.400", "detalhe": "~R$ 100/dia/pessoa" },
       { "categoria": "Transporte", "valor": "R$ 400", "detalhe": "metrô + transfers" },
       { "categoria": "Passeios", "valor": "R$ 1.200", "detalhe": "atrações principais" }
@@ -1465,15 +1465,15 @@ ESTRUTURA OBRIGATÓRIA — responda EXATAMENTE com este formato:
   ]
 }
 
-REGRAS:
+REGRAS (seja COMPACTO — o JSON precisa caber em 8000 tokens; textos curtos e diretos):
 1. APENAS o JSON — sem texto antes/depois, sem \`\`\`json, sem explicações.
-2. Voos: 2-3 opções, sempre incluindo Google Flights + LATAM.
-3. Hotéis: EXATAMENTE 3 (estilo "Econômico", "Conforto", "Premium" — nessa ordem). Cada um com link Booking específico.
-4. Roteiro: ${dias} dias começando em ${c.ida||'?'}, com manha/tarde/noite preenchidos em cada dia.
-5. Orçamento: 5 categorias (Voos, Hospedagem, Alimentação, Transporte, Passeios). Total fechado.
-6. Dicas: 5 cards adaptados ao destino (Documentos, Câmbio, Clima, Internet, Seguro).
+2. Voos: MÁXIMO 4 opções (sempre incluindo Google Flights + LATAM). Strings curtas.
+3. Hotéis: MÁXIMO 3 (um por categoria: "Econômico", "Intermediário", "Premium" — nessa ordem). Link Booking específico por hotel. Campo "destaques" com 2 itens curtos.
+4. Roteiro: ${dias} dias começando em ${c.ida||'?'}. Em CADA período (manhã/tarde/noite), MÁXIMO 3 atividades, frases curtas. Não escreva parágrafos longos — listas ou frases enxutas.
+5. Orçamento: 5 categorias (Voos, Hospedagem, Alimentação, Transporte, Passeios) — APENAS o valor total por categoria e o detalhe em UMA linha curta. Sem subitens.
+6. Dicas: MÁXIMO 5 cards (Documentos, Câmbio, Clima, Internet, Seguro). Cada texto em 1-2 frases.
 7. Preços em BRL "R$ X.XXX".
-8. Strings em pt-BR, tom descontraído e claro.${c.extras.includes('carro')?'\n9. Inclua menção a aluguel de carro (Decolar) no roteiro ou dicas.':''}${c.extras.includes('passeios')?'\n10. Inclua passeios com link GetYourGuide/Civitatis no roteiro dia a dia.':''}`;
+8. Strings em pt-BR, tom descontraído mas SEMPRE compacto.${c.extras.includes('carro')?'\n9. Aluguel de carro (Decolar): cite em UMA das dicas, sem expandir muito.':''}${c.extras.includes('passeios')?'\n10. Passeios (GetYourGuide/Civitatis): inclua o link no roteiro do dia, sem texto extra.':''}`;
 }
 
 // Prompt para chat de ajuste (após o roteiro já gerado)
@@ -1511,8 +1511,62 @@ async function startChat() {
   await generateRoteiro();
 }
 
+// ── Parse tolerante a JSON truncado ──
+// Fecha strings/brackets pendentes e descarta key-value parcial no final.
+function repairTruncatedJSON(text) {
+  const stack = [];
+  let inString = false, escape = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (escape) { escape = false; continue; }
+    if (inString) {
+      if (c === '\\') escape = true;
+      else if (c === '"') inString = false;
+      continue;
+    }
+    if (c === '"') { inString = true; continue; }
+    if (c === '{' || c === '[') stack.push(c);
+    else if (c === '}' || c === ']') stack.pop();
+  }
+  let r = text;
+  if (inString) r += '"';
+  while (stack.length) {
+    // Remove trailing vírgulas/colons/whitespace pendentes
+    r = r.replace(/[\s,:]+$/, '');
+    const top = stack.pop();
+    if (top === '{') {
+      // Descarta key dangling (string precedida por `,` ou `{`, sem `:` depois)
+      r = r.replace(/([,{]\s*)"[^"\\]*"\s*$/, '$1');
+      r = r.replace(/[\s,]+$/, '');
+      r += '}';
+    } else {
+      r += ']';
+    }
+  }
+  return r;
+}
+
+function tryParseJSON(text) {
+  if (!text || typeof text !== 'string') return null;
+  text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+  const first = text.indexOf('{');
+  if (first < 0) return null;
+  text = text.slice(first);
+  // 1) Parse direto (truncando até o último } se houver)
+  const last = text.lastIndexOf('}');
+  if (last > 0) {
+    try { return JSON.parse(text.slice(0, last + 1)); } catch {}
+  }
+  // 2) Repara truncamento e tenta parse
+  try {
+    const repaired = repairTruncatedJSON(text);
+    return JSON.parse(repaired);
+  } catch {}
+  return null;
+}
+
 // ── Geração inicial do roteiro (JSON) ──
-async function generateRoteiro() {
+async function generateRoteiro(isRetry) {
   roteiroData = null;
   document.getElementById('gen-loader').style.display = 'block';
   document.getElementById('roteiro-container').style.display = 'none';
@@ -1520,9 +1574,10 @@ async function generateRoteiro() {
   document.getElementById('chat-section-divider').style.display = 'none';
   document.getElementById('chat-input-box').style.display = 'none';
   document.getElementById('chat-messages').innerHTML = '';
-  document.getElementById('chat-status').textContent = 'Montando seu roteiro...';
+  document.getElementById('chat-status').textContent = isRetry ? 'Tentando novamente...' : 'Montando seu roteiro...';
 
   let rawText = '';
+  let errorMsg = null;
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -1534,22 +1589,31 @@ async function generateRoteiro() {
     });
     if(!res.ok) {
       const errText = await res.text();
-      let errMsg = errText;
-      try { errMsg = JSON.parse(errText).error || errText; } catch {}
-      throw new Error(errMsg);
+      let m = errText;
+      try { m = JSON.parse(errText).error || errText; } catch {}
+      throw new Error(m);
     }
     rawText = (await readStream(res)).trim();
-    let text = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-    const first = text.indexOf('{');
-    const last = text.lastIndexOf('}');
-    if(first >= 0 && last > first) text = text.slice(first, last+1);
-    const data = JSON.parse(text);
-    roteiroData = data;
-    renderRoteiro(data);
+    const data = tryParseJSON(rawText);
+    if (data && typeof data === 'object') {
+      // Sucesso parcial OU completo — renderiza o que conseguiu parsear.
+      // Renderers já tratam seções vazias/ausentes com empty state.
+      roteiroData = data;
+      renderRoteiro(data);
+      return;
+    }
+    errorMsg = 'JSON inválido ou irrecuperável (provável truncamento)';
   } catch(e) {
     console.error('generateRoteiro:', e);
-    renderGenError(e.message || 'Erro desconhecido', rawText);
+    errorMsg = e.message || 'Erro desconhecido';
   }
+
+  // Auto-retry uma vez quando o parse total falha
+  if (!isRetry) {
+    console.log('Parse falhou — tentando regenerar automaticamente uma vez...');
+    return generateRoteiro(true);
+  }
+  renderGenError(errorMsg, rawText);
 }
 
 function renderGenError(msg, raw) {
