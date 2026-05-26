@@ -1362,8 +1362,16 @@ function buildContext() {
     const d = new Date(ts);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   };
+  const MONTHS_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const datePtLong = (ts) => {
+    if(!ts) return '';
+    const d = new Date(ts);
+    return d.getDate()+' de '+MONTHS_PT[d.getMonth()]+' de '+d.getFullYear();
+  };
   const ida = isoDate(calState.start);
   const volta = isoDate(calState.end);
+  const idaPt = datePtLong(calState.start);
+  const voltaPt = datePtLong(calState.end);
 
   let adultos = 1, criancas = 0, idades = [];
   if(answers.viajantes === 'casal') adultos = 2;
@@ -1390,13 +1398,16 @@ function buildContext() {
     .trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   const origemRaw = (answers.cidade_saida || '').trim();
   const destinoRaw = (destinos.filter(Boolean)[0] || '').trim();
+  const origem = urlEnc(origemRaw);
   const destino = urlEnc(destinoRaw);
   const destinoSlug = slug(destinoRaw);
+  const idaPtEnc = urlEnc(idaPt);
+  const voltaPtEnc = urlEnc(voltaPt);
   const viajantesLabel = labelMap.viajantes[answers.viajantes]||'?';
 
   const contextLine = `VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${viajantesLabel} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}`;
 
-  return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, destino, destinoSlug, extras, contextLine };
+  return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, idaPt, voltaPt, idaPtEnc, voltaPtEnc, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, origem, destino, destinoSlug, extras, contextLine };
 }
 
 // Prompt focado por seção (1 chamada por aba, ~1500 tokens cada)
@@ -1411,25 +1422,31 @@ ${c.contextLine}`;
     return `${baseHeader}
 
 Origem: "${c.origemRaw||'?'}" · Destino: "${c.destinoRaw||'?'}"
-Ida: ${c.ida||'?'} · Volta: ${c.volta||'?'} · Adultos: ${c.adultos} · Crianças: ${c.criancas} · Total: ${c.totalPax}
+Ida: ${c.idaPt||c.ida||'?'} · Volta: ${c.voltaPt||c.volta||'?'} · Adultos: ${c.adultos} · Crianças: ${c.criancas} · Total: ${c.totalPax}
 
-Templates de link (use IATA dos aeroportos):
-• Google Flights: https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=Voos+de+{ORIGEM_IATA}+para+{DESTINO_IATA}+ida+${c.ida}+volta+${c.volta}+${c.totalPax}+passageiros
-• LATAM: https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${c.ida}&inbound=${c.volta}&adt=${c.adultos}&chd=${c.criancas}&inf=0&trip=RT&cabin=Economy
+LINKS PRÉ-MONTADOS — use EXATAMENTE estas URLs (já têm origem, destino e datas em português pré-preenchidas):
 
-IATA comuns: GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago.
+• Google Flights (PRINCIPAL — cobre LATAM/GOL/Azul/Decolar e mais): https://www.google.com/travel/flights?q=voos+de+${c.origem}+para+${c.destino}+ida+${c.idaPtEnc}+volta+${c.voltaPtEnc}&hl=pt-BR&curr=BRL
+
+• LATAM (SECUNDÁRIO — deep link nativo com IATA): https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${c.ida}&inbound=${c.volta}&adt=${c.adultos}&chd=${c.criancas}&inf=0&trip=RT&cabin=Economy
+
+IATA comuns (só para LATAM): GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago, BRC=Bariloche.
 
 Formato EXATO:
 {
   "voos": [
-    { "companhia": "Google Flights", "rota": "GRU → MAD", "duracao": "10h 30m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.google.com/travel/flights?..." }
+    { "companhia": "Google Flights (todas companhias)", "rota": "São Paulo → Bariloche", "duracao": "5h 20m", "escalas": "1 escala", "preco": "R$ 3.800", "link": "https://www.google.com/travel/flights?q=voos+de+..." },
+    { "companhia": "LATAM", "rota": "GRU → BRC", "duracao": "5h 10m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.latamairlines.com/..." }
   ]
 }
 
 REGRAS:
-1. MÁXIMO 4 opções. Sempre Google Flights + LATAM; outras companhias (GOL/Azul/Decolar) mencionar via Google Flights.
-2. Cada link com IATA + datas pré-preenchidas.
-3. Strings curtas. APENAS o JSON acima.`;
+1. MÁXIMO 4 opções. SEMPRE o link do Google Flights como primeiro item (cobre todas companhias).
+2. O link do Google Flights JÁ ESTÁ PRONTO acima — use exatamente como está, sem placeholders. NÃO troque por IATA, NÃO simplifique.
+3. LATAM como segunda opção, com IATA real substituído nos placeholders.
+4. Para GOL/Azul/Decolar (terceira/quarta opção): use o MESMO link do Google Flights e apenas mude o nome da companhia (a busca do Google mostra todas).
+5. NUNCA gere link genérico ou da home. NUNCA use IATA no link do Google Flights — só nomes de cidade já incluídos.
+6. APENAS o JSON acima.`;
   }
 
   if (section === 'hoteis') {
@@ -1564,8 +1581,8 @@ ${c.contextLine}
 ROTEIRO ATUAL (resumo):
 ${resumo}
 
-Quando precisar dar links use deep links com parâmetros:
-- Voos: https://www.google.com/travel/flights?hl=pt-BR&q=Voos+de+{ORIGEM}+para+{DESTINO}+ida+${c.ida}+volta+${c.volta}
+Quando precisar dar links use deep links com parâmetros (links já pré-montados, use exatamente):
+- Voos (Google Flights): https://www.google.com/travel/flights?q=voos+de+${c.origem}+para+${c.destino}+ida+${c.idaPtEnc}+volta+${c.voltaPtEnc}&hl=pt-BR&curr=BRL
 - Hotéis: https://www.booking.com/searchresults.html?ss={NOME}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}&no_rooms=1
 - Passeios: https://www.getyourguide.com.br/${c.destinoSlug}-l0/?date_from=${c.ida}
 
