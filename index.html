@@ -292,6 +292,13 @@ textarea.text-field { resize: vertical; min-height: 90px; line-height: 1.6; }
 .gen-loader-dots { display: flex; gap: 6px; justify-content: center; }
 .gen-loader-dots .dot { width: 8px; height: 8px; }
 
+/* LOADER por aba */
+.tab-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); gap: 14px; min-height: 180px; }
+.tab-loading-dots { display: flex; gap: 6px; }
+.tab-loading-dots .dot { width: 8px; height: 8px; }
+.tab-loading-text { font-size: 13px; color: var(--text-muted); }
+.tab-btn-loading { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green-mid); margin-left: 4px; vertical-align: middle; animation: bounce 1.2s infinite; }
+
 /* CHAT SECTION (perguntas de ajuste após gerado) */
 .chat-section-divider { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; padding: 12px 14px 6px; background: var(--card); border-left: 1px solid var(--border); border-right: 1px solid var(--border); border-top: 1px solid var(--border); flex-shrink: 0; }
 .chat-section { background: var(--card); border-left: 1px solid var(--border); border-right: 1px solid var(--border); max-height: 200px; overflow-y: auto; flex-shrink: 0; padding: 6px 14px; }
@@ -1323,8 +1330,11 @@ function back() {
 
 // ══ CHAT ══
 let chatHistory = [];
-let roteiroData = null;
+let roteiroData = {};
 let currentTab = 'voos';
+const SECTIONS = ['voos','hoteis','roteiro','orcamento','dicas'];
+let tabState = {}; // por seção: 'idle' | 'loading' | 'loaded' | 'error'
+const SECTION_LABEL = { voos: 'voos', hoteis: 'hotéis', roteiro: 'roteiro', orcamento: 'orçamento', dicas: 'dicas' };
 
 // Helpers de contexto — usados pelos dois prompts (JSON inicial + chat de ajuste)
 function buildContext() {
@@ -1389,75 +1399,138 @@ function buildContext() {
   return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, destino, destinoSlug, extras, contextLine };
 }
 
-// Prompt para gerar o roteiro inicial em JSON
-function buildSystemJSON() {
+// Prompt focado por seção (1 chamada por aba, ~1500 tokens cada)
+function buildSystemSection(section) {
   const c = buildContext();
-  const dias = c.noitesNum > 0 ? c.noitesNum + 1 : 5; // fallback
-  return `Concierge Viaja+Aí. Retorne EXCLUSIVAMENTE um JSON válido (sem markdown, sem \`\`\`json, sem texto antes ou depois).
+  const dias = c.noitesNum > 0 ? c.noitesNum + 1 : 5;
+  const baseHeader = `Concierge Viaja+Aí. Retorne APENAS JSON válido — sem markdown, sem \`\`\`json, sem texto antes/depois.
 
-${c.contextLine}
+${c.contextLine}`;
 
-DADOS PRÉ-CALCULADOS:
-- Origem: "${c.origemRaw||'?'}" · Destino principal: "${c.destinoRaw||'?'}" (slug: ${c.destinoSlug||'?'})
-- Check-in/Ida: ${c.ida||'?'} · Check-out/Volta: ${c.volta||'?'} (${c.noitesNum} noites, ${dias} dias)
-- Adultos: ${c.adultos} · Crianças: ${c.criancas}${c.idades.length?' (idades: '+c.idadesStr+')':''} · Total pax: ${c.totalPax}
+  if (section === 'voos') {
+    return `${baseHeader}
 
-TEMPLATES DE DEEP LINK (use exatamente, substituindo só {ORIGEM_IATA}, {DESTINO_IATA} e {NOME_DO_HOTEL} com "+" no lugar de espaços):
+Origem: "${c.origemRaw||'?'}" · Destino: "${c.destinoRaw||'?'}"
+Ida: ${c.ida||'?'} · Volta: ${c.volta||'?'} · Adultos: ${c.adultos} · Crianças: ${c.criancas} · Total: ${c.totalPax}
+
+Templates de link (use IATA dos aeroportos):
 • Google Flights: https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=Voos+de+{ORIGEM_IATA}+para+{DESTINO_IATA}+ida+${c.ida}+volta+${c.volta}+${c.totalPax}+passageiros
 • LATAM: https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${c.ida}&inbound=${c.volta}&adt=${c.adultos}&chd=${c.criancas}&inf=0&trip=RT&cabin=Economy
-• Booking (1 link por hotel): https://www.booking.com/searchresults.html?ss={NOME_DO_HOTEL}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}${c.idades.length?'&age='+c.idadesStr:''}&no_rooms=1
-• Decolar carros: https://www.decolar.com/aluguel-de-carros/${c.destinoSlug}
-• GetYourGuide: https://www.getyourguide.com.br/${c.destinoSlug}-l0/?date_from=${c.ida}
-• Civitatis: https://www.civitatis.com/br/${c.destinoSlug}/
 
 IATA comuns: GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago.
 
-ESTRUTURA OBRIGATÓRIA — responda EXATAMENTE com este formato:
-
+Formato EXATO:
 {
   "voos": [
-    { "companhia": "Google Flights", "rota": "GRU → MAD", "duracao": "10h 30m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.google.com/travel/flights?..." },
-    { "companhia": "LATAM", "rota": "...", "duracao": "...", "escalas": "...", "preco": "R$ ...", "link": "https://www.latamairlines.com/..." }
-  ],
+    { "companhia": "Google Flights", "rota": "GRU → MAD", "duracao": "10h 30m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.google.com/travel/flights?..." }
+  ]
+}
+
+REGRAS:
+1. MÁXIMO 4 opções. Sempre Google Flights + LATAM; outras companhias (GOL/Azul/Decolar) mencionar via Google Flights.
+2. Cada link com IATA + datas pré-preenchidas.
+3. Strings curtas. APENAS o JSON acima.`;
+  }
+
+  if (section === 'hoteis') {
+    return `${baseHeader}
+
+Destino: "${c.destinoRaw||'?'}" · Check-in: ${c.ida||'?'} · Check-out: ${c.volta||'?'} (${c.noitesNum} noites)
+Adultos: ${c.adultos} · Crianças: ${c.criancas}${c.idades.length?' (idades: '+c.idadesStr+')':''}
+
+Template Booking (1 link por hotel — troque {NOME_DO_HOTEL} pelo nome real com "+" no lugar de espaços):
+https://www.booking.com/searchresults.html?ss={NOME_DO_HOTEL}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}${c.idades.length?'&age='+c.idadesStr:''}&no_rooms=1
+
+Formato EXATO:
+{
   "hoteis": [
     {
       "emoji": "🏨",
-      "nome": "Nome real do hotel",
+      "nome": "Nome real",
       "categoria": "3★",
       "estilo": "Econômico",
-      "nota": 8.4,
-      "avaliacoes": 1234,
+      "nota": 8.2,
+      "avaliacoes": 1500,
       "bairro": "Nome do bairro",
-      "destaques": ["Café da manhã incluso", "Localização central"],
+      "destaques": ["Café incluso", "Localização central"],
       "preco_noite": "R$ 280",
       "noites": ${c.noitesNum},
       "preco_total": "R$ ${c.noitesNum*280}",
       "link": "https://www.booking.com/searchresults.html?ss=..."
     }
-  ],
+  ]
+}
+
+REGRAS:
+1. EXATAMENTE 3 hotéis (estilo: "Econômico", "Intermediário", "Premium" — nessa ordem).
+2. Link Booking real e específico por hotel.
+3. Campo "destaques" com 2 itens curtos.
+4. APENAS o JSON acima.`;
+  }
+
+  if (section === 'roteiro') {
+    return `${baseHeader}
+
+Destino: "${c.destinoRaw||'?'}" · Início: ${c.ida||'?'} · Fim: ${c.volta||'?'} (${dias} dias)
+${c.extras.includes('passeios')?'Template GetYourGuide: https://www.getyourguide.com.br/'+c.destinoSlug+'-l0/?date_from='+c.ida:''}
+
+Formato EXATO:
+{
   "roteiro": [
     {
       "dia": 1,
       "data": "DD/MM/AAAA",
-      "titulo": "Título do dia",
-      "manha": "O que fazer de manhã. Pode usar **negrito** e [link](url) em markdown leve.",
-      "tarde": "O que fazer à tarde.",
-      "noite": "O que fazer à noite."
+      "titulo": "Título curto do dia",
+      "manha": "Atividade 1. Atividade 2.",
+      "tarde": "Atividade 1. Atividade 2.",
+      "noite": "Atividade 1. Atividade 2."
     }
-  ],
+  ]
+}
+
+REGRAS:
+1. ${dias} dias começando em ${c.ida||'?'}.
+2. Cada período (manhã/tarde/noite): MÁXIMO 3 atividades, frases curtas. Sem parágrafos.
+3. Pode usar markdown leve: **negrito** e [texto](url).
+4. APENAS o JSON acima.`;
+  }
+
+  if (section === 'orcamento') {
+    return `${baseHeader}
+
+Destino: "${c.destinoRaw||'?'}" · ${c.noitesNum} noites · ${c.totalPax} passageiros · Perfil: ${c.orcLabel}
+
+Formato EXATO:
+{
   "orcamento": {
     "itens": [
-      { "categoria": "Voos", "valor": "R$ 4.500", "detalhe": "ida e volta · ${c.totalPax} passageiros" },
-      { "categoria": "Hospedagem", "valor": "R$ 4.060", "detalhe": "${c.noitesNum} noites · Intermediário" },
+      { "categoria": "Voos", "valor": "R$ 4.500", "detalhe": "ida e volta · ${c.totalPax} pax" },
+      { "categoria": "Hospedagem", "valor": "R$ 4.060", "detalhe": "${c.noitesNum} noites" },
       { "categoria": "Alimentação", "valor": "R$ 1.400", "detalhe": "~R$ 100/dia/pessoa" },
       { "categoria": "Transporte", "valor": "R$ 400", "detalhe": "metrô + transfers" },
       { "categoria": "Passeios", "valor": "R$ 1.200", "detalhe": "atrações principais" }
     ],
     "total": "R$ 11.560",
-    "observacao": "Valores estimados em BRL, podem variar conforme época e disponibilidade."
-  },
+    "observacao": "Valores estimados em BRL."
+  }
+}
+
+REGRAS:
+1. EXATAMENTE 5 categorias (Voos, Hospedagem, Alimentação, Transporte, Passeios) — nessa ordem.
+2. Detalhe em UMA frase curta por categoria.
+3. Total deve fechar com a soma dos itens.
+4. APENAS o JSON acima.`;
+  }
+
+  if (section === 'dicas') {
+    return `${baseHeader}
+
+Destino: "${c.destinoRaw||'?'}" · ${c.noitesNum} noites · Viajantes: ${c.viajantesLabel}
+
+Formato EXATO:
+{
   "dicas": [
-    { "icone": "📄", "titulo": "Documentos", "texto": "..." },
+    { "icone": "📄", "titulo": "Documentos", "texto": "1-2 frases curtas." },
     { "icone": "💱", "titulo": "Câmbio", "texto": "..." },
     { "icone": "🌤️", "titulo": "Clima", "texto": "..." },
     { "icone": "📶", "titulo": "Internet", "texto": "..." },
@@ -1465,15 +1538,13 @@ ESTRUTURA OBRIGATÓRIA — responda EXATAMENTE com este formato:
   ]
 }
 
-REGRAS (seja COMPACTO — o JSON precisa caber em 8000 tokens; textos curtos e diretos):
-1. APENAS o JSON — sem texto antes/depois, sem \`\`\`json, sem explicações.
-2. Voos: MÁXIMO 4 opções (sempre incluindo Google Flights + LATAM). Strings curtas.
-3. Hotéis: MÁXIMO 3 (um por categoria: "Econômico", "Intermediário", "Premium" — nessa ordem). Link Booking específico por hotel. Campo "destaques" com 2 itens curtos.
-4. Roteiro: ${dias} dias começando em ${c.ida||'?'}. Em CADA período (manhã/tarde/noite), MÁXIMO 3 atividades, frases curtas. Não escreva parágrafos longos — listas ou frases enxutas.
-5. Orçamento: 5 categorias (Voos, Hospedagem, Alimentação, Transporte, Passeios) — APENAS o valor total por categoria e o detalhe em UMA linha curta. Sem subitens.
-6. Dicas: MÁXIMO 5 cards (Documentos, Câmbio, Clima, Internet, Seguro). Cada texto em 1-2 frases.
-7. Preços em BRL "R$ X.XXX".
-8. Strings em pt-BR, tom descontraído mas SEMPRE compacto.${c.extras.includes('carro')?'\n9. Aluguel de carro (Decolar): cite em UMA das dicas, sem expandir muito.':''}${c.extras.includes('passeios')?'\n10. Passeios (GetYourGuide/Civitatis): inclua o link no roteiro do dia, sem texto extra.':''}`;
+REGRAS:
+1. EXATAMENTE 5 cards (Documentos, Câmbio, Clima, Internet, Seguro).
+2. Texto em 1-2 frases, adaptado ao destino.
+3. APENAS o JSON acima.${c.extras.includes('carro')?'\n4. Pode citar aluguel de carro (Decolar) em uma das dicas.':''}`;
+  }
+
+  return baseHeader;
 }
 
 // Prompt para chat de ajuste (após o roteiro já gerado)
@@ -1505,7 +1576,9 @@ async function startChat() {
   const extra = document.getElementById('info-extra');
   if(extra) answers.extra = extra.value;
   chatHistory = [];
-  roteiroData = null;
+  roteiroData = {};
+  tabState = {};
+  SECTIONS.forEach(s => { tabState[s] = 'idle'; });
   currentTab = 'voos';
   goTo('chat');
   await generateRoteiro();
@@ -1565,16 +1638,34 @@ function tryParseJSON(text) {
   return null;
 }
 
-// ── Geração inicial do roteiro (JSON) ──
-async function generateRoteiro(isRetry) {
-  roteiroData = null;
-  document.getElementById('gen-loader').style.display = 'block';
-  document.getElementById('roteiro-container').style.display = 'none';
-  document.getElementById('chat-section').style.display = 'none';
-  document.getElementById('chat-section-divider').style.display = 'none';
-  document.getElementById('chat-input-box').style.display = 'none';
+// ── Geração inicial: mostra tabs imediatamente, dispara 5 chamadas independentes ──
+async function generateRoteiro() {
+  // Mostra UI das abas com loaders, esconde gen-loader global
+  document.getElementById('gen-loader').style.display = 'none';
+  document.getElementById('roteiro-container').style.display = 'flex';
+  document.querySelector('#page-chat .tabs-bar').style.display = 'flex';
+  document.getElementById('chat-section').style.display = 'block';
+  document.getElementById('chat-section-divider').style.display = 'block';
+  document.getElementById('chat-input-box').style.display = 'flex';
   document.getElementById('chat-messages').innerHTML = '';
-  document.getElementById('chat-status').textContent = isRetry ? 'Tentando novamente...' : 'Montando seu roteiro...';
+
+  // Põe todas as abas em loading
+  SECTIONS.forEach(s => { tabState[s] = 'loading'; renderTabLoading(s); });
+  switchTab(currentTab || 'voos');
+  updateChatStatus();
+
+  // Voos primeiro (await), depois as outras 4 em paralelo
+  await loadSection('voos');
+  loadSection('hoteis');
+  loadSection('roteiro');
+  loadSection('orcamento');
+  loadSection('dicas');
+}
+
+async function loadSection(section, isRetry) {
+  tabState[section] = 'loading';
+  renderTabLoading(section);
+  updateChatStatus();
 
   let rawText = '';
   let errorMsg = null;
@@ -1583,71 +1674,103 @@ async function generateRoteiro(isRetry) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: buildSystemJSON(),
-        messages: [{ role: 'user', content: 'Gere meu roteiro completo. Responda APENAS com o JSON estruturado conforme as instruções do sistema.' }]
+        system: buildSystemSection(section),
+        messages: [{ role: 'user', content: 'Retorne APENAS o JSON da seção solicitada conforme o formato no system prompt.' }]
       })
     });
     if(!res.ok) {
       const errText = await res.text();
       let m = errText;
       try { m = JSON.parse(errText).error || errText; } catch {}
-      throw new Error(m);
+      const err = new Error(m); err.status = res.status; throw err;
     }
     rawText = (await readStream(res)).trim();
     const data = tryParseJSON(rawText);
     if (data && typeof data === 'object') {
-      // Sucesso parcial OU completo — renderiza o que conseguiu parsear.
-      // Renderers já tratam seções vazias/ausentes com empty state.
-      roteiroData = data;
-      renderRoteiro(data);
+      // Resposta pode vir wrappeada ({voos:[...]}) ou direta ([...]/{...})
+      const value = (data[section] !== undefined) ? data[section] : data;
+      roteiroData[section] = value;
+      tabState[section] = 'loaded';
+      renderTab(section);
+      updateChatStatus();
       return;
     }
-    errorMsg = 'JSON inválido ou irrecuperável (provável truncamento)';
+    errorMsg = 'JSON inválido na resposta';
   } catch(e) {
-    console.error('generateRoteiro:', e);
+    console.error('loadSection ' + section + ':', e);
     errorMsg = e.message || 'Erro desconhecido';
+    // Rate limit → espera 5s antes do retry
+    if (!isRetry && (e.status === 429 || /rate.?limit/i.test(errorMsg))) {
+      await new Promise(r => setTimeout(r, 5000));
+      return loadSection(section, true);
+    }
   }
 
-  // Auto-retry uma vez quando o parse total falha
+  // Auto-retry uma vez para qualquer falha (incluindo parse incompleto)
   if (!isRetry) {
-    console.log('Parse falhou — tentando regenerar automaticamente uma vez...');
-    return generateRoteiro(true);
+    console.log(section + ': retry automático em 1s');
+    await new Promise(r => setTimeout(r, 1000));
+    return loadSection(section, true);
   }
-  renderGenError(errorMsg, rawText);
+  tabState[section] = 'error';
+  renderTabError(section, errorMsg, rawText);
+  updateChatStatus();
 }
 
-function renderGenError(msg, raw) {
-  document.getElementById('gen-loader').style.display = 'none';
-  document.getElementById('roteiro-container').style.display = 'flex';
-  document.querySelector('#page-chat .tabs-bar').style.display = 'none';
-  document.getElementById('chat-status').textContent = 'Erro ao gerar';
-  document.querySelectorAll('#page-chat .tab-panel').forEach(p => p.classList.remove('active'));
-  const voosPanel = document.getElementById('tab-voos');
-  voosPanel.classList.add('active');
+function updateChatStatus() {
+  const loaded = SECTIONS.filter(s => tabState[s] === 'loaded').length;
+  const errored = SECTIONS.filter(s => tabState[s] === 'error').length;
+  const total = SECTIONS.length;
+  const status = document.getElementById('chat-status');
+  if (!status) return;
+  if (loaded === total) status.textContent = 'Roteiro pronto · pergunte algo abaixo';
+  else if (loaded + errored === total) status.textContent = 'Carregado (' + loaded + '/' + total + ' — ' + errored + ' falha' + (errored>1?'s':'') + ')';
+  else status.textContent = 'Carregando... (' + loaded + '/' + total + ')';
+  // Indicadores ao lado dos labels das abas
+  SECTIONS.forEach(s => {
+    const btn = document.querySelector('#page-chat .tab-btn[data-tab="' + s + '"]');
+    if (!btn) return;
+    const existing = btn.querySelector('.tab-btn-loading');
+    if (tabState[s] === 'loading') {
+      if (!existing) {
+        const dot = document.createElement('span');
+        dot.className = 'tab-btn-loading';
+        btn.appendChild(dot);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  });
+}
+
+function renderTabLoading(section) {
+  const el = document.getElementById('tab-' + section);
+  if (!el) return;
+  el.innerHTML = '<div class="tab-loading">'
+    + '<div class="tab-loading-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>'
+    + '<div class="tab-loading-text">Carregando ' + SECTION_LABEL[section] + '...</div>'
+    + '</div>';
+}
+
+function renderTabError(section, msg, raw) {
+  const el = document.getElementById('tab-' + section);
+  if (!el) return;
   let html = '<div class="gen-error">'
-    + '<strong>⚠️ Não foi possível gerar o roteiro</strong>'
-    + esc(String(msg).slice(0, 400))
-    + '<button class="gen-error-btn" type="button" onclick="generateRoteiro()">↺ Tentar novamente</button>';
-  if(raw && raw.length) html += '<div class="gen-error-raw">' + esc(raw.slice(0, 800)) + (raw.length > 800 ? '\n...' : '') + '</div>';
+    + '<strong>⚠️ Não foi possível carregar ' + SECTION_LABEL[section] + '</strong>'
+    + esc(String(msg || '').slice(0, 300))
+    + '<button class="gen-error-btn" type="button" onclick="loadSection(\'' + section + '\')">↺ Tentar novamente</button>';
+  if (raw && raw.length) html += '<div class="gen-error-raw">' + esc(raw.slice(0, 500)) + (raw.length > 500 ? '\n...' : '') + '</div>';
   html += '</div>';
-  voosPanel.innerHTML = html;
+  el.innerHTML = html;
 }
 
-function renderRoteiro(data) {
-  document.getElementById('gen-loader').style.display = 'none';
-  document.getElementById('roteiro-container').style.display = 'flex';
-  document.querySelector('#page-chat .tabs-bar').style.display = 'flex';
-  document.getElementById('chat-section').style.display = 'block';
-  document.getElementById('chat-section-divider').style.display = 'block';
-  document.getElementById('chat-input-box').style.display = 'flex';
-  document.getElementById('chat-status').textContent = 'Roteiro pronto · pergunte algo abaixo';
-
-  renderVoos(data.voos || []);
-  renderHoteis(data.hoteis || []);
-  renderRoteiroDias(data.roteiro || []);
-  renderOrcamento(data.orcamento || {});
-  renderDicas(data.dicas || []);
-  switchTab(currentTab || 'voos');
+function renderTab(section) {
+  const data = roteiroData[section];
+  if (section === 'voos') renderVoos(Array.isArray(data) ? data : []);
+  else if (section === 'hoteis') renderHoteis(Array.isArray(data) ? data : []);
+  else if (section === 'roteiro') renderRoteiroDias(Array.isArray(data) ? data : []);
+  else if (section === 'orcamento') renderOrcamento(data && typeof data === 'object' ? data : {});
+  else if (section === 'dicas') renderDicas(Array.isArray(data) ? data : []);
 }
 
 function switchTab(name) {
