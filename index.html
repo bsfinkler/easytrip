@@ -211,6 +211,99 @@ textarea.text-field { resize: vertical; min-height: 90px; line-height: 1.6; }
 .send-btn:hover { background: var(--green-dark); }
 .send-btn:disabled { background: var(--border); cursor: not-allowed; }
 
+/* ═══ ROTEIRO COM ABAS ═══ */
+.roteiro-container { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.tabs-bar { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-top: none; padding: 6px; overflow-x: auto; flex-shrink: 0; }
+.tab-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: none; background: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); white-space: nowrap; transition: all 0.15s; }
+.tab-btn:hover { background: var(--bg); color: var(--text); }
+.tab-btn.active { background: var(--green-light); color: var(--green-dark); font-weight: 600; }
+.tab-panels { flex: 1; background: #f5f5f3; border-left: 1px solid var(--border); border-right: 1px solid var(--border); overflow-y: auto; min-height: 0; padding: 1.25rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
+.empty-state { background: var(--card); border: 1px dashed var(--border); border-radius: var(--radius); padding: 2rem 1.5rem; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+/* VOO CARD */
+.voo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.voo-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.voo-cia { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.voo-preco { font-size: 17px; font-weight: 700; color: var(--green); }
+.voo-rota { font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.voo-meta { display: flex; gap: 6px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+.voo-meta-tag { background: var(--bg); border: 1px solid var(--border); padding: 3px 9px; border-radius: 12px; }
+.voo-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: white; padding: 8px 16px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); align-self: flex-start; transition: background 0.15s; }
+.voo-btn:hover { background: var(--green-dark); }
+
+/* HOTEL CARD */
+.hotel-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+.hotel-emoji { font-size: 2.2rem; background: var(--green-light); border-radius: var(--radius-sm); width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hotel-body { flex: 1; min-width: 0; }
+.hotel-nome { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.hotel-bairro { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.hotel-rating { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); margin: 8px 0 6px; flex-wrap: wrap; }
+.hotel-rating-num { background: var(--green); color: white; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+.hotel-cat { font-size: 11px; background: var(--green-light); color: var(--green-dark); border-radius: 12px; padding: 2px 9px; font-weight: 600; display: inline-block; }
+.hotel-destaque { font-size: 12px; color: var(--text-muted); margin: 6px 0 10px; line-height: 1.5; }
+.hotel-preco-box { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.hotel-preco { font-size: 18px; font-weight: 700; color: var(--green); }
+.hotel-preco-sub { font-size: 11px; color: var(--text-muted); }
+.hotel-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--green); color: white; padding: 7px 14px; font-size: 13px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); margin-top: 10px; transition: background 0.15s; }
+.hotel-btn:hover { background: var(--green-dark); }
+
+/* DIA CARD */
+.dia-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+.dia-head { display: flex; align-items: center; gap: 12px; margin-bottom: 0.85rem; padding-bottom: 0.85rem; border-bottom: 1px solid var(--border); }
+.dia-num { background: var(--green); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.dia-info { flex: 1; min-width: 0; }
+.dia-data { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.dia-titulo { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+.dia-periodo { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
+.dia-periodo:last-child { margin-bottom: 0; }
+.dia-periodo-icon { font-size: 18px; flex-shrink: 0; width: 32px; text-align: center; line-height: 1.4; }
+.dia-periodo-body { flex: 1; font-size: 13px; line-height: 1.65; color: var(--text); }
+.dia-periodo-label { font-size: 10px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+
+/* ORÇAMENTO */
+.orcamento-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 1.25rem; }
+.orc-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+.orc-row:last-of-type { border-bottom: none; }
+.orc-cat-wrap { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.orc-cat-icon { font-size: 20px; flex-shrink: 0; }
+.orc-cat-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.orc-cat-detalhe { font-size: 11px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.orc-valor { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; }
+.orc-total { display: flex; justify-content: space-between; padding: 14px 0; margin-top: 6px; border-top: 2px solid var(--green); }
+.orc-total-label { font-size: 14px; font-weight: 600; color: var(--text); }
+.orc-total-valor { font-size: 20px; font-weight: 700; color: var(--green); }
+.orc-obs { font-size: 11px; color: var(--text-muted); padding: 0 0 14px; font-style: italic; line-height: 1.5; }
+
+/* DICA CARD */
+.dica-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+.dica-icon { font-size: 1.5rem; background: var(--green-light); border-radius: var(--radius-sm); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dica-body { flex: 1; min-width: 0; }
+.dica-titulo { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.dica-texto { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+/* LOADER inicial do roteiro */
+.gen-loader { padding: 3rem 1.5rem 3.5rem; text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); flex-shrink: 0; }
+.gen-loader-icon { font-size: 2.5rem; margin-bottom: 0.75rem; animation: float 2.4s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.gen-loader-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text); }
+.gen-loader-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; }
+.gen-loader-dots { display: flex; gap: 6px; justify-content: center; }
+.gen-loader-dots .dot { width: 8px; height: 8px; }
+
+/* CHAT SECTION (perguntas de ajuste após gerado) */
+.chat-section-divider { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; padding: 12px 14px 6px; background: var(--card); border-left: 1px solid var(--border); border-right: 1px solid var(--border); border-top: 1px solid var(--border); flex-shrink: 0; }
+.chat-section { background: var(--card); border-left: 1px solid var(--border); border-right: 1px solid var(--border); max-height: 200px; overflow-y: auto; flex-shrink: 0; padding: 6px 14px; }
+.chat-section:empty + .chat-section-divider { display: none; }
+
+/* ERRO de geração */
+.gen-error { background: #FEF2F2; border: 1px solid #FCA5A5; color: #B91C1C; border-radius: var(--radius); padding: 1.1rem 1.25rem; font-size: 13px; line-height: 1.6; }
+.gen-error strong { display: block; margin-bottom: 0.4rem; font-size: 14px; }
+.gen-error-btn { margin-top: 12px; background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+.gen-error-btn:hover { background: var(--green-dark); }
+.gen-error-raw { margin-top: 10px; font-size: 11px; color: var(--text-muted); font-family: ui-monospace, Consolas, monospace; max-height: 120px; overflow: auto; background: #FFF7F7; border: 1px solid #FCA5A5; border-radius: var(--radius-sm); padding: 8px; white-space: pre-wrap; word-break: break-all; }
+
 footer { text-align: center; padding: 1.25rem; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--card); flex-shrink: 0; }
 
 /* AUTH */
@@ -484,14 +577,46 @@ body.auth-ready .app-loader { display: none; }
       <div class="chat-av">✈</div>
       <div>
         <div class="chat-info-name">Concierge Viaja+Aí</div>
-        <div class="chat-info-status">Online agora</div>
+        <div class="chat-info-status" id="chat-status">Montando seu roteiro...</div>
       </div>
       <button class="chat-new-btn" onclick="goTo('wizard')">✈ Nova viagem</button>
     </div>
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input-box">
+
+    <!-- LOADER inicial -->
+    <div id="gen-loader" class="gen-loader">
+      <div class="gen-loader-icon">✈</div>
+      <div class="gen-loader-title">Montando seu roteiro...</div>
+      <div class="gen-loader-sub">A IA está pesquisando voos, hotéis e atrações</div>
+      <div class="gen-loader-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+
+    <!-- ROTEIRO COM ABAS -->
+    <div id="roteiro-container" class="roteiro-container" style="display:none">
+      <div class="tabs-bar">
+        <button class="tab-btn active" data-tab="voos" type="button" onclick="switchTab('voos')">✈️ Voos</button>
+        <button class="tab-btn" data-tab="hoteis" type="button" onclick="switchTab('hoteis')">🏨 Hotéis</button>
+        <button class="tab-btn" data-tab="roteiro" type="button" onclick="switchTab('roteiro')">📅 Roteiro</button>
+        <button class="tab-btn" data-tab="orcamento" type="button" onclick="switchTab('orcamento')">💰 Orçamento</button>
+        <button class="tab-btn" data-tab="dicas" type="button" onclick="switchTab('dicas')">💡 Dicas</button>
+      </div>
+      <div class="tab-panels">
+        <div class="tab-panel active" id="tab-voos"></div>
+        <div class="tab-panel" id="tab-hoteis"></div>
+        <div class="tab-panel" id="tab-roteiro"></div>
+        <div class="tab-panel" id="tab-orcamento"></div>
+        <div class="tab-panel" id="tab-dicas"></div>
+      </div>
+    </div>
+
+    <!-- CHAT MESSAGES (perguntas de ajuste, aparece só após gerar) -->
+    <div class="chat-section-divider" id="chat-section-divider" style="display:none">💬 Perguntas e ajustes</div>
+    <div class="chat-section" id="chat-section" style="display:none">
+      <div id="chat-messages" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <div class="chat-input-box" id="chat-input-box" style="display:none">
       <textarea class="chat-input" id="chat-input" rows="1"
-        placeholder="Pergunte mais detalhes, ajuste o roteiro..."
+        placeholder="Pergunte ou peça um ajuste no roteiro..."
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
         oninput="autoResize(this)"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMsg()">➤</button>
@@ -1198,14 +1323,21 @@ function back() {
 
 // ══ CHAT ══
 let chatHistory = [];
+let roteiroData = null;
+let currentTab = 'voos';
 
-function buildSystem() {
+// Helpers de contexto — usados pelos dois prompts (JSON inicial + chat de ajuste)
+function buildContext() {
   const destLabel = destinos.filter(Boolean).join(' → ');
   const estilosLabel = [...estiloSelected].map(k=>labelMap.estilo[k]).join(', ')||'não informado';
   const orcLabel = labelMap.orcamento[answers.orcamento]||'não informado';
   const extras = [...multiSelected];
-  let datasLabel='não informado', noites='';
-  if(calState.start&&calState.end){const n=Math.round((calState.end-calState.start)/86400000);datasLabel=`${formatDate(calState.start)} a ${formatDate(calState.end)}`;noites=`${n} noite${n>1?'s':''}`;}
+  let datasLabel='não informado', noites='', noitesNum = 0;
+  if(calState.start&&calState.end){
+    noitesNum = Math.round((calState.end-calState.start)/86400000);
+    datasLabel = `${formatDate(calState.start)} a ${formatDate(calState.end)}`;
+    noites = `${noitesNum} noite${noitesNum>1?'s':''}`;
+  }
   const bairrosLabel = (()=>{
     const livreNote = answers.bairro_livre ? ' ('+answers.bairro_livre+')' : '';
     const partes = Object.entries(bairrosSelected).filter(([,sel])=>sel&&sel.size>0).map(([dest,sel])=>{
@@ -1215,7 +1347,6 @@ function buildSystem() {
     return (partes.length?partes.join(' | '):'qualquer região')+livreNote;
   })();
 
-  // ── Datas ISO (YYYY-MM-DD) para deep links ──
   const isoDate = (ts) => {
     if(!ts) return '';
     const d = new Date(ts);
@@ -1224,7 +1355,6 @@ function buildSystem() {
   const ida = isoDate(calState.start);
   const volta = isoDate(calState.end);
 
-  // ── Composição de viajantes (adultos/crianças/idades) ──
   let adultos = 1, criancas = 0, idades = [];
   if(answers.viajantes === 'casal') adultos = 2;
   else if(answers.viajantes === 'familia') {
@@ -1244,7 +1374,6 @@ function buildSystem() {
   const idadesStr = idades.join(',');
   const totalPax = adultos + criancas;
 
-  // ── Origem e destino: URL-encoded (espaços viram "+") e slugificado (path-based) ──
   const urlEnc = (s) => encodeURIComponent((s||'').trim()).replace(/%20/g, '+');
   const slug = (s) => (s||'').toString().toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -1253,54 +1382,355 @@ function buildSystem() {
   const destinoRaw = (destinos.filter(Boolean)[0] || '').trim();
   const destino = urlEnc(destinoRaw);
   const destinoSlug = slug(destinoRaw);
+  const viajantesLabel = labelMap.viajantes[answers.viajantes]||'?';
 
-  return `Concierge de viagens Viaja+Aí. Responda em português brasileiro com emojis por seção. Tom descontraído, brasileiro, direto.
+  const contextLine = `VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${viajantesLabel} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}`;
 
-VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${labelMap.viajantes[answers.viajantes]||'?'} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}
+  return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, destino, destinoSlug, extras, contextLine };
+}
 
-DADOS PRÉ-CALCULADOS PARA DEEP LINKS:
-- Origem: "${origemRaw||'?'}" · Destino principal: "${destinoRaw||'?'}" (slug: ${destinoSlug||'?'})
-- Check-in/Ida: ${ida||'?'} · Check-out/Volta: ${volta||'?'}
-- Adultos: ${adultos} · Crianças: ${criancas}${idades.length?' (idades: '+idadesStr+')':''} · Total pax: ${totalPax}
+// Prompt para gerar o roteiro inicial em JSON
+function buildSystemJSON() {
+  const c = buildContext();
+  const dias = c.noitesNum > 0 ? c.noitesNum + 1 : 5; // fallback
+  return `Concierge Viaja+Aí. Retorne EXCLUSIVAMENTE um JSON válido (sem markdown, sem \`\`\`json, sem texto antes ou depois).
 
-ESTRATÉGIA DE LINKS — use SOMENTE os formatos abaixo. Datas, viajantes, origem e destino já estão pré-preenchidos.
+${c.contextLine}
 
-✈️ VOOS — Google Flights é o principal (cobre todas companhias incluindo GOL e Azul)
-• PRINCIPAL — Google Flights: https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=Voos+de+{ORIGEM_IATA}+para+{DESTINO_IATA}+ida+${ida}+volta+${volta}+${totalPax}+passageiros
-• SECUNDÁRIO — LATAM (deep link nativo): https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${ida}&inbound=${volta}&adt=${adultos}&chd=${criancas}&inf=0&trip=RT&cabin=Economy
-• GOL e Azul: NÃO gere link direto — essas companhias não têm deep link público que aceite parâmetros. Mencione que "GOL e Azul aparecem como opção no Google Flights acima".
-• IATA mais comuns: GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago. Em dúvida, deixe o Google Flights resolver (aceita nome completo da cidade).
+DADOS PRÉ-CALCULADOS:
+- Origem: "${c.origemRaw||'?'}" · Destino principal: "${c.destinoRaw||'?'}" (slug: ${c.destinoSlug||'?'})
+- Check-in/Ida: ${c.ida||'?'} · Check-out/Volta: ${c.volta||'?'} (${c.noitesNum} noites, ${dias} dias)
+- Adultos: ${c.adultos} · Crianças: ${c.criancas}${c.idades.length?' (idades: '+c.idadesStr+')':''} · Total pax: ${c.totalPax}
 
-🏨 HOTÉIS — Booking.com (deep link com checkin/checkout/hóspedes)
-• Busca geral pelo destino: https://www.booking.com/searchresults.html?ss=${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}${idades.length?'&age='+idadesStr:''}&no_rooms=1
-• Para recomendar um hotel específico: troque ss=${destino} por ss={NOME_DO_HOTEL}+${destino} (espaços do nome do hotel viram "+"). Ex: ss=Hilton+Copacabana+${destino}
-• Gere um link Booking distinto para CADA hotel recomendado (econômico/conforto/premium).
+TEMPLATES DE DEEP LINK (use exatamente, substituindo só {ORIGEM_IATA}, {DESTINO_IATA} e {NOME_DO_HOTEL} com "+" no lugar de espaços):
+• Google Flights: https://www.google.com/travel/flights?hl=pt-BR&curr=BRL&q=Voos+de+{ORIGEM_IATA}+para+{DESTINO_IATA}+ida+${c.ida}+volta+${c.volta}+${c.totalPax}+passageiros
+• LATAM: https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${c.ida}&inbound=${c.volta}&adt=${c.adultos}&chd=${c.criancas}&inf=0&trip=RT&cabin=Economy
+• Booking (1 link por hotel): https://www.booking.com/searchresults.html?ss={NOME_DO_HOTEL}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}${c.idades.length?'&age='+c.idadesStr:''}&no_rooms=1
+• Decolar carros: https://www.decolar.com/aluguel-de-carros/${c.destinoSlug}
+• GetYourGuide: https://www.getyourguide.com.br/${c.destinoSlug}-l0/?date_from=${c.ida}
+• Civitatis: https://www.civitatis.com/br/${c.destinoSlug}/
 
-🚗 ALUGUEL DE CARRO — Decolar é o principal (path-based)
-• PRINCIPAL — Decolar: https://www.decolar.com/aluguel-de-carros/${destinoSlug}
-• SECUNDÁRIOS (sem deep link com data — só pra o usuário comparar diretamente): cite "Localiza (localiza.com.br) e Movida (movida.com.br)". NÃO gere URL com parâmetros para essas duas.
+IATA comuns: GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago.
 
-🗺️ PASSEIOS — GetYourGuide e Civitatis (path-based por cidade)
-• GetYourGuide: https://www.getyourguide.com.br/${destinoSlug}-l0/?date_from=${ida}
-  (Se você souber o ID de localização específico da cidade, ex: "rio-de-janeiro-l4", "paris-l16", use-o no lugar de "-l0". Caso contrário, deixe "-l0" que o site redireciona.)
-• Civitatis: https://www.civitatis.com/br/${destinoSlug}/
+ESTRUTURA OBRIGATÓRIA — responda EXATAMENTE com este formato:
 
-REGRAS DE LINKS:
-1. SEMPRE deep link com parâmetros — JAMAIS link genérico da home (booking.com, latam.com, etc).
-2. Markdown: [Texto do link](URL completa).
-3. Para Booking, gere um link próprio para cada hotel específico (não apenas a busca da cidade).
-4. Para Decolar carros e Civitatis/GetYourGuide, use o slug "${destinoSlug}" já calculado acima.
-5. Se houver múltiplos destinos, repita as seções de hotéis/passeios/carros para cada um (use slug e nome do destino correspondente).
+{
+  "voos": [
+    { "companhia": "Google Flights", "rota": "GRU → MAD", "duracao": "10h 30m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.google.com/travel/flights?..." },
+    { "companhia": "LATAM", "rota": "...", "duracao": "...", "escalas": "...", "preco": "R$ ...", "link": "https://www.latamairlines.com/..." }
+  ],
+  "hoteis": [
+    {
+      "emoji": "🏨",
+      "nome": "Nome real do hotel",
+      "categoria": "3★",
+      "estilo": "Econômico",
+      "nota": 8.4,
+      "avaliacoes": 1234,
+      "bairro": "Nome do bairro",
+      "destaques": ["Café da manhã incluso", "Localização central"],
+      "preco_noite": "R$ 280",
+      "noites": ${c.noitesNum},
+      "preco_total": "R$ ${c.noitesNum*280}",
+      "link": "https://www.booking.com/searchresults.html?ss=..."
+    }
+  ],
+  "roteiro": [
+    {
+      "dia": 1,
+      "data": "DD/MM/AAAA",
+      "titulo": "Título do dia",
+      "manha": "O que fazer de manhã. Pode usar **negrito** e [link](url) em markdown leve.",
+      "tarde": "O que fazer à tarde.",
+      "noite": "O que fazer à noite."
+    }
+  ],
+  "orcamento": {
+    "itens": [
+      { "categoria": "Voos", "valor": "R$ 4.500", "detalhe": "ida e volta · ${c.totalPax} passageiros" },
+      { "categoria": "Hospedagem", "valor": "R$ 4.060", "detalhe": "${c.noitesNum} noites · categoria Conforto" },
+      { "categoria": "Alimentação", "valor": "R$ 1.400", "detalhe": "~R$ 100/dia/pessoa" },
+      { "categoria": "Transporte", "valor": "R$ 400", "detalhe": "metrô + transfers" },
+      { "categoria": "Passeios", "valor": "R$ 1.200", "detalhe": "atrações principais" }
+    ],
+    "total": "R$ 11.560",
+    "observacao": "Valores estimados em BRL, podem variar conforme época e disponibilidade."
+  },
+  "dicas": [
+    { "icone": "📄", "titulo": "Documentos", "texto": "..." },
+    { "icone": "💱", "titulo": "Câmbio", "texto": "..." },
+    { "icone": "🌤️", "titulo": "Clima", "texto": "..." },
+    { "icone": "📶", "titulo": "Internet", "texto": "..." },
+    { "icone": "🛡️", "titulo": "Seguro", "texto": "..." }
+  ]
+}
 
-SEÇÕES DO ROTEIRO: ✈️ Voos (Google Flights + LATAM) | 🏨 Hotéis 3 categorias (econômico/conforto/premium, cada um com link Booking específico) | 📅 Roteiro dia a dia | 💰 Orçamento total estimado | 💡 Dicas locais${extras.includes('carro')?' | 🚗 Carro (Decolar — mencionar Localiza/Movida)':''}${extras.includes('passeios')?' | 🗺️ Passeios (GetYourGuide/Civitatis)':''}${extras.includes('restaurantes')?' | 🍽️ Restaurantes':''}${extras.includes('seguro')?' | 🛡️ Seguro (Assist Card)':''}${extras.includes('esim')?' | 📶 eSIM (Airalo)':''}${extras.includes('transfer')?' | 🚌 Transfer':''}`;
+REGRAS:
+1. APENAS o JSON — sem texto antes/depois, sem \`\`\`json, sem explicações.
+2. Voos: 2-3 opções, sempre incluindo Google Flights + LATAM.
+3. Hotéis: EXATAMENTE 3 (estilo "Econômico", "Conforto", "Premium" — nessa ordem). Cada um com link Booking específico.
+4. Roteiro: ${dias} dias começando em ${c.ida||'?'}, com manha/tarde/noite preenchidos em cada dia.
+5. Orçamento: 5 categorias (Voos, Hospedagem, Alimentação, Transporte, Passeios). Total fechado.
+6. Dicas: 5 cards adaptados ao destino (Documentos, Câmbio, Clima, Internet, Seguro).
+7. Preços em BRL "R$ X.XXX".
+8. Strings em pt-BR, tom descontraído e claro.${c.extras.includes('carro')?'\n9. Inclua menção a aluguel de carro (Decolar) no roteiro ou dicas.':''}${c.extras.includes('passeios')?'\n10. Inclua passeios com link GetYourGuide/Civitatis no roteiro dia a dia.':''}`;
+}
+
+// Prompt para chat de ajuste (após o roteiro já gerado)
+function buildSystemChat() {
+  const c = buildContext();
+  const resumo = roteiroData ? [
+    roteiroData.voos && roteiroData.voos.length ? 'Voos: '+roteiroData.voos.map(v=>v.companhia+' '+v.preco).join(' | ') : '',
+    roteiroData.hoteis && roteiroData.hoteis.length ? 'Hotéis: '+roteiroData.hoteis.map(h=>(h.estilo||'')+': '+h.nome+' '+h.preco_total).join(' | ') : '',
+    roteiroData.roteiro && roteiroData.roteiro.length ? 'Roteiro: '+roteiroData.roteiro.length+' dias' : '',
+    roteiroData.orcamento && roteiroData.orcamento.total ? 'Orçamento total: '+roteiroData.orcamento.total : ''
+  ].filter(Boolean).join('\n') : '(ainda não gerado)';
+
+  return `Concierge Viaja+Aí ajudando o usuário a esclarecer dúvidas ou ajustar o roteiro já gerado. Responda em português brasileiro com markdown leve e emojis. Tom descontraído, brasileiro, direto. Respostas curtas (1-3 parágrafos).
+
+${c.contextLine}
+
+ROTEIRO ATUAL (resumo):
+${resumo}
+
+Quando precisar dar links use deep links com parâmetros:
+- Voos: https://www.google.com/travel/flights?hl=pt-BR&q=Voos+de+{ORIGEM}+para+{DESTINO}+ida+${c.ida}+volta+${c.volta}
+- Hotéis: https://www.booking.com/searchresults.html?ss={NOME}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}&no_rooms=1
+- Passeios: https://www.getyourguide.com.br/${c.destinoSlug}-l0/?date_from=${c.ida}
+
+Se o usuário quiser uma alteração estrutural grande (trocar destino, refazer tudo), oriente a clicar em "✈ Nova viagem" para regenerar.`;
 }
 
 async function startChat() {
   const extra = document.getElementById('info-extra');
   if(extra) answers.extra = extra.value;
-  chatHistory = []; document.getElementById('chat-messages').innerHTML = '';
+  chatHistory = [];
+  roteiroData = null;
+  currentTab = 'voos';
   goTo('chat');
-  await callAPI('Olá! Preenchi meu perfil de viagem. Por favor, monte meu roteiro completo com links para reservas!');
+  await generateRoteiro();
+}
+
+// ── Geração inicial do roteiro (JSON) ──
+async function generateRoteiro() {
+  roteiroData = null;
+  document.getElementById('gen-loader').style.display = 'block';
+  document.getElementById('roteiro-container').style.display = 'none';
+  document.getElementById('chat-section').style.display = 'none';
+  document.getElementById('chat-section-divider').style.display = 'none';
+  document.getElementById('chat-input-box').style.display = 'none';
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('chat-status').textContent = 'Montando seu roteiro...';
+
+  let rawText = '';
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: buildSystemJSON(),
+        messages: [{ role: 'user', content: 'Gere meu roteiro completo. Responda APENAS com o JSON estruturado conforme as instruções do sistema.' }]
+      })
+    });
+    if(!res.ok) {
+      const errText = await res.text();
+      let errMsg = errText;
+      try { errMsg = JSON.parse(errText).error || errText; } catch {}
+      throw new Error(errMsg);
+    }
+    rawText = (await readStream(res)).trim();
+    let text = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+    const first = text.indexOf('{');
+    const last = text.lastIndexOf('}');
+    if(first >= 0 && last > first) text = text.slice(first, last+1);
+    const data = JSON.parse(text);
+    roteiroData = data;
+    renderRoteiro(data);
+  } catch(e) {
+    console.error('generateRoteiro:', e);
+    renderGenError(e.message || 'Erro desconhecido', rawText);
+  }
+}
+
+function renderGenError(msg, raw) {
+  document.getElementById('gen-loader').style.display = 'none';
+  document.getElementById('roteiro-container').style.display = 'flex';
+  document.querySelector('#page-chat .tabs-bar').style.display = 'none';
+  document.getElementById('chat-status').textContent = 'Erro ao gerar';
+  document.querySelectorAll('#page-chat .tab-panel').forEach(p => p.classList.remove('active'));
+  const voosPanel = document.getElementById('tab-voos');
+  voosPanel.classList.add('active');
+  let html = '<div class="gen-error">'
+    + '<strong>⚠️ Não foi possível gerar o roteiro</strong>'
+    + esc(String(msg).slice(0, 400))
+    + '<button class="gen-error-btn" type="button" onclick="generateRoteiro()">↺ Tentar novamente</button>';
+  if(raw && raw.length) html += '<div class="gen-error-raw">' + esc(raw.slice(0, 800)) + (raw.length > 800 ? '\n...' : '') + '</div>';
+  html += '</div>';
+  voosPanel.innerHTML = html;
+}
+
+function renderRoteiro(data) {
+  document.getElementById('gen-loader').style.display = 'none';
+  document.getElementById('roteiro-container').style.display = 'flex';
+  document.querySelector('#page-chat .tabs-bar').style.display = 'flex';
+  document.getElementById('chat-section').style.display = 'block';
+  document.getElementById('chat-section-divider').style.display = 'block';
+  document.getElementById('chat-input-box').style.display = 'flex';
+  document.getElementById('chat-status').textContent = 'Roteiro pronto · pergunte algo abaixo';
+
+  renderVoos(data.voos || []);
+  renderHoteis(data.hoteis || []);
+  renderRoteiroDias(data.roteiro || []);
+  renderOrcamento(data.orcamento || {});
+  renderDicas(data.dicas || []);
+  switchTab(currentTab || 'voos');
+}
+
+function switchTab(name) {
+  currentTab = name;
+  document.querySelectorAll('#page-chat .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('#page-chat .tab-panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('tab-' + name);
+  if(el) el.classList.add('active');
+  const panels = document.querySelector('#page-chat .tab-panels');
+  if(panels) panels.scrollTop = 0;
+}
+
+// ── Renderers de abas ──
+function esc(s) {
+  if(s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function formatInline(s) {
+  if(s == null) return '';
+  let t = esc(s);
+  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  t = t.replace(/(?<!["'=\/>])(https?:\/\/[^\s<&"]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\n/g, '<br>');
+  return t;
+}
+
+function formatNum(n) {
+  if(n == null || n === '') return '';
+  return new Intl.NumberFormat('pt-BR').format(n);
+}
+
+function renderVoos(voos) {
+  if(!Array.isArray(voos) || !voos.length) {
+    document.getElementById('tab-voos').innerHTML = '<div class="empty-state">Nenhuma opção de voo retornada.</div>';
+    return;
+  }
+  document.getElementById('tab-voos').innerHTML = voos.map(v =>
+    '<div class="voo-card">'
+    + '<div class="voo-card-head">'
+      + '<div class="voo-cia">✈️ ' + esc(v.companhia || '?') + '</div>'
+      + (v.preco ? '<div class="voo-preco">' + esc(v.preco) + '</div>' : '')
+    + '</div>'
+    + (v.rota ? '<div class="voo-rota">' + esc(v.rota) + '</div>' : '')
+    + '<div class="voo-meta">'
+      + (v.duracao ? '<span class="voo-meta-tag">⏱ ' + esc(v.duracao) + '</span>' : '')
+      + (v.escalas ? '<span class="voo-meta-tag">' + esc(v.escalas) + '</span>' : '')
+    + '</div>'
+    + (v.link ? '<a class="voo-btn" href="' + esc(v.link) + '" target="_blank" rel="noopener">Ver oferta →</a>' : '')
+    + '</div>'
+  ).join('');
+}
+
+function renderHoteis(hoteis) {
+  if(!Array.isArray(hoteis) || !hoteis.length) {
+    document.getElementById('tab-hoteis').innerHTML = '<div class="empty-state">Nenhum hotel sugerido.</div>';
+    return;
+  }
+  document.getElementById('tab-hoteis').innerHTML = hoteis.map(h => {
+    const destaques = Array.isArray(h.destaques) ? h.destaques : (h.destaque ? [h.destaque] : []);
+    const catEstilo = [h.categoria, h.estilo].filter(Boolean).join(' · ');
+    return '<div class="hotel-card">'
+      + '<div class="hotel-emoji">' + esc(h.emoji || '🏨') + '</div>'
+      + '<div class="hotel-body">'
+        + '<div class="hotel-nome">' + esc(h.nome || '?') + '</div>'
+        + (h.bairro ? '<div class="hotel-bairro">📍 ' + esc(h.bairro) + '</div>' : '')
+        + '<div class="hotel-rating">'
+          + (h.nota != null && h.nota !== '' ? '<span class="hotel-rating-num">' + esc(h.nota) + '</span>' : '')
+          + (h.avaliacoes ? '<span>' + formatNum(h.avaliacoes) + ' avaliações</span>' : '')
+          + (catEstilo ? '<span class="hotel-cat">' + esc(catEstilo) + '</span>' : '')
+        + '</div>'
+        + (destaques.length ? '<div class="hotel-destaque">✓ ' + destaques.map(esc).join(' · ') + '</div>' : '')
+        + '<div class="hotel-preco-box">'
+          + '<div>'
+            + (h.preco_noite ? '<span class="hotel-preco">' + esc(h.preco_noite) + '</span><span class="hotel-preco-sub"> /noite</span>' : '')
+          + '</div>'
+          + (h.preco_total ? '<div class="hotel-preco-sub">Total: <strong>' + esc(h.preco_total) + '</strong>' + (h.noites ? ' · ' + esc(h.noites) + ' noites' : '') + '</div>' : '')
+        + '</div>'
+        + (h.link ? '<a class="hotel-btn" href="' + esc(h.link) + '" target="_blank" rel="noopener">Reservar no Booking →</a>' : '')
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function renderRoteiroDias(roteiro) {
+  if(!Array.isArray(roteiro) || !roteiro.length) {
+    document.getElementById('tab-roteiro').innerHTML = '<div class="empty-state">Roteiro vazio.</div>';
+    return;
+  }
+  document.getElementById('tab-roteiro').innerHTML = roteiro.map(d =>
+    '<div class="dia-card">'
+    + '<div class="dia-head">'
+      + '<div class="dia-num">' + esc(d.dia || '?') + '</div>'
+      + '<div class="dia-info">'
+        + '<div class="dia-data">Dia ' + esc(d.dia || '?') + (d.data ? ' · ' + esc(d.data) : '') + '</div>'
+        + (d.titulo ? '<div class="dia-titulo">' + esc(d.titulo) + '</div>' : '')
+      + '</div>'
+    + '</div>'
+    + (d.manha ? '<div class="dia-periodo"><div class="dia-periodo-icon">🌅</div><div class="dia-periodo-body"><div class="dia-periodo-label">Manhã</div>' + formatInline(d.manha) + '</div></div>' : '')
+    + (d.tarde ? '<div class="dia-periodo"><div class="dia-periodo-icon">☀️</div><div class="dia-periodo-body"><div class="dia-periodo-label">Tarde</div>' + formatInline(d.tarde) + '</div></div>' : '')
+    + (d.noite ? '<div class="dia-periodo"><div class="dia-periodo-icon">🌙</div><div class="dia-periodo-body"><div class="dia-periodo-label">Noite</div>' + formatInline(d.noite) + '</div></div>' : '')
+    + '</div>'
+  ).join('');
+}
+
+function renderOrcamento(orc) {
+  if(!orc || !Array.isArray(orc.itens) || !orc.itens.length) {
+    document.getElementById('tab-orcamento').innerHTML = '<div class="empty-state">Orçamento não disponível.</div>';
+    return;
+  }
+  const icones = { voos:'✈️', voo:'✈️', hospedagem:'🏨', hotel:'🏨', hoteis:'🏨', 'hotéis':'🏨', alimentacao:'🍽️', 'alimentação':'🍽️', comida:'🍽️', restaurantes:'🍽️', transporte:'🚌', 'transporte local':'🚌', passeios:'🗺️', atracoes:'🗺️', 'atrações':'🗺️', 'aluguel de carro':'🚗', carro:'🚗', seguro:'🛡️', extras:'➕' };
+  let html = '<div class="orcamento-card">';
+  orc.itens.forEach(it => {
+    const key = (it.categoria||'').toLowerCase();
+    const icon = icones[key] || '💵';
+    html += '<div class="orc-row">'
+      + '<div class="orc-cat-wrap">'
+        + '<span class="orc-cat-icon">' + icon + '</span>'
+        + '<div>'
+          + '<div class="orc-cat-name">' + esc(it.categoria || '') + '</div>'
+          + (it.detalhe ? '<div class="orc-cat-detalhe">' + esc(it.detalhe) + '</div>' : '')
+        + '</div>'
+      + '</div>'
+      + '<div class="orc-valor">' + esc(it.valor || '—') + '</div>'
+      + '</div>';
+  });
+  html += '<div class="orc-total"><div class="orc-total-label">Total estimado</div><div class="orc-total-valor">' + esc(orc.total || '—') + '</div></div>';
+  if(orc.observacao) html += '<div class="orc-obs">' + esc(orc.observacao) + '</div>';
+  html += '</div>';
+  document.getElementById('tab-orcamento').innerHTML = html;
+}
+
+function renderDicas(dicas) {
+  if(!Array.isArray(dicas) || !dicas.length) {
+    document.getElementById('tab-dicas').innerHTML = '<div class="empty-state">Nenhuma dica.</div>';
+    return;
+  }
+  document.getElementById('tab-dicas').innerHTML = dicas.map(d =>
+    '<div class="dica-card">'
+      + '<div class="dica-icon">' + esc(d.icone || '💡') + '</div>'
+      + '<div class="dica-body">'
+        + '<div class="dica-titulo">' + esc(d.titulo || '') + '</div>'
+        + '<div class="dica-texto">' + formatInline(d.texto || '') + '</div>'
+      + '</div>'
+    + '</div>'
+  ).join('');
 }
 
 function formatMsg(text) {
@@ -1396,7 +1826,7 @@ async function fetchChat() {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: buildSystem(), messages: chatHistory })
+    body: JSON.stringify({ system: buildSystemChat(), messages: chatHistory })
   });
   if(!res.ok) {
     const errText = await res.text();
