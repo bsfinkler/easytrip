@@ -1396,18 +1396,89 @@ function buildContext() {
   const slug = (s) => (s||'').toString().toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const normCity = (s) => (s||'').toString().toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Mapeamento IATA — cidades brasileiras (e principais internacionais como referência)
+  const IATA_MAP = {
+    'sao paulo':'GRU','sp':'GRU','guarulhos':'GRU','congonhas':'CGH','viracopos':'VCP','campinas':'VCP',
+    'rio de janeiro':'GIG','rio':'GIG','galeao':'GIG','santos dumont':'SDU',
+    'brasilia':'BSB','df':'BSB',
+    'belo horizonte':'CNF','bh':'CNF','confins':'CNF',
+    'cuiaba':'CGB','sorriso':'CGB',
+    'curitiba':'CWB','porto alegre':'POA',
+    'florianopolis':'FLN','floripa':'FLN',
+    'fortaleza':'FOR','recife':'REC','salvador':'SSA','manaus':'MAO','belem':'BEL',
+    'goiania':'GYN','natal':'NAT','maceio':'MCZ',
+    'vitoria':'VIX','campo grande':'CGR','aracaju':'AJU','joao pessoa':'JPA','teresina':'THE','sao luis':'SLZ',
+    'porto velho':'PVH','rio branco':'RBR','boa vista':'BVB','macapa':'MCP','palmas':'PMW',
+    'foz do iguacu':'IGU','navegantes':'NVT','ilheus':'IOS',
+    // Internacionais (referência de exemplos para o modelo)
+    'lisboa':'LIS','porto':'OPO','madrid':'MAD','barcelona':'BCN','paris':'CDG','londres':'LHR',
+    'nova york':'JFK','new york':'JFK','miami':'MIA','orlando':'MCO','los angeles':'LAX',
+    'cancun':'CUN','buenos aires':'EZE','santiago':'SCL','bariloche':'BRC','mendoza':'MDZ',
+    'roma':'FCO','milao':'MXP','amsterda':'AMS','berlim':'BER','toquio':'HND',
+    'cidade do mexico':'MEX','lima':'LIM','bogota':'BOG','dubai':'DXB'
+  };
+  const guessIATA = (city) => {
+    const n = normCity(city);
+    if(!n) return '';
+    if(IATA_MAP[n]) return IATA_MAP[n];
+    for(const k in IATA_MAP) { if(n.includes(k) || k.includes(n)) return IATA_MAP[k]; }
+    return '';
+  };
+
   const origemRaw = (answers.cidade_saida || '').trim();
   const destinoRaw = (destinos.filter(Boolean)[0] || '').trim();
   const origem = urlEnc(origemRaw);
   const destino = urlEnc(destinoRaw);
   const destinoSlug = slug(destinoRaw);
+  const origemIATA = guessIATA(origemRaw);
+  const destinoIATA = guessIATA(destinoRaw);
   const idaPtEnc = urlEnc(idaPt);
   const voltaPtEnc = urlEnc(voltaPt);
   const viajantesLabel = labelMap.viajantes[answers.viajantes]||'?';
 
+  // Tokens IATA (usam placeholder se o JS não conseguiu deduzir — o modelo substitui)
+  const oIATA = origemIATA || '[IATA_ORIGEM]';
+  const dIATA = destinoIATA || '[IATA_DESTINO]';
+
+  // Sufixo de pax do Kayak: sempre "Nadults Mchildren" (Kayak aceita 0children)
+  const paxKayak = `${adultos}adults${criancas}children`;
+
+  // Deep links pré-montados (datas, adultos, crianças e — quando possível — IATAs preenchidos)
+  const links = {
+    // VOOS
+    kayakVoos:   `https://www.kayak.com.br/flights/${oIATA}-${dIATA}/${ida}/${volta}/${paxKayak}`,
+    latam:       `https://www.latamairlines.com/br/pt/oferta-voos?origin=${oIATA}&destination=${dIATA}&outbound=${ida}&inbound=${volta}&adt=${adultos}&chd=${criancas}`,
+    gol:         `https://www.voegol.com.br/pt/informacoes/busca-de-voos?from=${oIATA}&to=${dIATA}&date=${ida}&adults=${adultos}&children=${criancas}`,
+    azul:        `https://www.voeazul.com.br/br/pt/home/selecao-voo?c=${oIATA}:1:${ida}:${dIATA}`,
+    decolarVoos: `https://www.decolar.com/shop/flights/results/ROUND_TRIP/${oIATA}/${dIATA}/${ida}/${volta}/${adultos}/${criancas}/0`,
+    // HOTÉIS
+    bookingBusca:    `https://www.booking.com/searchresults.pt-br.html?ss=${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
+    bookingTemplate: `https://www.booking.com/searchresults.pt-br.html?ss={NOME_DO_HOTEL}+${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
+    hotelsCom:       `https://www.hotels.com/search.do?q-destination=${destino}&q-check-in=${ida}&q-check-out=${volta}&q-rooms=1&q-room-0-adults=${adultos}&q-room-0-children=${criancas}`,
+    decolarHoteis:   `https://www.decolar.com/hospedagem/${destinoSlug}/${ida}/${volta}/${adultos}/${criancas}`,
+    // CARROS
+    localiza:    `https://www.localiza.com/brasil/pt-br/aluguel-de-carros?retiradaLocal=${destino}&dataRetirada=${ida}&dataDevolucao=${volta}`,
+    movida:      `https://www.movida.com.br/aluguel-de-carros?local=${destino}&dataInicio=${ida}&dataFim=${volta}`,
+    kayakCarros: `https://www.kayak.com.br/cars/${destino}/${ida}T10:00/${volta}T10:00`,
+    // PASSEIOS
+    getyourguide: `https://www.getyourguide.com.br/${destinoSlug}-l0/?date_from=${ida}&date_to=${volta}`,
+    civitatis:    `https://www.civitatis.com/br/${destinoSlug}/?fromDate=${ida}`,
+    viator:       `https://www.viator.com/pt-BR/${destinoSlug}/d0-ttd?startDate=${ida}`,
+    // SEGURO VIAGEM
+    assistCard: `https://www.assistcard.com/br/cotacao?destino=${destino}&saida=${ida}&retorno=${volta}&passageiros=${totalPax}`,
+    zurich:     `https://www.zurichseguros.com.br/seguro-viagem`,
+    // eSIM (o modelo deve trocar [PAIS] pelo slug do país de destino)
+    airalo:  `https://www.airalo.com/pt/[PAIS]-esim`,
+    holafly: `https://esim.holafly.com/pt/esim-[PAIS]`
+  };
+
   const contextLine = `VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${viajantesLabel} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}`;
 
-  return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, idaPt, voltaPt, idaPtEnc, voltaPtEnc, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, origem, destino, destinoSlug, extras, contextLine };
+  return { destLabel, datasLabel, noites, noitesNum, viajantesLabel, estilosLabel, orcLabel, bairrosLabel, ida, volta, idaPt, voltaPt, idaPtEnc, voltaPtEnc, adultos, criancas, idades, idadesStr, totalPax, origemRaw, destinoRaw, origem, destino, destinoSlug, origemIATA, destinoIATA, extras, contextLine, links };
 }
 
 // Prompt focado por seção (1 chamada por aba, ~1500 tokens cada)
@@ -1421,32 +1492,36 @@ ${c.contextLine}`;
   if (section === 'voos') {
     return `${baseHeader}
 
-Origem: "${c.origemRaw||'?'}" · Destino: "${c.destinoRaw||'?'}"
-Ida: ${c.idaPt||c.ida||'?'} · Volta: ${c.voltaPt||c.volta||'?'} · Adultos: ${c.adultos} · Crianças: ${c.criancas} · Total: ${c.totalPax}
+Origem: "${c.origemRaw||'?'}" (IATA: ${c.origemIATA||'DEDUZIR'}) · Destino: "${c.destinoRaw||'?'}" (IATA: ${c.destinoIATA||'DEDUZIR'})
+Ida: ${c.ida||'?'} · Volta: ${c.volta||'?'} · Adultos: ${c.adultos} · Crianças: ${c.criancas} · Total: ${c.totalPax}
 
-LINKS PRÉ-MONTADOS — use EXATAMENTE estas URLs (já têm origem, destino e datas em português pré-preenchidas):
+LINKS PRÉ-MONTADOS — use EXATAMENTE estas URLs. Se ainda houver [IATA_ORIGEM] ou [IATA_DESTINO] no link, substitua pelo código IATA correto da cidade.
 
-• Google Flights (PRINCIPAL — cobre LATAM/GOL/Azul/Decolar e mais): https://www.google.com/travel/flights?q=voos+de+${c.origem}+para+${c.destino}+ida+${c.idaPtEnc}+volta+${c.voltaPtEnc}&hl=pt-BR&curr=BRL
+• Kayak (PRINCIPAL — agrega LATAM/GOL/Azul/Decolar e mais): ${c.links.kayakVoos}
+• LATAM: ${c.links.latam}
+• GOL: ${c.links.gol}
+• Azul: ${c.links.azul}
+• Decolar (voos): ${c.links.decolarVoos}
 
-• LATAM (SECUNDÁRIO — deep link nativo com IATA): https://www.latamairlines.com/br/pt/oferta-voos?origin={ORIGEM_IATA}&destination={DESTINO_IATA}&outbound=${c.ida}&inbound=${c.volta}&adt=${c.adultos}&chd=${c.criancas}&inf=0&trip=RT&cabin=Economy
-
-IATA comuns (só para LATAM): GRU/CGH/VCP=SP, GIG/SDU=Rio, BSB=Brasília, CWB=Curitiba, POA=PoA, CNF=BH, REC=Recife, FOR=Fortaleza, SSA=Salvador, LIS=Lisboa, MAD=Madrid, CDG=Paris, LHR=Londres, JFK/EWR=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=BsAs, SCL=Santiago, BRC=Bariloche.
+IATA de cidades brasileiras: GRU=São Paulo, CGB=Cuiabá/Sorriso, BSB=Brasília, GIG=Rio, CNF=BH, POA=Porto Alegre, FOR=Fortaleza, REC=Recife, SSA=Salvador, MAO=Manaus, BEL=Belém, FLN=Florianópolis, GYN=Goiânia, NAT=Natal, MCZ=Maceió, CWB=Curitiba, VIX=Vitória.
+Internacionais (exemplos): LIS=Lisboa, OPO=Porto, MAD=Madrid, BCN=Barcelona, CDG=Paris, LHR=Londres, JFK=NY, MIA=Miami, MCO=Orlando, CUN=Cancún, EZE=Buenos Aires, SCL=Santiago, BRC=Bariloche, FCO=Roma. Para outros destinos internacionais use o IATA correto da cidade.
 
 Formato EXATO:
 {
   "voos": [
-    { "companhia": "Google Flights (todas companhias)", "rota": "São Paulo → Bariloche", "duracao": "5h 20m", "escalas": "1 escala", "preco": "R$ 3.800", "link": "https://www.google.com/travel/flights?q=voos+de+..." },
-    { "companhia": "LATAM", "rota": "GRU → BRC", "duracao": "5h 10m", "escalas": "Direto", "preco": "R$ 4.500", "link": "https://www.latamairlines.com/..." }
+    { "companhia": "Kayak (todas companhias)", "rota": "${c.origemRaw||'?'} → ${c.destinoRaw||'?'}", "duracao": "5h 20m", "escalas": "1 escala", "preco": "R$ 3.800", "link": "URL Kayak EXATA acima" },
+    { "companhia": "LATAM",  "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 10m", "escalas": "Direto",    "preco": "R$ 4.500", "link": "URL LATAM acima"  },
+    { "companhia": "GOL",    "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 30m", "escalas": "1 escala",  "preco": "R$ 3.950", "link": "URL GOL acima"    },
+    { "companhia": "Azul",   "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 40m", "escalas": "1 escala",  "preco": "R$ 4.100", "link": "URL Azul acima"   }
   ]
 }
 
 REGRAS:
-1. MÁXIMO 4 opções. SEMPRE o link do Google Flights como primeiro item (cobre todas companhias).
-2. O link do Google Flights JÁ ESTÁ PRONTO acima — use exatamente como está, sem placeholders. NÃO troque por IATA, NÃO simplifique.
-3. LATAM como segunda opção, com IATA real substituído nos placeholders.
-4. Para GOL/Azul/Decolar (terceira/quarta opção): use o MESMO link do Google Flights e apenas mude o nome da companhia (a busca do Google mostra todas).
-5. NUNCA gere link genérico ou da home. NUNCA use IATA no link do Google Flights — só nomes de cidade já incluídos.
-6. APENAS o JSON acima.`;
+1. EXATAMENTE 4 opções nessa ordem: Kayak, LATAM, GOL, Azul.
+2. Use os links EXATOS pré-montados acima. Se houver [IATA_ORIGEM] ou [IATA_DESTINO], substitua pelo código IATA correto.
+3. Estime preços/duração/escalas plausíveis para a rota.
+4. NUNCA gere link genérico, de home, ou inventado.
+5. APENAS o JSON acima.`;
   }
 
   if (section === 'hoteis') {
@@ -1455,15 +1530,22 @@ REGRAS:
 Destino: "${c.destinoRaw||'?'}" · Check-in: ${c.ida||'?'} · Check-out: ${c.volta||'?'} (${c.noitesNum} noites)
 Adultos: ${c.adultos} · Crianças: ${c.criancas}${c.idades.length?' (idades: '+c.idadesStr+')':''}
 
-Template Booking (1 link por hotel — troque {NOME_DO_HOTEL} pelo nome real com "+" no lugar de espaços):
-https://www.booking.com/searchresults.html?ss={NOME_DO_HOTEL}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}${c.idades.length?'&age='+c.idadesStr:''}&no_rooms=1
+LINKS PRÉ-MONTADOS:
+
+• Booking — BUSCA GENÉRICA do destino: ${c.links.bookingBusca}
+
+• Booking — POR HOTEL ESPECÍFICO (use este para cada hotel — troque {NOME_DO_HOTEL} pelo nome real com "+" no lugar de espaços):
+${c.links.bookingTemplate}
+
+• Hotels.com (alternativa): ${c.links.hotelsCom}
+• Decolar hotéis (alternativa): ${c.links.decolarHoteis}
 
 Formato EXATO:
 {
   "hoteis": [
     {
       "emoji": "🏨",
-      "nome": "Nome real",
+      "nome": "Nome real do hotel",
       "categoria": "3★",
       "estilo": "Econômico",
       "nota": 8.2,
@@ -1473,14 +1555,14 @@ Formato EXATO:
       "preco_noite": "R$ 280",
       "noites": ${c.noitesNum},
       "preco_total": "R$ ${c.noitesNum*280}",
-      "link": "https://www.booking.com/searchresults.html?ss=..."
+      "link": "URL Booking POR HOTEL ESPECÍFICO acima — troque {NOME_DO_HOTEL} pelo nome real com '+' no lugar de espaços"
     }
   ]
 }
 
 REGRAS:
 1. EXATAMENTE 3 hotéis (estilo: "Econômico", "Intermediário", "Premium" — nessa ordem).
-2. Link Booking real e específico por hotel.
+2. Cada hotel usa o template "POR HOTEL ESPECÍFICO" com {NOME_DO_HOTEL} substituído pelo nome real (espaços viram "+").
 3. Campo "destaques" com 2 itens curtos.
 4. APENAS o JSON acima.`;
   }
@@ -1489,7 +1571,11 @@ REGRAS:
     return `${baseHeader}
 
 Destino: "${c.destinoRaw||'?'}" · Início: ${c.ida||'?'} · Fim: ${c.volta||'?'} (${dias} dias)
-${c.extras.includes('passeios')?'Template GetYourGuide: https://www.getyourguide.com.br/'+c.destinoSlug+'-l0/?date_from='+c.ida:''}
+
+LINKS PRÉ-MONTADOS de passeios (use quando citar atividade específica, via markdown [texto](url)):
+• GetYourGuide: ${c.links.getyourguide}
+• Civitatis: ${c.links.civitatis}
+• Viator: ${c.links.viator}
 
 Formato EXATO:
 {
@@ -1508,7 +1594,7 @@ Formato EXATO:
 REGRAS:
 1. ${dias} dias começando em ${c.ida||'?'}.
 2. Cada período (manhã/tarde/noite): MÁXIMO 3 atividades, frases curtas. Sem parágrafos.
-3. Pode usar markdown leve: **negrito** e [texto](url).
+3. Pode usar markdown leve: **negrito** e [texto](url) — use os links de passeios acima quando citar atividade específica.
 4. APENAS o JSON acima.`;
   }
 
@@ -1544,21 +1630,30 @@ REGRAS:
 
 Destino: "${c.destinoRaw||'?'}" · ${c.noitesNum} noites · Viajantes: ${c.viajantesLabel}
 
+LINKS PRÉ-MONTADOS (use via markdown [texto](url) dentro do texto das dicas):
+• Seguro viagem — Assist Card: ${c.links.assistCard}
+• Seguro viagem — Zurich: ${c.links.zurich}
+• eSIM — Airalo (troque [PAIS] pelo slug do país de destino, ex: portugal, espanha, eua, argentina): ${c.links.airalo}
+• eSIM — Holafly (troque [PAIS] pelo slug do país de destino): ${c.links.holafly}
+${c.extras.includes('carro')?'• Aluguel — Localiza: '+c.links.localiza+'\n• Aluguel — Movida: '+c.links.movida+'\n• Aluguel — Kayak carros: '+c.links.kayakCarros:''}
+
 Formato EXATO:
 {
   "dicas": [
     { "icone": "📄", "titulo": "Documentos", "texto": "1-2 frases curtas." },
     { "icone": "💱", "titulo": "Câmbio", "texto": "..." },
     { "icone": "🌤️", "titulo": "Clima", "texto": "..." },
-    { "icone": "📶", "titulo": "Internet", "texto": "..." },
-    { "icone": "🛡️", "titulo": "Seguro", "texto": "..." }
+    { "icone": "📶", "titulo": "Internet (eSIM)", "texto": "...inclua [Airalo](url) ou [Holafly](url) — troque [PAIS] no link pelo slug do país." },
+    { "icone": "🛡️", "titulo": "Seguro viagem", "texto": "...inclua [Assist Card](url) com link pré-montado." }
   ]
 }
 
 REGRAS:
 1. EXATAMENTE 5 cards (Documentos, Câmbio, Clima, Internet, Seguro).
-2. Texto em 1-2 frases, adaptado ao destino.
-3. APENAS o JSON acima.${c.extras.includes('carro')?'\n4. Pode citar aluguel de carro (Decolar) em uma das dicas.':''}`;
+2. No card "Internet": cite eSIM e inclua link Airalo OU Holafly via [texto](url) — substitua [PAIS] pelo slug do país de destino (ex: portugal, espanha, eua, argentina, mexico).
+3. No card "Seguro": inclua link Assist Card via [texto](url) com a URL pré-montada acima.
+4. Texto em 1-2 frases, adaptado ao destino.${c.extras.includes('carro')?'\n5. Pode citar aluguel de carro (Localiza/Movida/Kayak) com link em uma das dicas.':''}
+6. APENAS o JSON acima.`;
   }
 
   return baseHeader;
@@ -1581,11 +1676,28 @@ ${c.contextLine}
 ROTEIRO ATUAL (resumo):
 ${resumo}
 
-Quando precisar dar links use deep links com parâmetros (links já pré-montados, use exatamente):
-- Voos (Google Flights): https://www.google.com/travel/flights?q=voos+de+${c.origem}+para+${c.destino}+ida+${c.idaPtEnc}+volta+${c.voltaPtEnc}&hl=pt-BR&curr=BRL
-- Hotéis: https://www.booking.com/searchresults.html?ss={NOME}+${c.destino}&checkin=${c.ida}&checkout=${c.volta}&group_adults=${c.adultos}&group_children=${c.criancas}&no_rooms=1
-- Passeios: https://www.getyourguide.com.br/${c.destinoSlug}-l0/?date_from=${c.ida}
+Quando precisar dar links use deep links com parâmetros já pré-montados (use EXATAMENTE):
+- Voos (Kayak, agrega todas companhias): ${c.links.kayakVoos}
+- Voos LATAM: ${c.links.latam}
+- Voos GOL: ${c.links.gol}
+- Voos Azul: ${c.links.azul}
+- Voos Decolar: ${c.links.decolarVoos}
+- Hotéis busca genérica (Booking): ${c.links.bookingBusca}
+- Hotéis por nome (Booking, troque {NOME_DO_HOTEL} pelo nome real com '+' nos espaços): ${c.links.bookingTemplate}
+- Hotels.com: ${c.links.hotelsCom}
+- Decolar hotéis: ${c.links.decolarHoteis}
+- Aluguel de carro Localiza: ${c.links.localiza}
+- Aluguel de carro Movida: ${c.links.movida}
+- Aluguel de carro Kayak: ${c.links.kayakCarros}
+- Passeios GetYourGuide: ${c.links.getyourguide}
+- Passeios Civitatis: ${c.links.civitatis}
+- Passeios Viator: ${c.links.viator}
+- Seguro viagem Assist Card: ${c.links.assistCard}
+- Seguro viagem Zurich: ${c.links.zurich}
+- eSIM Airalo (troque [PAIS] pelo slug do país, ex: portugal, espanha, eua): ${c.links.airalo}
+- eSIM Holafly (troque [PAIS] pelo slug do país): ${c.links.holafly}
 
+Se houver [IATA_ORIGEM] ou [IATA_DESTINO] nos links de voos, substitua pelo código IATA correto da cidade.
 Se o usuário quiser uma alteração estrutural grande (trocar destino, refazer tudo), oriente a clicar em "✈ Nova viagem" para regenerar.`;
 }
 
