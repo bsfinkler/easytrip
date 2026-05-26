@@ -1452,8 +1452,8 @@ function buildContext() {
     // VOOS
     kayakVoos:   `https://www.kayak.com.br/flights/${oIATA}-${dIATA}/${ida}/${volta}/${paxKayak}`,
     latam:       `https://www.latamairlines.com/br/pt/oferta-voos?origin=${oIATA}&destination=${dIATA}&outbound=${ida}&inbound=${volta}&adt=${adultos}&chd=${criancas}`,
-    gol:         `https://www.voegol.com.br/pt/informacoes/busca-de-voos?from=${oIATA}&to=${dIATA}&date=${ida}&adults=${adultos}&children=${criancas}`,
-    azul:        `https://www.voeazul.com.br/br/pt/home/selecao-voo?c=${oIATA}:1:${ida}:${dIATA}`,
+    gol:         `https://www.voegol.com.br/pt/passagens-aereas/${oIATA}/${dIATA}/${ida}/${volta}?adults=${adultos}&children=${criancas}`,
+    azul:        `https://www.voeazul.com.br/br/pt/home/selecao-voo?c=${oIATA}:1:${ida}:${dIATA}:1:${volta}&t=1&p=${adultos}-0-0-0`,
     decolarVoos: `https://www.decolar.com/shop/flights/results/ROUND_TRIP/${oIATA}/${dIATA}/${ida}/${volta}/${adultos}/${criancas}/0`,
     // HOTÉIS
     bookingBusca:    `https://www.booking.com/searchresults.pt-br.html?ss=${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
