@@ -361,9 +361,203 @@ body.auth-ready .app-loader { display: none; }
   .wizard-card { padding: 1.5rem 1.25rem; }
   .chat-layout { padding: 1rem 1rem 0; }
 }
+
+/* ═══ PLANO PRO / UPGRADE OVERLAY ═══ */
+.nav-meus-btn { background: none; color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.15s; display: none; align-items: center; gap: 5px; }
+.nav-meus-btn:hover { border-color: var(--green); color: var(--green); }
+.nav-upgrade-btn { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: opacity 0.15s; display: none; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(29,158,117,0.25); }
+.nav-upgrade-btn:hover { opacity: 0.9; }
+.nav-pro-badge { display: none; align-items: center; gap: 4px; font-size: 11px; background: var(--green-light); color: var(--green-dark); border: 1px solid var(--green-border); border-radius: 20px; padding: 3px 10px; font-weight: 600; }
+.nav-pro-badge.viajante-pro { background: linear-gradient(135deg, #FFD700, #F5B544); color: #5D3A00; border-color: #F5B544; }
+
+/* OVERLAY */
+.upgrade-overlay { position: fixed; inset: 0; background: rgba(15, 23, 30, 0.78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 10000; display: none; align-items: center; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+.upgrade-overlay.show { display: flex; }
+.upgrade-card { background: var(--card); border-radius: 20px; max-width: 940px; width: 100%; padding: 2.25rem 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.35); position: relative; animation: upgradeIn 0.25s ease; }
+@keyframes upgradeIn { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+.upgrade-close { position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.upgrade-close:hover { background: var(--bg); color: var(--text); }
+.upgrade-eyebrow { font-size: 11px; font-weight: 600; color: var(--green); text-transform: uppercase; letter-spacing: 0.12em; text-align: center; margin-bottom: 0.5rem; }
+.upgrade-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700; letter-spacing: -0.02em; text-align: center; color: var(--text); margin-bottom: 0.5rem; line-height: 1.15; }
+.upgrade-title em { font-style: normal; color: var(--green); }
+.upgrade-sub { text-align: center; color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1.75rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+.upgrade-reason { background: #FFF7E6; border: 1px solid #FFD580; color: #8A5A00; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; text-align: center; margin-bottom: 1.5rem; max-width: 560px; margin-left: auto; margin-right: auto; line-height: 1.5; }
+
+.plans-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.plan-card { position: relative; background: var(--bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.5rem 1.4rem 1.25rem; transition: all 0.2s; display: flex; flex-direction: column; gap: 0.9rem; }
+.plan-card.popular { border-color: var(--green); background: linear-gradient(180deg, #F0FAF5 0%, var(--card) 100%); box-shadow: 0 4px 18px rgba(29,158,117,0.12); }
+.plan-popular-tag { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--green); color: white; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.02em; box-shadow: 0 4px 12px rgba(29,158,117,0.3); }
+.plan-name { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.plan-price-row { display: flex; align-items: baseline; gap: 6px; }
+.plan-price-currency { font-size: 18px; color: var(--text-muted); font-weight: 500; }
+.plan-price { font-size: clamp(2rem, 4vw, 2.6rem); font-weight: 700; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
+.plan-period { font-size: 14px; color: var(--text-muted); margin-left: 4px; }
+.plan-anual-extra { font-size: 12px; color: var(--green-dark); font-weight: 500; }
+.plan-features { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 7px; }
+.plan-features li { font-size: 13px; color: var(--text); display: flex; align-items: flex-start; gap: 8px; line-height: 1.45; }
+.plan-features li .check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.plan-cta { margin-top: auto; background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.15s; }
+.plan-cta:hover:not(:disabled) { background: var(--green-dark); }
+.plan-cta:disabled { background: var(--green-mid); cursor: wait; opacity: 0.75; }
+.plan-card.popular .plan-cta { background: var(--green); }
+.plan-cta-sec { background: white; color: var(--green); border: 1.5px solid var(--green); }
+.plan-cta-sec:hover:not(:disabled) { background: var(--green-light); color: var(--green-dark); }
+
+.upgrade-free-link { text-align: center; }
+.upgrade-free-link button { background: none; border: none; color: var(--text-muted); font-size: 13px; cursor: pointer; text-decoration: underline; font-family: 'Plus Jakarta Sans', sans-serif; padding: 8px 14px; }
+.upgrade-free-link button:hover { color: var(--text); }
+
+@media (max-width: 720px) {
+  .upgrade-card { padding: 1.5rem 1.25rem; }
+  .plans-row { grid-template-columns: 1fr; }
+  .plan-card.popular { order: -1; }
+}
+
+/* ═══ TOAST ═══ */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; z-index: 11000; box-shadow: 0 6px 24px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+.toast.success { background: var(--green-dark); }
+.toast.error { background: #B91C1C; }
+
+/* ═══ ABA BLOQUEADA (FREE) ═══ */
+.tab-locked { background: var(--card); border: 1px dashed var(--green-border); border-radius: var(--radius); padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.tab-locked-icon { font-size: 38px; }
+.tab-locked-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.tab-locked-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; max-width: 360px; }
+.tab-locked-btn { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 11px 22px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+.tab-locked-btn:hover { background: var(--green-dark); }
+.tab-btn.locked::after { content: ' 🔒'; font-size: 11px; opacity: 0.7; }
+
+/* link "fantasma" (free) — só o nome do site, sem ser clicável */
+.link-ghost { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); font-size: 12px; padding: 2px 8px; background: var(--bg); border: 1px dashed var(--border); border-radius: 12px; }
+.voo-btn.ghost, .hotel-btn.ghost { background: var(--bg); color: var(--text-muted); border: 1px dashed var(--border); cursor: default; pointer-events: none; }
+.voo-btn.ghost::after, .hotel-btn.ghost::after { content: ' 🔒'; }
+
+/* ═══ MARCA D'ÁGUA (FREE) ═══ */
+.roteiro-watermark { font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px 16px; font-style: italic; opacity: 0.7; line-height: 1.5; }
+.roteiro-watermark a { color: var(--green); font-weight: 500; cursor: pointer; text-decoration: underline; }
+
+/* ═══ MEUS ROTEIROS ═══ */
+.meus-wrap { max-width: 900px; width: 100%; margin: 0 auto; padding: 2rem 1.5rem 3rem; flex: 1; }
+.meus-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; gap: 1rem; flex-wrap: wrap; }
+.meus-titulo { font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.meus-titulo em { font-style: normal; color: var(--green); }
+.meus-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.meus-nova-btn { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: background 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+.meus-nova-btn:hover { background: var(--green-dark); }
+
+.meus-banner { background: linear-gradient(135deg, #FFF7E6, #FFFCEC); border: 1px solid #FFD580; border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 14px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.meus-banner-icon { font-size: 28px; flex-shrink: 0; }
+.meus-banner-body { flex: 1; min-width: 220px; }
+.meus-banner-title { font-size: 14px; font-weight: 700; color: #8A5A00; margin-bottom: 2px; }
+.meus-banner-desc { font-size: 12px; color: #8A5A00; line-height: 1.5; opacity: 0.9; }
+.meus-banner-btn { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif; }
+.meus-banner-btn:hover { background: var(--green-dark); }
+
+.meus-empty { background: var(--card); border: 1px dashed var(--border); border-radius: var(--radius); padding: 3rem 1.5rem; text-align: center; }
+.meus-empty-icon { font-size: 42px; margin-bottom: 12px; }
+.meus-empty-title { font-size: 1.05rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.meus-empty-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+.roteiro-list { display: flex; flex-direction: column; gap: 12px; }
+.roteiro-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; transition: border-color 0.15s, box-shadow 0.15s; }
+.roteiro-item:hover { border-color: var(--green-mid); box-shadow: 0 4px 14px rgba(29,158,117,0.06); }
+.roteiro-item-icon { font-size: 26px; background: var(--green-light); border-radius: var(--radius-sm); width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.roteiro-item-body { flex: 1; min-width: 220px; }
+.roteiro-item-dest { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.roteiro-item-datas { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.roteiro-item-created { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+.roteiro-item-expira { font-size: 11px; color: #B85C00; margin-top: 4px; }
+.roteiro-item-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.btn-action { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; font-size: 12px; font-weight: 500; border-radius: var(--radius-sm); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; }
+.btn-action:hover:not(:disabled) { border-color: var(--green); color: var(--green); }
+.btn-action.primary { background: var(--green); color: white; border-color: var(--green); }
+.btn-action.primary:hover { background: var(--green-dark); }
+.btn-action.danger:hover { border-color: #B91C1C; color: #B91C1C; }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-action.locked::after { content: ' 🔒'; font-size: 10px; }
+
+@media (max-width: 520px) {
+  .roteiro-item-actions { width: 100%; }
+}
+
+/* ═══ MODO LEITURA (roteiro reaberto) ═══ */
+.chat-readonly .chat-section-divider,
+.chat-readonly .chat-section,
+.chat-readonly .chat-input-box { display: none !important; }
+
+/* ═══ PRINT (Exportar PDF) ═══ */
+@media print {
+  nav, .wizard-nav, footer, .chat-header-box, .tabs-bar,
+  .chat-section, .chat-section-divider, .chat-input-box,
+  .upgrade-overlay, .toast, .roteiro-watermark, .nav-meus-btn,
+  .nav-upgrade-btn, .nav-pro-badge, .logout-btn, .user-chip { display: none !important; }
+  body { background: white; }
+  .tab-panels { overflow: visible !important; max-height: none !important; padding: 0 !important; border: none !important; background: white !important; }
+  .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 1rem; }
+  .tab-panel:not(.active) { border-top: 2px solid var(--green); padding-top: 1rem; }
+  .chat-layout { max-width: 100% !important; padding: 0 !important; }
+  .voo-card, .hotel-card, .dia-card, .dica-card, .orcamento-card { box-shadow: none !important; page-break-inside: avoid; }
+}
 </style>
 </head>
 <body>
+
+<!-- TOAST GLOBAL -->
+<div id="toast" class="toast"></div>
+
+<!-- OVERLAY DE UPGRADE -->
+<div id="upgrade-overlay" class="upgrade-overlay" onclick="if(event.target===this) hideUpgrade()">
+  <div class="upgrade-card" role="dialog" aria-modal="true">
+    <button class="upgrade-close" type="button" onclick="hideUpgrade()" aria-label="Fechar">✕</button>
+    <div class="upgrade-eyebrow">✨ Viaja+Aí Pro</div>
+    <h2 class="upgrade-title">Desbloqueie o <em>Viaja+Aí Pro</em></h2>
+    <p class="upgrade-sub">Roteiros ilimitados, multidestino, todas as 5 abas, deep links com datas, PDF e muito mais.</p>
+    <div id="upgrade-reason" class="upgrade-reason" style="display:none"></div>
+    <div class="plans-row">
+      <div class="plan-card">
+        <div class="plan-name">Pro Mensal</div>
+        <div class="plan-price-row">
+          <span class="plan-price-currency">R$</span>
+          <span class="plan-price">29,90</span>
+          <span class="plan-period">/mês</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> Roteiros ilimitados</li>
+          <li><span class="check">✅</span> Multidestino (até 5)</li>
+          <li><span class="check">✅</span> Até 21 dias por roteiro</li>
+          <li><span class="check">✅</span> Todas as 5 abas (voos, hotéis, roteiro, orçamento, dicas)</li>
+          <li><span class="check">✅</span> Deep links com datas preenchidas</li>
+          <li><span class="check">✅</span> Carro, seguro, eSIM e transfer</li>
+          <li><span class="check">✅</span> Histórico ilimitado e permanente</li>
+          <li><span class="check">✅</span> Exportar PDF e compartilhar</li>
+          <li><span class="check">✅</span> Sem marca d'água</li>
+        </ul>
+        <button class="plan-cta plan-cta-sec" type="button" onclick="startCheckout('pro_mensal', this)">Assinar mensal</button>
+      </div>
+      <div class="plan-card popular">
+        <div class="plan-popular-tag">⭐ Mais popular — 2 meses grátis</div>
+        <div class="plan-name">Pro Anual</div>
+        <div class="plan-price-row">
+          <span class="plan-price-currency">R$</span>
+          <span class="plan-price">239,90</span>
+          <span class="plan-period">/ano</span>
+        </div>
+        <div class="plan-anual-extra">Equivale a R$ 19,99/mês</div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> Tudo do Pro Mensal</li>
+          <li><span class="check">✅</span> 2 meses grátis (economia de R$ 119)</li>
+          <li><span class="check">🏆</span> <strong>Badge "Viajante Pro"</strong> no perfil</li>
+          <li><span class="check">✅</span> Prioridade nos próximos recursos</li>
+        </ul>
+        <button class="plan-cta" type="button" onclick="startCheckout('pro_anual', this)">Assinar anual</button>
+      </div>
+    </div>
+    <div class="upgrade-free-link">
+      <button type="button" onclick="hideUpgrade()">Continuar com o plano gratuito</button>
+    </div>
+  </div>
+</div>
 
 <!-- LOADER inicial (some quando auth está pronta) -->
 <div class="app-loader" id="app-loader">
@@ -410,6 +604,9 @@ body.auth-ready .app-loader { display: none; }
     <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
       <button class="nav-login-btn" id="nav-login-btn" type="button" onclick="goTo('auth')">Entrar</button>
+      <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
+      <button class="nav-upgrade-btn" data-upgrade-btn type="button" onclick="showUpgrade()">✨ Upgrade</button>
+      <button class="nav-meus-btn" data-meus-btn type="button" onclick="goTo('meus')">📚 Meus roteiros</button>
       <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
       <button class="logout-btn" type="button" onclick="logout()">Sair</button>
     </div>
@@ -564,11 +761,40 @@ body.auth-ready .app-loader { display: none; }
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px;">
       <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:var(--green);border-radius:6px;font-size:13px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span>
     </div>
-    <span class="step-count" id="step-count"></span>
+    <div class="user-menu">
+      <span class="step-count" id="step-count"></span>
+      <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
+      <button class="nav-upgrade-btn" data-upgrade-btn type="button" onclick="showUpgrade()">✨ Upgrade</button>
+      <button class="nav-meus-btn" data-meus-btn type="button" onclick="goTo('meus')">📚 Meus roteiros</button>
+    </div>
   </div>
   <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
   <div class="wizard-body">
     <div class="wizard-card" id="wizard-card"></div>
+  </div>
+  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+</div>
+
+<!-- MEUS ROTEIROS -->
+<div id="page-meus" class="page">
+  <nav>
+    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <div class="user-menu">
+      <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
+      <button class="nav-upgrade-btn" data-upgrade-btn type="button" onclick="showUpgrade()">✨ Upgrade</button>
+      <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
+      <button class="logout-btn" type="button" onclick="logout()">Sair</button>
+    </div>
+  </nav>
+  <div class="meus-wrap">
+    <div class="meus-head">
+      <div>
+        <h1 class="meus-titulo">Meus <em>roteiros</em></h1>
+        <div class="meus-sub" id="meus-sub">Carregando...</div>
+      </div>
+      <button class="meus-nova-btn" type="button" onclick="goTo('wizard')">✈ Nova viagem</button>
+    </div>
+    <div id="meus-content"></div>
   </div>
   <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
 </div>
@@ -579,6 +805,9 @@ body.auth-ready .app-loader { display: none; }
     <a class="nav-logo" href="#" onclick="goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
       <span class="nav-badge">✨ Beta</span>
+      <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
+      <button class="nav-upgrade-btn" data-upgrade-btn type="button" onclick="showUpgrade()">✨ Upgrade</button>
+      <button class="nav-meus-btn" data-meus-btn type="button" onclick="goTo('meus')">📚 Meus roteiros</button>
       <span class="user-chip"><span class="user-chip-dot"></span><span class="user-chip-email"></span></span>
       <button class="logout-btn" type="button" onclick="logout()">Sair</button>
     </div>
@@ -616,6 +845,9 @@ body.auth-ready .app-loader { display: none; }
         <div class="tab-panel" id="tab-roteiro"></div>
         <div class="tab-panel" id="tab-orcamento"></div>
         <div class="tab-panel" id="tab-dicas"></div>
+      </div>
+      <div id="roteiro-watermark" class="roteiro-watermark" style="display:none">
+        ✈ Gerado pelo <strong>Viaja+Aí Grátis</strong> · <a onclick="showUpgrade('Faça upgrade para remover esta marca d\'água')">Faça upgrade para Pro</a>
       </div>
     </div>
 
@@ -658,12 +890,12 @@ const ORCAMENTO_OPTS = [
 ];
 
 const STEPS = [
-  { key:'destino',    label:'Passo 1 de 8 — Destino',    title:'Para onde você quer ir?',           type:'destino' },
-  { key:'datas',      label:'Passo 2 de 8 — Datas',      title:'Quando você quer viajar?',          type:'calendar', hint:'Clique na data de ida e depois na data de volta' },
-  { key:'viajantes',  label:'Passo 3 de 8 — Viajantes',  title:'Quem vai na viagem?',               type:'options',
+  { key:'destino',    label:'Destino',    title:'Para onde você quer ir?',           type:'destino' },
+  { key:'datas',      label:'Datas',      title:'Quando você quer viajar?',          type:'calendar', hint:'Clique na data de ida e depois na data de volta' },
+  { key:'viajantes',  label:'Viajantes',  title:'Quem vai na viagem?',               type:'options',
     options:[{value:'casal',label:'Casal',icon:'💑'},{value:'familia',label:'Família com crianças',icon:'👨‍👩‍👧'},{value:'amigos',label:'Amigos / grupo',icon:'👫'},{value:'solo',label:'Sozinho(a)',icon:'🧳'}]
   },
-  { key:'estilo',     label:'Passo 4 de 8 — Estilo',     title:'Qual é o estilo da viagem?',        type:'multi-estilo', hint:'Pode selecionar mais de um',
+  { key:'estilo',     label:'Estilo',     title:'Qual é o estilo da viagem?',        type:'multi-estilo', hint:'Pode selecionar mais de um',
     options:[
       {value:'praia',    label:'Praia',     icon:'🏖️', desc:'Sol, mar e relaxamento'},
       {value:'aventura', label:'Aventura',  icon:'🏔️', desc:'Trilhas, natureza e adrenalina'},
@@ -673,10 +905,10 @@ const STEPS = [
       {value:'neve',     label:'Neve',      icon:'⛷️', desc:'Ski, snowboard e paisagens nevadas'},
     ]
   },
-  { key:'orcamento',   label:'Passo 5 de 8 — Orçamento',  title:'Qual é o seu perfil de gasto?',    type:'orcamento' },
-  { key:'bairros',     label:'Passo 6 — Hospedagem',      title:'Onde prefere se hospedar?',         type:'bairros' },
-  { key:'cidade_saida',label:'Passo 7 — Partida',    title:'De qual cidade você vai partir?',  type:'text', placeholder:'Ex: São Paulo, Cuiabá, Brasília...' },
-  { key:'extras',      label:'Passo 8 de 8 — Extras',     title:'O que mais deseja incluir?',       type:'multi', hint:'Selecione tudo que quiser no roteiro',
+  { key:'orcamento',   label:'Orçamento',  title:'Qual é o seu perfil de gasto?',    type:'orcamento' },
+  { key:'bairros',     label:'Hospedagem', title:'Onde prefere se hospedar?',         type:'bairros' },
+  { key:'cidade_saida',label:'Partida',    title:'De qual cidade você vai partir?',  type:'text', placeholder:'Ex: São Paulo, Cuiabá, Brasília...' },
+  { key:'extras',      label:'Extras',     title:'O que mais deseja incluir?',       type:'multi', hint:'Selecione tudo que quiser no roteiro',
     options:[{value:'carro',label:'Aluguel de carro',icon:'🚗'},{value:'passeios',label:'Passeios guiados',icon:'🗺️'},{value:'restaurantes',label:'Restaurantes',icon:'🍽️'},{value:'seguro',label:'Seguro viagem',icon:'🛡️'},{value:'esim',label:'eSIM / internet',icon:'📶'},{value:'transfer',label:'Transfer aeroporto',icon:'🚌'}]
   },
 ];
@@ -708,13 +940,21 @@ async function initAuth() {
       return;
     }
     supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
+    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       currentUser = session?.user || null;
       updateUserChip();
+      await loadUserPlan();
     });
     const { data } = await supabaseClient.auth.getSession();
     currentUser = data.session?.user || null;
     updateUserChip();
+    await loadUserPlan();
+    handleQueryParams();
+    if (window._pendingRoteiroId) {
+      if (currentUser) openSavedRoteiro(window._pendingRoteiroId);
+      else showToast('Faça login para ver o roteiro compartilhado', 'error');
+      window._pendingRoteiroId = null;
+    }
   } catch(e) {
     console.error('initAuth:', e);
     authInitError = 'Erro ao inicializar autenticação: ' + (e.message || 'desconhecido');
@@ -728,6 +968,7 @@ function updateUserChip() {
   document.querySelectorAll('.logout-btn').forEach(el => { el.style.display = email ? 'inline-block' : 'none'; });
   const loginBtn = document.getElementById('nav-login-btn');
   if(loginBtn) loginBtn.style.display = email ? 'none' : 'inline-block';
+  applyPlanUI();
 }
 
 // Decide para onde levar quando o usuário clica em "Começar agora"
@@ -817,14 +1058,17 @@ async function logout() {
   answers = {}; estiloSelected = new Set(); multiSelected = new Set();
   destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {};
   chatHistory = [];
+  roteiroData = {}; tabState = {};
+  readOnlyMode = false; currentRoteiroId = null; _roteiroSaved = false;
+  userPlan = 'free'; userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
   updateUserChip();
   goTo('landing');
 }
 
 // ══ NAVEGAÇÃO ══
 function goTo(page) {
-  // Gate: landing e auth são públicas. Wizard e chat exigem login.
-  if((page === 'wizard' || page === 'chat') && !currentUser) page = 'auth';
+  // Gate: landing e auth são públicas. Wizard, chat e meus exigem login.
+  if((page === 'wizard' || page === 'chat' || page === 'meus') && !currentUser) page = 'auth';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('page-' + page);
   if(el) el.classList.add('active');
@@ -833,7 +1077,13 @@ function goTo(page) {
     answers = {}; estiloSelected = new Set(); multiSelected = new Set();
     destinos = ['']; step = 0; criancasGrupo = []; bairrosData = {}; bairrosSelected = {}; answers.bairro_livre = '';
     calState = { start:null, end:null, month:new Date().getMonth(), year:new Date().getFullYear() };
+    readOnlyMode = false; currentRoteiroId = null; _roteiroSaved = false;
+    const pageChat = document.getElementById('page-chat');
+    if (pageChat) pageChat.classList.remove('chat-readonly');
     render();
+  }
+  if(page === 'meus') {
+    renderMeusRoteiros();
   }
   if(page === 'auth') {
     if(authInitError) showAuthError(authInitError);
@@ -902,6 +1152,21 @@ function calNav(dir) {
 function calClick(ts) {
   if(!calState.start||(calState.start&&calState.end)){calState.start=ts;calState.end=null;}
   else { if(ts<calState.start){calState.end=calState.start;calState.start=ts;} else if(ts===calState.start){calState.start=null;calState.end=null;} else calState.end=ts; }
+  // Limite de dias por plano
+  if(calState.start && calState.end) {
+    const dias = Math.round((calState.end - calState.start) / 86400000);
+    const max = getMaxDays();
+    if(dias > max) {
+      calState.end = null; // anula a seleção da volta
+      document.getElementById('cal-container').innerHTML = renderCalendar();
+      if(!isPro()) {
+        showUpgrade('Plano Grátis permite no máximo ' + max + ' dias por roteiro. Pro vai até 21 dias.');
+      } else {
+        showToast('Máximo de ' + max + ' dias por roteiro', 'error');
+      }
+      return;
+    }
+  }
   document.getElementById('cal-container').innerHTML = renderCalendar();
 }
 function calClear() { calState.start=null;calState.end=null; document.getElementById('cal-container').innerHTML=renderCalendar(); }
@@ -921,10 +1186,16 @@ function buildStepHTML() {
       </div>`;
     });
     html += `</div>`;
-    if(destinos.length<5) html += `<button class="btn-add-dest" onclick="addDest()">+ Adicionar destino</button>`;
+    if(destinos.length<5) {
+      const lockSuffix = (!isPro() && destinos.length >= getMaxDestinos()) ? ' <span style="font-size:11px;opacity:0.75;margin-left:4px">🔒 Pro</span>' : '';
+      html += `<button class="btn-add-dest" onclick="addDest()">+ Adicionar destino${lockSuffix}</button>`;
+    }
 
   } else if(s.type==='calendar') {
     html += `<div id="cal-container">${renderCalendar()}</div>`;
+    if (!isPro()) {
+      html += '<div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;font-weight:300">Plano Grátis: máximo 5 dias. <a onclick="showUpgrade()" style="color:var(--green);cursor:pointer;text-decoration:underline">Upgrade para até 21 dias →</a></div>';
+    }
 
   } else if(s.type==='text') {
     html += `<input class="text-field" type="text" id="fi-${s.key}" placeholder="${s.placeholder||''}" value="${answers[s.key]||''}" oninput="answers['${s.key}']=this.value" />`;
@@ -1276,7 +1547,14 @@ function renderDone() {
 }
 
 // ══ INTERAÇÕES ══
-function addDest() { destinos.push(''); document.getElementById('wizard-card').innerHTML=buildStepHTML(); }
+function addDest() {
+  if (destinos.length >= getMaxDestinos()) {
+    showUpgrade('Multidestino é exclusivo do Pro — combine Lisboa + Porto + Madrid em um só roteiro.');
+    return;
+  }
+  destinos.push('');
+  document.getElementById('wizard-card').innerHTML = buildStepHTML();
+}
 function removeDest(i) { destinos.splice(i,1); document.getElementById('wizard-card').innerHTML=buildStepHTML(); }
 function pick(key,val,btn) { answers[key]=val; btn.closest('.options-grid').querySelectorAll('.opt').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
 function toggleEstilo(val,btn) { if(estiloSelected.has(val)){estiloSelected.delete(val);btn.classList.remove('selected');}else{estiloSelected.add(val);btn.classList.add('selected');} }
@@ -1284,7 +1562,9 @@ function toggleMulti(val,btn) { if(multiSelected.has(val)){multiSelected.delete(
 // ══ STEPS DINÂMICOS ══
 // Retorna a sequência de steps ativa com base nas respostas
 function getActiveSteps() {
-  const base = [...STEPS];
+  // Free não tem passo de bairros nem de extras
+  const skipFree = isPro() ? [] : ['bairros', 'extras'];
+  const base = STEPS.filter(s => !skipFree.includes(s.key));
   const viajante = answers.viajantes;
   const resultado = [];
   for(const s of base) {
@@ -1712,12 +1992,24 @@ Se o usuário quiser uma alteração estrutural grande (trocar destino, refazer 
 }
 
 async function startChat() {
+  // Gate: limite de roteiros no mês para o plano Free
+  if (!isPro() && (userUsage.roteiros_mes || 0) >= getMaxRoteirosMes()) {
+    showUpgrade('Você já criou ' + userUsage.roteiros_mes + ' roteiros este mês no plano Grátis (limite: 2). Faça upgrade para roteiros ilimitados.');
+    return;
+  }
   const extra = document.getElementById('info-extra');
   if(extra) answers.extra = extra.value;
   chatHistory = [];
   roteiroData = {};
   tabState = {};
+  _roteiroSaved = false;
+  readOnlyMode = false;
+  currentRoteiroId = null;
+  const pageChat = document.getElementById('page-chat');
+  if (pageChat) pageChat.classList.remove('chat-readonly');
   SECTIONS.forEach(s => { tabState[s] = 'idle'; });
+  // Limpa estado de "locked" das abas
+  document.querySelectorAll('#page-chat .tab-btn').forEach(b => b.classList.remove('locked'));
   currentTab = 'voos';
   goTo('chat');
   await generateRoteiro();
@@ -1787,18 +2079,31 @@ async function generateRoteiro() {
   document.getElementById('chat-section-divider').style.display = 'block';
   document.getElementById('chat-input-box').style.display = 'flex';
   document.getElementById('chat-messages').innerHTML = '';
+  applyPlanUI();
 
-  // Põe todas as abas em loading
-  SECTIONS.forEach(s => { tabState[s] = 'loading'; renderTabLoading(s); });
+  // Free: bloqueia abas orçamento e dicas; só carrega voos/hotéis/roteiro
+  const lockedSections = isPro() ? [] : ['orcamento', 'dicas'];
+  const activeSections = SECTIONS.filter(s => !lockedSections.includes(s));
+
+  // Põe abas ativas em loading; bloqueadas mostram painel de upgrade
+  SECTIONS.forEach(s => {
+    if (lockedSections.includes(s)) {
+      tabState[s] = 'locked';
+      renderTabLockedFree(s);
+    } else {
+      tabState[s] = 'loading';
+      renderTabLoading(s);
+    }
+  });
   switchTab(currentTab || 'voos');
   updateChatStatus();
 
-  // Voos primeiro (await), depois as outras 4 em paralelo
+  // Voos primeiro (await), depois as outras em paralelo
   await loadSection('voos');
-  loadSection('hoteis');
-  loadSection('roteiro');
-  loadSection('orcamento');
-  loadSection('dicas');
+  for (const sec of activeSections) {
+    if (sec === 'voos') continue;
+    loadSection(sec);
+  }
 }
 
 async function loadSection(section, isRetry) {
@@ -1857,18 +2162,24 @@ async function loadSection(section, isRetry) {
 }
 
 function updateChatStatus() {
-  const loaded = SECTIONS.filter(s => tabState[s] === 'loaded').length;
+  const loaded  = SECTIONS.filter(s => tabState[s] === 'loaded').length;
   const errored = SECTIONS.filter(s => tabState[s] === 'error').length;
-  const total = SECTIONS.length;
+  const locked  = SECTIONS.filter(s => tabState[s] === 'locked').length;
+  const total   = SECTIONS.length;
+  const done    = loaded + errored + locked;
+  const totalCarregaveis = total - locked;
   const status = document.getElementById('chat-status');
-  if (!status) return;
-  if (loaded === total) status.textContent = 'Roteiro pronto · pergunte algo abaixo';
-  else if (loaded + errored === total) status.textContent = 'Carregado (' + loaded + '/' + total + ' — ' + errored + ' falha' + (errored>1?'s':'') + ')';
-  else status.textContent = 'Carregando... (' + loaded + '/' + total + ')';
+  if (status) {
+    if (readOnlyMode) status.textContent = 'Roteiro salvo · modo leitura';
+    else if (done === total && errored === 0) status.textContent = 'Roteiro pronto · pergunte algo abaixo';
+    else if (done === total) status.textContent = 'Carregado (' + loaded + '/' + totalCarregaveis + ' — ' + errored + ' falha' + (errored>1?'s':'') + ')';
+    else status.textContent = 'Carregando... (' + loaded + '/' + totalCarregaveis + ')';
+  }
   // Indicadores ao lado dos labels das abas
   SECTIONS.forEach(s => {
     const btn = document.querySelector('#page-chat .tab-btn[data-tab="' + s + '"]');
     if (!btn) return;
+    btn.classList.toggle('locked', tabState[s] === 'locked');
     const existing = btn.querySelector('.tab-btn-loading');
     if (tabState[s] === 'loading') {
       if (!existing) {
@@ -1880,6 +2191,10 @@ function updateChatStatus() {
       existing.remove();
     }
   });
+  // Quando todas as seções carregáveis terminaram (sucesso ou erro), salva
+  if (!readOnlyMode && (loaded + errored) === totalCarregaveis && totalCarregaveis > 0 && loaded > 0) {
+    saveCurrentRoteiro();
+  }
 }
 
 function renderTabLoading(section) {
@@ -1931,8 +2246,14 @@ function esc(s) {
 function formatInline(s) {
   if(s == null) return '';
   let t = esc(s);
-  t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
-  t = t.replace(/(?<!["'=\/>])(https?:\/\/[^\s<&"]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  if (isPro()) {
+    t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+    t = t.replace(/(?<!["'=\/>])(https?:\/\/[^\s<&"]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
+  } else {
+    // Free: deep links viram apenas o texto + selo "🔒 Pro" para não dar URL clicável.
+    t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<span class="link-ghost" title="Disponível no Pro">$1 🔒</span>');
+    t = t.replace(/(?<!["'=\/>])(https?:\/\/[^\s<&"]+)/g, function(m){ try { const u = new URL(m); return '<span class="link-ghost" title="Disponível no Pro">' + esc(u.hostname.replace(/^www\./,'')) + ' 🔒</span>'; } catch { return '🔒'; } });
+  }
   t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   t = t.replace(/\n/g, '<br>');
   return t;
@@ -1941,6 +2262,25 @@ function formatInline(s) {
 function formatNum(n) {
   if(n == null || n === '') return '';
   return new Intl.NumberFormat('pt-BR').format(n);
+}
+
+// Extrai um label legível para o "link fantasma" do plano Free.
+function siteFromLink(link) {
+  try {
+    const u = new URL(link);
+    return u.hostname.replace(/^www\./, '').split('.')[0];
+  } catch {
+    return 'site';
+  }
+}
+
+function ctaBtn(link, label, ghostLabel, cls) {
+  if (!link) return '';
+  cls = cls || 'voo-btn';
+  if (isPro()) return '<a class="' + cls + '" href="' + esc(link) + '" target="_blank" rel="noopener">' + label + '</a>';
+  const site = siteFromLink(link);
+  const onClick = 'onclick="showUpgrade(\'Deep links com datas preenchidas são exclusivos do Pro\')"';
+  return '<button class="' + cls + ' ghost" type="button" ' + onClick + ' title="Disponível no Pro">' + (ghostLabel || ('Buscar em ' + site)) + '</button>';
 }
 
 function renderVoos(voos) {
@@ -1959,7 +2299,7 @@ function renderVoos(voos) {
       + (v.duracao ? '<span class="voo-meta-tag">⏱ ' + esc(v.duracao) + '</span>' : '')
       + (v.escalas ? '<span class="voo-meta-tag">' + esc(v.escalas) + '</span>' : '')
     + '</div>'
-    + (v.link ? '<a class="voo-btn" href="' + esc(v.link) + '" target="_blank" rel="noopener">Ver oferta →</a>' : '')
+    + ctaBtn(v.link, 'Ver oferta →', 'Disponível em ' + siteFromLink(v.link || ''), 'voo-btn')
     + '</div>'
   ).join('');
 }
@@ -1977,7 +2317,7 @@ function renderAirbnbCard() {
           + '<span class="hotel-cat">' + c.totalPax + ' pessoas · ' + c.noitesNum + ' noites</span>'
         + '</div>'
         + '<div class="hotel-destaque">Apartamentos, casas e quartos — ideal para famílias e grupos.</div>'
-        + '<a class="hotel-btn" href="' + esc(c.links.airbnb) + '" target="_blank" rel="noopener">Buscar no Airbnb →</a>'
+        + ctaBtn(c.links.airbnb, 'Buscar no Airbnb →', 'Disponível no Airbnb', 'hotel-btn')
       + '</div>'
     + '</div>'
   + '</div>';
@@ -2009,7 +2349,7 @@ function renderHoteis(hoteis) {
           + '</div>'
           + (h.preco_total ? '<div class="hotel-preco-sub">Total: <strong>' + esc(h.preco_total) + '</strong>' + (h.noites ? ' · ' + esc(h.noites) + ' noites' : '') + '</div>' : '')
         + '</div>'
-        + (h.link ? '<a class="hotel-btn" href="' + esc(h.link) + '" target="_blank" rel="noopener">Reservar no Booking →</a>' : '')
+        + ctaBtn(h.link, 'Reservar no Booking →', 'Disponível no Booking', 'hotel-btn')
       + '</div>'
       + '</div>';
   }).join('') + airbnb;
@@ -2254,6 +2594,394 @@ async function sendMsg() {
 }
 
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+
+// ═════════════════════════════════════════════════════════════════════
+// ══ PLANOS, UPGRADE, MERCADO PAGO, MEUS ROTEIROS, MARCA D'ÁGUA ══
+// ═════════════════════════════════════════════════════════════════════
+
+// Estado de plano e uso (preenchido por loadUserPlan)
+let userPlan = 'free'; // 'free' | 'pro_mensal' | 'pro_anual'
+let userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+let readOnlyMode = false;     // ligado quando reabrimos um roteiro salvo
+let currentRoteiroId = null;  // id da row em supabase do roteiro atual
+let _roteiroSaved = false;    // evita salvar 2x o mesmo roteiro
+
+function isPro()       { return userPlan === 'pro_mensal' || userPlan === 'pro_anual'; }
+function isProAnual()  { return userPlan === 'pro_anual'; }
+function getMaxDays()      { return isPro() ? 21 : 5; }
+function getMaxRoteirosMes(){ return isPro() ? Infinity : 2; }
+function getMaxDestinos()   { return isPro() ? 5 : 1; }
+
+async function loadUserPlan() {
+  if (!supabaseClient || !currentUser) {
+    userPlan = 'free';
+    userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+    applyPlanUI();
+    return;
+  }
+  try {
+    const { data, error } = await supabaseClient
+      .from('user_usage')
+      .select('plano, plano_expira_em, roteiros_mes, mes_referencia')
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) {
+      const expira = data.plano_expira_em ? new Date(data.plano_expira_em) : null;
+      const expirado = expira && expira.getTime() < Date.now();
+      userPlan = (data.plano && data.plano !== 'free' && !expirado) ? data.plano : 'free';
+      const mesAtual = new Date().toISOString().slice(0, 7);
+      userUsage = {
+        roteiros_mes: data.mes_referencia === mesAtual ? (data.roteiros_mes || 0) : 0,
+        mes_referencia: data.mes_referencia || '',
+        plano_expira_em: data.plano_expira_em || null,
+      };
+    } else {
+      // Trigger costuma criar a linha; se não existir, cria defensivamente
+      try { await supabaseClient.from('user_usage').insert({ user_id: currentUser.id, plano: 'free' }); } catch {}
+      userPlan = 'free';
+      userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+    }
+  } catch (e) {
+    console.error('loadUserPlan:', e);
+    userPlan = 'free';
+  }
+  applyPlanUI();
+}
+
+function applyPlanUI() {
+  const logged = !!currentUser;
+  document.querySelectorAll('[data-meus-btn]').forEach(el => { el.style.display = logged ? 'inline-flex' : 'none'; });
+  document.querySelectorAll('[data-upgrade-btn]').forEach(el => { el.style.display = (logged && !isPro()) ? 'inline-flex' : 'none'; });
+  document.querySelectorAll('[data-pro-badge]').forEach(el => {
+    if (!logged || !isPro()) { el.style.display = 'none'; return; }
+    el.style.display = 'inline-flex';
+    el.textContent = isProAnual() ? '🏆 Viajante Pro' : '✨ Pro';
+    el.classList.toggle('viajante-pro', isProAnual());
+  });
+  // Marca d'água do roteiro
+  const wm = document.getElementById('roteiro-watermark');
+  if (wm) wm.style.display = (logged && isPro()) ? 'none' : 'block';
+}
+
+function showUpgrade(reason) {
+  if (!currentUser) { goTo('auth'); return; }
+  const overlay = document.getElementById('upgrade-overlay');
+  const r = document.getElementById('upgrade-reason');
+  if (typeof reason === 'string' && reason) { r.textContent = reason; r.style.display = 'block'; }
+  else r.style.display = 'none';
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function hideUpgrade() {
+  document.getElementById('upgrade-overlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+async function startCheckout(plan, btn) {
+  if (!currentUser) { goTo('auth'); return; }
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Redirecionando...'; }
+  try {
+    const res = await fetch('/api/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan, user_id: currentUser.id, user_email: currentUser.email }),
+    });
+    const text = await res.text();
+    let payload; try { payload = JSON.parse(text); } catch { payload = { error: text }; }
+    if (!res.ok) throw new Error(payload.error || ('HTTP ' + res.status));
+    const url = payload.init_point || payload.sandbox_init_point;
+    if (!url) throw new Error('Mercado Pago não retornou link de pagamento');
+    window.location.href = url;
+  } catch (e) {
+    console.error('startCheckout:', e);
+    showToast('Erro ao iniciar pagamento: ' + (e.message || 'desconhecido'), 'error');
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+  }
+}
+
+function showToast(msg, kind) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'toast show' + (kind === 'success' ? ' success' : (kind === 'error' ? ' error' : ''));
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { t.className = 'toast'; }, 3400);
+}
+
+// ───────────────── REDIRECT DO MERCADO PAGO + LINK COMPARTILHADO ─────────────────
+function handleQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const pay = params.get('payment');
+  if (pay === 'success') {
+    showToast('🎉 Pagamento aprovado! Plano Pro ativando — pode levar até 1 min.', 'success');
+    // Tenta refrescar plano algumas vezes (webhook é assíncrono)
+    let n = 0;
+    const tick = async () => {
+      n++;
+      await loadUserPlan();
+      if (!isPro() && n < 6) setTimeout(tick, 5000);
+      else if (isPro()) showToast('✨ Plano Pro ativado!', 'success');
+    };
+    setTimeout(tick, 2500);
+    history.replaceState({}, '', window.location.pathname);
+  } else if (pay === 'failure') {
+    showToast('❌ Pagamento não aprovado. Tente novamente.', 'error');
+    history.replaceState({}, '', window.location.pathname);
+  } else if (pay === 'pending') {
+    showToast('⏳ Pagamento pendente — você receberá email quando aprovado.', 'success');
+    history.replaceState({}, '', window.location.pathname);
+  }
+  const roteiroId = params.get('roteiro');
+  if (roteiroId && /^[0-9a-f-]{20,}$/i.test(roteiroId)) {
+    window._pendingRoteiroId = roteiroId;
+    history.replaceState({}, '', window.location.pathname);
+  }
+}
+
+// ───────────────── SALVAR / CARREGAR / LISTAR ROTEIROS ─────────────────
+async function saveCurrentRoteiro() {
+  if (!supabaseClient || !currentUser) return;
+  if (readOnlyMode || _roteiroSaved) return;
+  // Só salva se ao menos uma seção carregou
+  const ok = SECTIONS.filter(s => tabState[s] === 'loaded').length;
+  if (ok === 0) return;
+
+  _roteiroSaved = true;
+  try {
+    const c = buildContext();
+    const inputs = {
+      answers,
+      destinos: destinos.slice(),
+      estiloSelected: [...estiloSelected],
+      multiSelected: [...multiSelected],
+      bairrosSelected: Object.fromEntries(Object.entries(bairrosSelected).map(([k, v]) => [k, [...v]])),
+      bairrosData,
+      criancasGrupo,
+      calState: { start: calState.start, end: calState.end },
+    };
+    const payload = {
+      inputs,
+      voos: roteiroData.voos || [],
+      hoteis: roteiroData.hoteis || [],
+      roteiro: roteiroData.roteiro || [],
+      orcamento: roteiroData.orcamento || null,
+      dicas: roteiroData.dicas || [],
+    };
+    const expiresAt = isPro() ? null : new Date(Date.now() + 7 * 86400000).toISOString();
+
+    // Free: só guarda o último → apaga os anteriores
+    if (!isPro()) {
+      await supabaseClient.from('roteiros').delete().eq('user_id', currentUser.id);
+    }
+
+    const { data, error } = await supabaseClient
+      .from('roteiros')
+      .insert({
+        user_id: currentUser.id,
+        destino: c.destLabel || (destinos.filter(Boolean)[0] || '—'),
+        datas: c.datasLabel || '',
+        roteiro_json: payload,
+        expires_at: expiresAt,
+      })
+      .select('id')
+      .single();
+    if (error) throw error;
+    currentRoteiroId = data.id;
+
+    try { await supabaseClient.rpc('increment_roteiros_mes'); } catch (e) { console.warn('increment_roteiros_mes:', e); }
+    await loadUserPlan();
+  } catch (e) {
+    console.error('saveCurrentRoteiro:', e);
+    _roteiroSaved = false; // permite tentar de novo
+  }
+}
+
+async function renderMeusRoteiros() {
+  const sub = document.getElementById('meus-sub');
+  const content = document.getElementById('meus-content');
+  if (!content) return;
+  content.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted)">Carregando seus roteiros...</div>';
+  if (!supabaseClient || !currentUser) { content.innerHTML = '<div class="gen-error">Faça login para ver seus roteiros.</div>'; return; }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from('roteiros')
+      .select('id, destino, datas, created_at, expires_at')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    let items = (data || []).filter(r => !r.expires_at || new Date(r.expires_at).getTime() > Date.now());
+    const total = items.length;
+    if (isPro()) {
+      sub.textContent = (isProAnual() ? '🏆 Viajante Pro' : '✨ Pro') + ' · ' + total + ' roteiro' + (total === 1 ? '' : 's') + ' · histórico permanente';
+    } else {
+      sub.textContent = 'Plano Grátis · 1 roteiro salvo por 7 dias · ' + (userUsage.roteiros_mes || 0) + '/2 roteiros gerados este mês';
+    }
+
+    let html = '';
+    if (!isPro()) {
+      html += '<div class="meus-banner">'
+        + '<div class="meus-banner-icon">🔓</div>'
+        + '<div class="meus-banner-body">'
+          + '<div class="meus-banner-title">Upgrade para ver histórico completo</div>'
+          + '<div class="meus-banner-desc">No Pro seus roteiros ficam salvos para sempre. Você também desbloqueia exportar PDF e compartilhar.</div>'
+        + '</div>'
+        + '<button class="meus-banner-btn" type="button" onclick="showUpgrade()">Conhecer o Pro</button>'
+      + '</div>';
+      items = items.slice(0, 1);
+    }
+
+    if (items.length === 0) {
+      html += '<div class="meus-empty">'
+        + '<div class="meus-empty-icon">📭</div>'
+        + '<div class="meus-empty-title">Nenhum roteiro salvo ainda</div>'
+        + '<div class="meus-empty-desc">Crie sua primeira viagem e ela vai aparecer aqui automaticamente.</div>'
+        + '<button class="meus-nova-btn" type="button" onclick="goTo(\'wizard\')">✈ Criar primeiro roteiro</button>'
+      + '</div>';
+    } else {
+      const fmt = (s) => { try { return new Date(s).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }); } catch { return ''; } };
+      html += '<div class="roteiro-list">';
+      items.forEach(r => {
+        const lock = isPro() ? '' : ' locked';
+        html += '<div class="roteiro-item">'
+          + '<div class="roteiro-item-icon">✈</div>'
+          + '<div class="roteiro-item-body">'
+            + '<div class="roteiro-item-dest">' + esc(r.destino || '—') + '</div>'
+            + (r.datas ? '<div class="roteiro-item-datas">' + esc(r.datas) + '</div>' : '')
+            + '<div class="roteiro-item-created">📅 Criado em ' + fmt(r.created_at) + '</div>'
+            + (r.expires_at ? '<div class="roteiro-item-expira">⏰ Expira em ' + fmt(r.expires_at) + '</div>' : '')
+          + '</div>'
+          + '<div class="roteiro-item-actions">'
+            + '<button class="btn-action primary" type="button" onclick="openSavedRoteiro(\'' + r.id + '\')">📖 Abrir</button>'
+            + '<button class="btn-action' + lock + '" type="button" onclick="exportRoteiroPDF(\'' + r.id + '\')">📄 PDF</button>'
+            + '<button class="btn-action' + lock + '" type="button" onclick="shareRoteiro(\'' + r.id + '\')">🔗 Compartilhar</button>'
+            + '<button class="btn-action danger" type="button" onclick="deleteRoteiro(\'' + r.id + '\')">🗑️</button>'
+          + '</div>'
+        + '</div>';
+      });
+      html += '</div>';
+    }
+    content.innerHTML = html;
+  } catch (e) {
+    console.error('renderMeusRoteiros:', e);
+    content.innerHTML = '<div class="gen-error"><strong>Erro ao carregar roteiros</strong>' + esc(e.message || 'desconhecido') + '</div>';
+  }
+}
+
+async function openSavedRoteiro(id) {
+  if (!supabaseClient) return;
+  try {
+    const { data, error } = await supabaseClient.from('roteiros').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    if (!data) { showToast('Roteiro não encontrado ou expirou', 'error'); return; }
+
+    readOnlyMode = true;
+    _roteiroSaved = true; // não salvar de novo
+    currentRoteiroId = id;
+    const p = data.roteiro_json || {};
+    const inp = p.inputs || {};
+    answers = inp.answers || {};
+    destinos = inp.destinos && inp.destinos.length ? inp.destinos.slice() : [''];
+    estiloSelected = new Set(inp.estiloSelected || []);
+    multiSelected = new Set(inp.multiSelected || []);
+    bairrosSelected = {};
+    Object.entries(inp.bairrosSelected || {}).forEach(([k, v]) => { bairrosSelected[k] = new Set(v || []); });
+    bairrosData = inp.bairrosData || {};
+    criancasGrupo = inp.criancasGrupo || [];
+    if (inp.calState) calState = { ...calState, start: inp.calState.start, end: inp.calState.end };
+
+    roteiroData = {
+      voos:      Array.isArray(p.voos)    ? p.voos    : [],
+      hoteis:    Array.isArray(p.hoteis)  ? p.hoteis  : [],
+      roteiro:   Array.isArray(p.roteiro) ? p.roteiro : [],
+      orcamento: p.orcamento || null,
+      dicas:     Array.isArray(p.dicas)   ? p.dicas   : [],
+    };
+    chatHistory = [];
+    tabState = {};
+    SECTIONS.forEach(s => {
+      const v = roteiroData[s];
+      const has = Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' && Object.keys(v).length > 0);
+      // Free não pode ver orcamento/dicas, mesmo se o roteiro foi gerado quando Pro
+      if (!isPro() && (s === 'orcamento' || s === 'dicas')) tabState[s] = 'locked';
+      else tabState[s] = has ? 'loaded' : 'idle';
+    });
+
+    goTo('chat');
+    document.getElementById('gen-loader').style.display = 'none';
+    document.getElementById('roteiro-container').style.display = 'flex';
+    document.querySelector('#page-chat .tabs-bar').style.display = 'flex';
+    document.getElementById('chat-section').style.display = 'none';
+    document.getElementById('chat-section-divider').style.display = 'none';
+    document.getElementById('chat-input-box').style.display = 'none';
+    document.getElementById('page-chat').classList.add('chat-readonly');
+    SECTIONS.forEach(s => {
+      if (tabState[s] === 'locked') renderTabLockedFree(s);
+      else renderTab(s);
+    });
+    switchTab('voos');
+    const status = document.getElementById('chat-status');
+    if (status) status.textContent = 'Roteiro salvo · modo leitura';
+    applyPlanUI();
+  } catch (e) {
+    console.error('openSavedRoteiro:', e);
+    showToast('Erro ao abrir roteiro: ' + (e.message || 'desconhecido'), 'error');
+  }
+}
+
+async function deleteRoteiro(id) {
+  if (!confirm('Excluir este roteiro? Esta ação não pode ser desfeita.')) return;
+  try {
+    const { error } = await supabaseClient.from('roteiros').delete().eq('id', id);
+    if (error) throw error;
+    showToast('Roteiro excluído', 'success');
+    renderMeusRoteiros();
+  } catch (e) {
+    console.error('deleteRoteiro:', e);
+    showToast('Erro ao excluir: ' + (e.message || 'desconhecido'), 'error');
+  }
+}
+
+async function exportRoteiroPDF(id) {
+  if (!isPro()) { showUpgrade('Exportar PDF é um recurso exclusivo do Pro. Assine para baixar seu roteiro.'); return; }
+  await openSavedRoteiro(id);
+  setTimeout(() => { window.print(); }, 700);
+}
+
+async function shareRoteiro(id) {
+  if (!isPro()) { showUpgrade('Compartilhar link é um recurso exclusivo do Pro.'); return; }
+  try {
+    const { error } = await supabaseClient.from('roteiros').update({ is_public: true }).eq('id', id);
+    if (error) throw error;
+    const url = window.location.origin + '/?roteiro=' + id;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Meu roteiro Viaja+Aí', url }); return; } catch {}
+    }
+    try { await navigator.clipboard.writeText(url); showToast('🔗 Link copiado para a área de transferência', 'success'); }
+    catch { prompt('Copie este link:', url); }
+  } catch (e) {
+    console.error('shareRoteiro:', e);
+    showToast('Erro ao compartilhar', 'error');
+  }
+}
+
+// Painel "bloqueado" para abas (Free) ou para reabrir sem aquela seção
+function renderTabLockedFree(section) {
+  const el = document.getElementById('tab-' + section);
+  if (!el) return;
+  const labels = { orcamento: 'Orçamento', dicas: 'Dicas' };
+  el.innerHTML = '<div class="tab-locked">'
+    + '<div class="tab-locked-icon">🔒</div>'
+    + '<div class="tab-locked-title">' + (labels[section] || 'Conteúdo') + ' é exclusivo do Pro</div>'
+    + '<div class="tab-locked-desc">No plano Pro você desbloqueia esta aba com estimativa de custo da viagem inteira e dicas locais detalhadas.</div>'
+    + '<button class="tab-locked-btn" type="button" onclick="showUpgrade()">✨ Conhecer o Pro</button>'
+    + '</div>';
+  const btn = document.querySelector('#page-chat .tab-btn[data-tab="' + section + '"]');
+  if (btn) btn.classList.add('locked');
+}
 
 initAuth();
 </script>
