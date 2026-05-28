@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Política de Privacidade · Viaja+Aí</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
+  --green-border: #9FE1CB;
+  --text: #1a1a1a; --text-muted: #6b7280;
+  --bg: #fafaf8; --card: #ffffff; --border: #e5e7eb;
+  --radius: 14px; --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.65; }
+nav { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 2rem; border-bottom: 1px solid var(--border); background: var(--card); }
+.nav-logo { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 1.15rem; color: var(--text); text-decoration: none; }
+.nav-logo .dot { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--green); border-radius: 7px; font-size: 14px; color: white; }
+.nav-back { background: none; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 14px; font-size: 13px; color: var(--text-muted); cursor: pointer; text-decoration: none; font-family: inherit; }
+.nav-back:hover { border-color: var(--green); color: var(--green); }
+main { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+h1 em { font-style: normal; color: var(--green); }
+.subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; }
+h2 { font-size: 1.25rem; font-weight: 700; margin: 2.25rem 0 0.85rem; color: var(--text); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 1.4rem 0 0.55rem; color: var(--text); }
+p, li { color: var(--text); font-size: 0.97rem; margin-bottom: 0.75rem; }
+ul { margin-left: 1.4rem; margin-bottom: 1.1rem; }
+ul li { margin-bottom: 0.45rem; }
+strong { font-weight: 600; }
+a { color: var(--green-dark); text-decoration: underline; }
+.callout { background: var(--green-light); border: 1px solid var(--green-border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin: 1.25rem 0; font-size: 0.95rem; }
+.callout-warn { background: #FFF7E6; border-color: #FFD580; color: #8A5A00; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.92rem; }
+table th, table td { padding: 10px 12px; border: 1px solid var(--border); text-align: left; vertical-align: top; }
+table th { background: var(--bg); font-weight: 600; }
+footer { text-align: center; padding: 1.5rem; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--card); }
+footer a { color: var(--text-muted); margin: 0 8px; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/"><span class="dot">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+  <a class="nav-back" href="/">← Voltar</a>
+</nav>
+
+<main>
+  <h1>Política de <em>Privacidade</em></h1>
+  <div class="subtitle">Última atualização: 28 de maio de 2026</div>
+
+  <p>O <strong>Viaja+Aí</strong> respeita sua privacidade. Esta Política descreve quais dados coletamos, como usamos, com quem compartilhamos e quais são seus direitos, sempre em conformidade com a <strong>Lei Geral de Proteção de Dados — LGPD (Lei nº 13.709/2018)</strong>.</p>
+
+  <h2>1. Dados que coletamos</h2>
+  <p>Coletamos apenas os dados estritamente necessários ao funcionamento do serviço:</p>
+  <table>
+    <tr><th>Dado</th><th>Finalidade</th></tr>
+    <tr><td><strong>Nome completo</strong></td><td>Identificação e personalização da experiência</td></tr>
+    <tr><td><strong>E-mail</strong></td><td>Login, comunicação transacional e suporte</td></tr>
+    <tr><td><strong>CPF</strong> (armazenado apenas como hash criptográfico SHA-256)</td><td>Verificação de identidade única — prevenção de fraudes e múltiplas contas</td></tr>
+    <tr><td><strong>Senha</strong> (armazenada com hash via Supabase Auth)</td><td>Autenticação</td></tr>
+    <tr><td><strong>Endereço IP</strong> (apenas no momento do cadastro)</td><td>Prevenção de abuso (limite de contas por IP)</td></tr>
+    <tr><td><strong>Dados de uso</strong> (roteiros gerados, datas, destinos pesquisados)</td><td>Geração e armazenamento dos roteiros do usuário</td></tr>
+    <tr><td><strong>Dados de pagamento</strong> (caso assine um plano Pro)</td><td>Processados exclusivamente pelo Mercado Pago — nunca armazenamos dados de cartão</td></tr>
+  </table>
+
+  <h2>2. Proteção do CPF</h2>
+  <div class="callout">
+    🔒 Seu CPF <strong>nunca é armazenado em texto puro</strong>. Aplicamos hash criptográfico SHA-256 com salt antes do armazenamento, de forma que <strong>não é possível recuperar o CPF original</strong> a partir do que está em nosso banco.
+  </div>
+  <p>O CPF é usado <strong>exclusivamente</strong> para garantir que cada CPF gere apenas uma conta na plataforma, prevenindo fraudes e abuso do trial gratuito. Não é compartilhado com terceiros, salvo por imposição legal.</p>
+
+  <h2>3. Como usamos seus dados</h2>
+  <ul>
+    <li>Permitir login, autenticação e personalização da experiência;</li>
+    <li>Gerar, armazenar e exibir os roteiros que você criar;</li>
+    <li>Processar assinaturas e pagamentos (via Mercado Pago);</li>
+    <li>Enviar comunicações importantes sobre o serviço (não enviamos spam);</li>
+    <li>Prevenir fraudes, abuso e violação dos Termos de Uso;</li>
+    <li>Atender obrigações legais e regulatórias.</li>
+  </ul>
+
+  <h2>4. Compartilhamento com terceiros</h2>
+  <p>O Viaja+Aí <strong>não vende, aluga ou cede seus dados pessoais</strong>. Compartilhamos somente com prestadores essenciais à operação:</p>
+  <ul>
+    <li><strong>Supabase</strong> — armazenamento da base de dados e autenticação;</li>
+    <li><strong>Mercado Pago</strong> — processamento de pagamentos;</li>
+    <li><strong>Anthropic (Claude AI)</strong> — geração dos roteiros (recebe apenas as preferências de viagem que você informa, sem nome, CPF ou e-mail);</li>
+    <li><strong>Vercel</strong> — hospedagem da aplicação;</li>
+    <li><strong>Autoridades públicas</strong> — apenas quando exigido por lei ou ordem judicial.</li>
+  </ul>
+  <p>Os <strong>links de reserva</strong> (Booking, Decolar, Kayak, Airbnb, Localiza, GetYourGuide, Airalo, Assist Card e outros) levam a sites de terceiros com políticas próprias. O Viaja+Aí não compartilha automaticamente seus dados com eles.</p>
+
+  <h2>5. Cookies e tecnologias semelhantes</h2>
+  <p>Utilizamos armazenamento local (localStorage) apenas para manter sua sessão de login ativa e preferências de uso. Não usamos cookies de rastreamento publicitário.</p>
+
+  <h2>6. Seus direitos (LGPD)</h2>
+  <p>Como titular dos dados, você tem direito a:</p>
+  <ul>
+    <li><strong>Acesso</strong> — solicitar uma cópia dos seus dados;</li>
+    <li><strong>Correção</strong> — corrigir dados incompletos ou desatualizados;</li>
+    <li><strong>Exclusão</strong> — solicitar a eliminação dos seus dados pessoais;</li>
+    <li><strong>Portabilidade</strong> — receber seus dados em formato estruturado;</li>
+    <li><strong>Revogação do consentimento</strong> — a qualquer momento;</li>
+    <li><strong>Oposição</strong> ao tratamento realizado com base em interesse legítimo;</li>
+    <li><strong>Informação</strong> sobre com quem seus dados são compartilhados.</li>
+  </ul>
+  <p>Para exercer qualquer um destes direitos, envie e-mail para <strong>privacidade@viajamaisai.net.br</strong> com o título "LGPD — Solicitação de direitos". Responderemos em até 15 dias.</p>
+
+  <h2>7. Retenção e eliminação</h2>
+  <ul>
+    <li>Seus dados são mantidos enquanto sua conta estiver ativa;</li>
+    <li>Após exclusão da conta, eliminamos todos os dados pessoais em até <strong>30 dias</strong>, exceto quando obrigados por lei a manter algum registro (ex: fiscal);</li>
+    <li>Roteiros do plano Trial expiram em <strong>30 dias</strong>; do plano Pro, são mantidos enquanto a assinatura estiver ativa;</li>
+    <li>O hash do CPF pode ser mantido por mais tempo para evitar reabertura abusiva de contas.</li>
+  </ul>
+
+  <h2>8. Segurança</h2>
+  <p>Adotamos boas práticas de segurança da informação: comunicação via HTTPS, senhas armazenadas com hash, CPF armazenado apenas em hash criptográfico, acesso ao banco de dados restrito por chaves de serviço e controle de permissões via Row Level Security do Supabase. Apesar disso, nenhum sistema é 100% imune — caso identifique algum incidente, notifique-nos imediatamente.</p>
+
+  <h2>9. Alterações desta Política</h2>
+  <p>Esta Política pode ser atualizada periodicamente. A versão vigente sempre estará disponível nesta página, e mudanças relevantes serão comunicadas por e-mail ou aviso na plataforma.</p>
+
+  <h2>10. Contato — Encarregado de Dados (DPO)</h2>
+  <p>Para tratar de qualquer assunto relacionado à proteção de seus dados, fale com nosso Encarregado pelo Tratamento de Dados Pessoais (DPO):</p>
+  <ul>
+    <li>E-mail: <strong>privacidade@viajamaisai.net.br</strong></li>
+    <li>Suporte geral: <strong>contato@viajamaisai.net.br</strong></li>
+  </ul>
+
+  <div class="callout" style="margin-top:2.5rem">
+    Ao se cadastrar no Viaja+Aí, você declara que leu e está ciente desta Política de Privacidade e dos <a href="/termos.html">Termos de Uso</a>.
+  </div>
+</main>
+
+<footer>
+  © 2026 Viaja+Aí · Todos os direitos reservados ·
+  <a href="/termos.html">Termos de Uso</a> ·
+  <a href="/privacidade.html">Política de Privacidade</a>
+</footer>
+</body>
+</html>

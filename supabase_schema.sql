@@ -2,6 +2,29 @@
 -- Idempotente: pode rodar de novo sem quebrar nada existente.
 
 -- ──────────────────────────────────────────────────────────────────────
+-- 0) PROFILES — nome, CPF hash, IP de cadastro (LGPD-friendly)
+-- ──────────────────────────────────────────────────────────────────────
+create table if not exists public.profiles (
+  id          uuid primary key references auth.users(id) on delete cascade,
+  nome        text not null,
+  cpf_hash    text not null unique,
+  email       text not null,
+  ip_cadastro text,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists profiles_cpf_hash_idx on public.profiles (cpf_hash);
+create index if not exists profiles_ip_idx       on public.profiles (ip_cadastro, created_at desc);
+create index if not exists profiles_email_idx    on public.profiles (email);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists profiles_select_own on public.profiles;
+create policy profiles_select_own on public.profiles for select using (auth.uid() = id);
+-- INSERT/UPDATE só via service role (api/verify) — sem policy = bloqueado para auth.uid().
+
+
+-- ──────────────────────────────────────────────────────────────────────
 -- 1) ROTEIROS — histórico de roteiros gerados
 -- ──────────────────────────────────────────────────────────────────────
 create table if not exists public.roteiros (
@@ -35,16 +58,35 @@ create policy roteiros_public_read on public.roteiros for select using (is_publi
 
 
 -- ──────────────────────────────────────────────────────────────────────
--- 2) USER_USAGE — plano atual e contador de roteiros do mês
+-- 2) USER_USAGE — plano atual e contador de roteiros (trial / pro)
 -- ──────────────────────────────────────────────────────────────────────
 create table if not exists public.user_usage (
-  user_id            uuid primary key references auth.users(id) on delete cascade,
-  roteiros_mes       integer not null default 0,
-  mes_referencia     text not null default to_char(now() at time zone 'utc', 'YYYY-MM'),
-  plano              text not null default 'free' check (plano in ('free','pro_mensal','pro_anual')),
-  plano_expira_em    timestamptz,
-  updated_at         timestamptz not null default now()
+  user_id                 uuid primary key references auth.users(id) on delete cascade,
+  roteiros_mes            integer not null default 0,
+  mes_referencia          text not null default to_char(now() at time zone 'utc', 'YYYY-MM'),
+  plano                   text not null default 'trial',
+  plano_expira_em         timestamptz,
+  trial_started_at        timestamptz,
+  trial_expires_at        timestamptz,
+  trial_roteiros_usados   integer not null default 0,
+  updated_at              timestamptz not null default now()
 );
+
+-- Migração: amplia o check do plano para incluir 'trial' e 'expirado'
+do $$
+begin
+  alter table public.user_usage drop constraint if exists user_usage_plano_check;
+exception when others then null;
+end $$;
+
+alter table public.user_usage
+  add constraint user_usage_plano_check
+  check (plano in ('free','trial','expirado','pro_mensal','pro_anual'));
+
+-- Migração: adiciona colunas de trial se ainda não existirem
+alter table public.user_usage add column if not exists trial_started_at      timestamptz;
+alter table public.user_usage add column if not exists trial_expires_at      timestamptz;
+alter table public.user_usage add column if not exists trial_roteiros_usados integer not null default 0;
 
 alter table public.user_usage enable row level security;
 
@@ -81,6 +123,7 @@ create policy subscriptions_select_own on public.subscriptions for select using 
 
 -- ──────────────────────────────────────────────────────────────────────
 -- 4) FUNÇÃO: cria linha user_usage automaticamente para novos usuários
+--    Novos cadastros começam com TRIAL de 7 dias e acesso completo.
 -- ──────────────────────────────────────────────────────────────────────
 create or replace function public.handle_new_user_usage()
 returns trigger
@@ -89,8 +132,8 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.user_usage (user_id, plano)
-  values (new.id, 'free')
+  insert into public.user_usage (user_id, plano, trial_started_at, trial_expires_at, trial_roteiros_usados)
+  values (new.id, 'trial', now(), now() + interval '7 days', 0)
   on conflict (user_id) do nothing;
   return new;
 end;
@@ -103,8 +146,8 @@ create trigger on_auth_user_created_usage
 
 
 -- ──────────────────────────────────────────────────────────────────────
--- 5) FUNÇÃO RPC: incrementa contador, reseta se virou o mês
--- Chamada pelo frontend após salvar um roteiro novo.
+-- 5) FUNÇÃO RPC: incrementa contador de uso e do trial
+--    Chamada pelo frontend após salvar um roteiro novo.
 -- ──────────────────────────────────────────────────────────────────────
 create or replace function public.increment_roteiros_mes()
 returns void
@@ -119,14 +162,15 @@ begin
   if uid is null then
     raise exception 'auth.uid() retornou null';
   end if;
-  insert into public.user_usage (user_id, roteiros_mes, mes_referencia)
-  values (uid, 1, mes_atual)
+  insert into public.user_usage (user_id, roteiros_mes, mes_referencia, trial_roteiros_usados)
+  values (uid, 1, mes_atual, 1)
   on conflict (user_id) do update
-    set roteiros_mes   = case when user_usage.mes_referencia = mes_atual
-                              then user_usage.roteiros_mes + 1
-                              else 1 end,
-        mes_referencia = mes_atual,
-        updated_at     = now();
+    set roteiros_mes          = case when user_usage.mes_referencia = mes_atual
+                                     then user_usage.roteiros_mes + 1
+                                     else 1 end,
+        mes_referencia        = mes_atual,
+        trial_roteiros_usados = user_usage.trial_roteiros_usados + 1,
+        updated_at            = now();
 end;
 $$;
 

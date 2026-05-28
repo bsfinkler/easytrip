@@ -486,12 +486,61 @@ body.auth-ready .app-loader { display: none; }
 .chat-readonly .chat-section,
 .chat-readonly .chat-input-box { display: none !important; }
 
+/* ═══ TRIAL BANNER (topo da tela quando faltam <=2 dias) ═══ */
+.trial-banner { display: none; align-items: center; gap: 12px; padding: 10px 18px; background: linear-gradient(135deg, #FFF7E6, #FFFCEC); border-bottom: 1px solid #FFD580; color: #8A5A00; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.trial-banner.show { display: flex; }
+.trial-banner-icon { font-size: 18px; flex-shrink: 0; }
+.trial-banner-msg { flex: 1; line-height: 1.4; }
+.trial-banner-msg strong { font-weight: 700; }
+.trial-banner-btn { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; white-space: nowrap; }
+.trial-banner-btn:hover { background: var(--green-dark); }
+.trial-banner-close { background: none; border: none; color: #8A5A00; cursor: pointer; font-size: 18px; padding: 0 4px; opacity: 0.7; }
+.trial-banner-close:hover { opacity: 1; }
+
+/* ═══ AUTH — campos extras de signup ═══ */
+.signup-only { display: none; }
+body.auth-signup .signup-only { display: block; }
+body.auth-signup .login-only { display: none; }
+.input-help { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; display: flex; align-items: flex-start; gap: 5px; }
+.input-help.privacy { color: var(--green-dark); }
+.terms-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.terms-row input[type="checkbox"] { width: 16px; height: 16px; margin-top: 2px; flex-shrink: 0; accent-color: var(--green); cursor: pointer; }
+.terms-row label { cursor: pointer; }
+.terms-row a { color: var(--green-dark); text-decoration: underline; }
+
+/* ═══ ROTEIRO — disclaimer ao final ═══ */
+.roteiro-disclaimer { font-size: 11px; color: var(--text-muted); padding: 12px 16px; background: #FFFBF0; border: 1px solid #FFE9B8; border-radius: var(--radius-sm); margin: 6px 0 14px; line-height: 1.55; display: flex; gap: 8px; align-items: flex-start; }
+.roteiro-disclaimer .icon { font-size: 14px; flex-shrink: 0; }
+
+/* ═══ EXTERNAL LINK MODAL ═══ */
+.ext-modal { position: fixed; inset: 0; background: rgba(15, 23, 30, 0.78); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 11500; display: none; align-items: center; justify-content: center; padding: 2rem 1rem; }
+.ext-modal.show { display: flex; }
+.ext-modal-card { background: var(--card); border-radius: var(--radius); max-width: 460px; width: 100%; padding: 1.75rem 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,0.35); }
+.ext-modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.ext-modal-msg { font-size: 14px; color: var(--text); line-height: 1.55; margin-bottom: 1rem; }
+.ext-modal-url { font-size: 12px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 1.1rem; word-break: break-all; font-family: ui-monospace, Consolas, monospace; }
+.ext-modal-check { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-muted); cursor: pointer; margin-bottom: 1.1rem; }
+.ext-modal-check input { accent-color: var(--green); width: 14px; height: 14px; cursor: pointer; }
+.ext-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.ext-modal-btn { padding: 9px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; border: none; transition: all 0.15s; }
+.ext-modal-btn.cancel { background: none; border: 1px solid var(--border); color: var(--text-muted); }
+.ext-modal-btn.cancel:hover { border-color: var(--text-muted); color: var(--text); }
+.ext-modal-btn.go { background: var(--green); color: white; }
+.ext-modal-btn.go:hover { background: var(--green-dark); }
+
+/* ═══ FOOTER — links legais ═══ */
+.footer-links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 0.5rem; }
+.footer-links a { font-size: 12px; color: var(--text-muted); text-decoration: none; }
+.footer-links a:hover { color: var(--green); text-decoration: underline; }
+.footer-links .sep { color: var(--text-muted); opacity: 0.5; }
+
 /* ═══ PRINT (Exportar PDF) ═══ */
 @media print {
   nav, .wizard-nav, footer, .chat-header-box, .tabs-bar,
   .chat-section, .chat-section-divider, .chat-input-box,
   .upgrade-overlay, .toast, .roteiro-watermark, .nav-meus-btn,
-  .nav-upgrade-btn, .nav-pro-badge, .logout-btn, .user-chip { display: none !important; }
+  .nav-upgrade-btn, .nav-pro-badge, .logout-btn, .user-chip,
+  .trial-banner, .ext-modal { display: none !important; }
   body { background: white; }
   .tab-panels { overflow: visible !important; max-height: none !important; padding: 0 !important; border: none !important; background: white !important; }
   .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 1rem; }
@@ -506,13 +555,38 @@ body.auth-ready .app-loader { display: none; }
 <!-- TOAST GLOBAL -->
 <div id="toast" class="toast"></div>
 
+<!-- TRIAL BANNER GLOBAL (aparece quando faltam <= 2 dias) -->
+<div id="trial-banner" class="trial-banner" role="status">
+  <span class="trial-banner-icon">⏰</span>
+  <span class="trial-banner-msg" id="trial-banner-msg">Seu trial está acabando</span>
+  <button class="trial-banner-btn" type="button" onclick="showUpgrade()">Garanta o Pro →</button>
+  <button class="trial-banner-close" type="button" aria-label="Fechar" onclick="dismissTrialBanner()">✕</button>
+</div>
+
+<!-- MODAL DE LINK EXTERNO -->
+<div id="ext-modal" class="ext-modal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeExtModal(false)">
+  <div class="ext-modal-card">
+    <div class="ext-modal-title">🔗 Você vai sair do Viaja+Aí</div>
+    <div class="ext-modal-msg">Você será redirecionado para um site externo. O Viaja+Aí não se responsabiliza por transações realizadas fora desta plataforma. Confirme sempre as informações no site de reserva antes de comprar.</div>
+    <div class="ext-modal-url" id="ext-modal-url"></div>
+    <label class="ext-modal-check">
+      <input type="checkbox" id="ext-modal-dontshow" />
+      Não mostrar este aviso novamente
+    </label>
+    <div class="ext-modal-actions">
+      <button class="ext-modal-btn cancel" type="button" onclick="closeExtModal(false)">Cancelar</button>
+      <button class="ext-modal-btn go" type="button" onclick="closeExtModal(true)">Continuar →</button>
+    </div>
+  </div>
+</div>
+
 <!-- OVERLAY DE UPGRADE -->
-<div id="upgrade-overlay" class="upgrade-overlay" onclick="if(event.target===this) hideUpgrade()">
+<div id="upgrade-overlay" class="upgrade-overlay" onclick="if(event.target===this && !window._upgradeForced) hideUpgrade()">
   <div class="upgrade-card" role="dialog" aria-modal="true">
-    <button class="upgrade-close" type="button" onclick="hideUpgrade()" aria-label="Fechar">✕</button>
-    <div class="upgrade-eyebrow">✨ Viaja+Aí Pro</div>
-    <h2 class="upgrade-title">Desbloqueie o <em>Viaja+Aí Pro</em></h2>
-    <p class="upgrade-sub">Roteiros ilimitados, multidestino, todas as 5 abas, deep links com datas, PDF e muito mais.</p>
+    <button class="upgrade-close" id="upgrade-close" type="button" onclick="hideUpgrade()" aria-label="Fechar">✕</button>
+    <div class="upgrade-eyebrow" id="upgrade-eyebrow">✨ Viaja+Aí Pro</div>
+    <h2 class="upgrade-title" id="upgrade-title">Continue viajando com o <em>Viaja+Aí Pro</em></h2>
+    <p class="upgrade-sub" id="upgrade-sub">Roteiros ilimitados, multidestino, todas as 5 abas, deep links com datas, PDF e muito mais.</p>
     <div id="upgrade-reason" class="upgrade-reason" style="display:none"></div>
     <div class="plans-row">
       <div class="plan-card">
@@ -524,16 +598,15 @@ body.auth-ready .app-loader { display: none; }
         </div>
         <ul class="plan-features">
           <li><span class="check">✅</span> Roteiros ilimitados</li>
-          <li><span class="check">✅</span> Multidestino (até 5)</li>
-          <li><span class="check">✅</span> Até 21 dias por roteiro</li>
-          <li><span class="check">✅</span> Todas as 5 abas (voos, hotéis, roteiro, orçamento, dicas)</li>
+          <li><span class="check">✅</span> Todas as funcionalidades</li>
+          <li><span class="check">✅</span> Histórico permanente ilimitado</li>
+          <li><span class="check">✅</span> Exportar PDF</li>
+          <li><span class="check">✅</span> Compartilhar roteiro</li>
+          <li><span class="check">✅</span> Multidestino e até 21 dias</li>
           <li><span class="check">✅</span> Deep links com datas preenchidas</li>
-          <li><span class="check">✅</span> Carro, seguro, eSIM e transfer</li>
-          <li><span class="check">✅</span> Histórico ilimitado e permanente</li>
-          <li><span class="check">✅</span> Exportar PDF e compartilhar</li>
           <li><span class="check">✅</span> Sem marca d'água</li>
         </ul>
-        <button class="plan-cta plan-cta-sec" type="button" onclick="startCheckout('pro_mensal', this)">Assinar mensal</button>
+        <button class="plan-cta plan-cta-sec" type="button" onclick="startCheckout('pro_mensal', this)">Assinar por R$ 29,90/mês</button>
       </div>
       <div class="plan-card popular">
         <div class="plan-popular-tag">⭐ Mais popular — 2 meses grátis</div>
@@ -550,11 +623,11 @@ body.auth-ready .app-loader { display: none; }
           <li><span class="check">🏆</span> <strong>Badge "Viajante Pro"</strong> no perfil</li>
           <li><span class="check">✅</span> Prioridade nos próximos recursos</li>
         </ul>
-        <button class="plan-cta" type="button" onclick="startCheckout('pro_anual', this)">Assinar anual</button>
+        <button class="plan-cta" type="button" onclick="startCheckout('pro_anual', this)">Assinar por R$ 239,90/ano</button>
       </div>
     </div>
-    <div class="upgrade-free-link">
-      <button type="button" onclick="hideUpgrade()">Continuar com o plano gratuito</button>
+    <div class="upgrade-free-link" id="upgrade-support">
+      <button type="button" onclick="window.location.href='mailto:contato@viajamaisai.net.br?subject=Suporte%20Viaja%2BA%C3%AD'">💬 Falar com suporte</button>
     </div>
   </div>
 </div>
@@ -582,6 +655,15 @@ body.auth-ready .app-loader { display: none; }
       <div class="auth-title" id="auth-title">Bem-vindo de volta</div>
       <div class="auth-sub" id="auth-sub">Entre para criar e salvar seus roteiros.</div>
       <form id="auth-form" onsubmit="event.preventDefault(); submitAuth();">
+        <div class="auth-field signup-only">
+          <label class="auth-label" for="auth-nome">Nome completo</label>
+          <input class="text-field" type="text" id="auth-nome" placeholder="Ex: Maria Silva" autocomplete="name" />
+        </div>
+        <div class="auth-field signup-only">
+          <label class="auth-label" for="auth-cpf">CPF</label>
+          <input class="text-field" type="text" id="auth-cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" autocomplete="off" oninput="formatCPFInput(this)" />
+          <div class="input-help privacy">🔒 Seu CPF é criptografado e usado exclusivamente para verificar sua identidade. Não é compartilhado com terceiros.</div>
+        </div>
         <div class="auth-field">
           <label class="auth-label" for="auth-email">E-mail</label>
           <input class="text-field" type="email" id="auth-email" required placeholder="voce@email.com" autocomplete="email" />
@@ -590,12 +672,23 @@ body.auth-ready .app-loader { display: none; }
           <label class="auth-label" for="auth-password">Senha</label>
           <input class="text-field" type="password" id="auth-password" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="current-password" />
         </div>
+        <div class="terms-row signup-only">
+          <input type="checkbox" id="auth-terms" />
+          <label for="auth-terms">Li e aceito os <a href="/termos.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a> do Viaja+Aí.</label>
+        </div>
         <button class="auth-submit" id="auth-submit" type="submit">Entrar</button>
       </form>
       <div id="auth-msg"></div>
     </div>
   </div>
-  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+  <footer>
+    © 2026 Viaja+Aí · Seu roteiro, do seu jeito
+    <div class="footer-links">
+      <a href="/termos.html">Termos de Uso</a>
+      <span class="sep">·</span>
+      <a href="/privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
 </div>
 
 <!-- LANDING -->
@@ -751,6 +844,11 @@ body.auth-ready .app-loader { display: none; }
       <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
       <div class="landing-footer-tagline">Seu roteiro, do seu jeito. Feito com IA e muito carinho pra quem ama viajar.</div>
       <div class="landing-footer-copy">© 2026 Viaja+Aí · Todos os direitos reservados</div>
+      <div class="footer-links">
+        <a href="/termos.html">Termos de Uso</a>
+        <span class="sep">·</span>
+        <a href="/privacidade.html">Política de Privacidade</a>
+      </div>
     </div>
   </footer>
 </div>
@@ -772,7 +870,14 @@ body.auth-ready .app-loader { display: none; }
   <div class="wizard-body">
     <div class="wizard-card" id="wizard-card"></div>
   </div>
-  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+  <footer>
+    © 2026 Viaja+Aí · Seu roteiro, do seu jeito
+    <div class="footer-links">
+      <a href="/termos.html">Termos de Uso</a>
+      <span class="sep">·</span>
+      <a href="/privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
 </div>
 
 <!-- MEUS ROTEIROS -->
@@ -796,7 +901,14 @@ body.auth-ready .app-loader { display: none; }
     </div>
     <div id="meus-content"></div>
   </div>
-  <footer>© 2026 Viaja+Aí · Seu roteiro, do seu jeito</footer>
+  <footer>
+    © 2026 Viaja+Aí · Seu roteiro, do seu jeito
+    <div class="footer-links">
+      <a href="/termos.html">Termos de Uso</a>
+      <span class="sep">·</span>
+      <a href="/privacidade.html">Política de Privacidade</a>
+    </div>
+  </footer>
 </div>
 
 <!-- CHAT -->
@@ -848,6 +960,10 @@ body.auth-ready .app-loader { display: none; }
       </div>
       <div id="roteiro-watermark" class="roteiro-watermark" style="display:none">
         ✈ Gerado pelo <strong>Viaja+Aí Grátis</strong> · <a onclick="showUpgrade('Faça upgrade para remover esta marca d\'água')">Faça upgrade para Pro</a>
+      </div>
+      <div class="roteiro-disclaimer">
+        <span class="icon">⚠️</span>
+        <span>Os preços e disponibilidades são estimativas geradas por IA e podem variar. O Viaja+Aí é uma plataforma de planejamento e não se responsabiliza por transações realizadas em sites de terceiros. Confirme sempre as informações diretamente no site de reserva antes de comprar.</span>
       </div>
     </div>
 
@@ -973,20 +1089,49 @@ function updateUserChip() {
 
 // Decide para onde levar quando o usuário clica em "Começar agora"
 function startJourney() {
-  goTo(currentUser ? 'wizard' : 'auth');
+  if (!currentUser) { goTo('auth'); return; }
+  if (isTrialExpired()) { showUpgrade('Seu trial expirou. Escolha um plano para continuar.'); return; }
+  goTo('wizard');
 }
 
 function switchAuthTab(mode) {
   authMode = mode;
   document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
   document.getElementById('auth-tab-signup').classList.toggle('active', mode === 'signup');
+  document.body.classList.toggle('auth-signup', mode === 'signup');
   document.getElementById('auth-title').textContent = mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta';
   document.getElementById('auth-sub').textContent = mode === 'login'
     ? 'Entre para criar e salvar seus roteiros.'
-    : 'É grátis. Comece a planejar suas viagens em segundos.';
+    : '🎁 7 dias de acesso completo grátis · sem cartão · sem complicação.';
   document.getElementById('auth-submit').textContent = mode === 'login' ? 'Entrar' : 'Criar conta';
   document.getElementById('auth-password').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
   document.getElementById('auth-msg').innerHTML = '';
+}
+
+// ─── CPF: formata e valida (dois dígitos verificadores) ───
+function formatCPFInput(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 11);
+  if (v.length > 9) v = v.slice(0,3) + '.' + v.slice(3,6) + '.' + v.slice(6,9) + '-' + v.slice(9);
+  else if (v.length > 6) v = v.slice(0,3) + '.' + v.slice(3,6) + '.' + v.slice(6);
+  else if (v.length > 3) v = v.slice(0,3) + '.' + v.slice(3);
+  el.value = v;
+}
+
+function isValidCPF(cpfRaw) {
+  const cpf = String(cpfRaw || '').replace(/\D/g, '');
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(cpf)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i], 10) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  if (resto !== parseInt(cpf[9], 10)) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i], 10) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10) resto = 0;
+  if (resto !== parseInt(cpf[10], 10)) return false;
+  return true;
 }
 
 async function submitAuth() {
@@ -1010,17 +1155,51 @@ async function submitAuth() {
       updateUserChip();
       goTo('wizard');
     } else {
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
-      if(error) throw error;
-      if(data.session) {
-        currentUser = data.user;
-        updateUserChip();
-        goTo('wizard');
-      } else {
-        showAuthSuccess('Conta criada! Enviamos um link de confirmação para ' + email + '. Confirme e depois faça login.');
-        document.getElementById('auth-password').value = '';
-        switchAuthTab('login');
+      // ── SIGNUP — coleta nome, CPF, termos; valida e chama /api/verify ──
+      const nome  = (document.getElementById('auth-nome')?.value || '').trim();
+      const cpf   = (document.getElementById('auth-cpf')?.value || '').trim();
+      const terms = document.getElementById('auth-terms')?.checked;
+
+      if (!nome || nome.split(/\s+/).length < 2) {
+        showAuthError('Informe seu nome completo (mínimo 2 palavras).');
+        btn.disabled = false; btn.textContent = originalText;
+        return;
       }
+      if (!isValidCPF(cpf)) {
+        showAuthError('CPF inválido. Verifique os números e tente novamente.');
+        btn.disabled = false; btn.textContent = originalText;
+        return;
+      }
+      if (password.length < 6) {
+        showAuthError('A senha precisa ter no mínimo 6 caracteres.');
+        btn.disabled = false; btn.textContent = originalText;
+        return;
+      }
+      if (!terms) {
+        showAuthError('Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.');
+        btn.disabled = false; btn.textContent = originalText;
+        return;
+      }
+
+      const res = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, cpf, email, password }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showAuthError(payload.error || 'Não foi possível criar a conta. Tente novamente.');
+        btn.disabled = false; btn.textContent = originalText;
+        return;
+      }
+
+      // Loga na sequência (verify já criou e auto-confirmou o usuário)
+      const signIn = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (signIn.error) throw signIn.error;
+      currentUser = signIn.data.user;
+      window._welcomeName = payload.nome || nome.split(/\s+/)[0];
+      updateUserChip();
+      goTo('wizard');
     }
   } catch(e) {
     showAuthError(translateAuthError(e.message || 'Erro desconhecido'));
@@ -1159,8 +1338,8 @@ function calClick(ts) {
     if(dias > max) {
       calState.end = null; // anula a seleção da volta
       document.getElementById('cal-container').innerHTML = renderCalendar();
-      if(!isPro()) {
-        showUpgrade('Plano Grátis permite no máximo ' + max + ' dias por roteiro. Pro vai até 21 dias.');
+      if(!hasFullAccess()) {
+        showUpgrade('Roteiros até 21 dias são exclusivos do Pro. Garanta o seu para planejar viagens mais longas.');
       } else {
         showToast('Máximo de ' + max + ' dias por roteiro', 'error');
       }
@@ -1187,13 +1366,13 @@ function buildStepHTML() {
     });
     html += `</div>`;
     if(destinos.length<5) {
-      const lockSuffix = (!isPro() && destinos.length >= getMaxDestinos()) ? ' <span style="font-size:11px;opacity:0.75;margin-left:4px">🔒 Pro</span>' : '';
+      const lockSuffix = (!hasFullAccess() && destinos.length >= getMaxDestinos()) ? ' <span style="font-size:11px;opacity:0.75;margin-left:4px">🔒 Pro</span>' : '';
       html += `<button class="btn-add-dest" onclick="addDest()">+ Adicionar destino${lockSuffix}</button>`;
     }
 
   } else if(s.type==='calendar') {
     html += `<div id="cal-container">${renderCalendar()}</div>`;
-    if (!isPro()) {
+    if (!hasFullAccess()) {
       html += '<div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;font-weight:300">Plano Grátis: máximo 5 dias. <a onclick="showUpgrade()" style="color:var(--green);cursor:pointer;text-decoration:underline">Upgrade para até 21 dias →</a></div>';
     }
 
@@ -1549,7 +1728,8 @@ function renderDone() {
 // ══ INTERAÇÕES ══
 function addDest() {
   if (destinos.length >= getMaxDestinos()) {
-    showUpgrade('Multidestino é exclusivo do Pro — combine Lisboa + Porto + Madrid em um só roteiro.');
+    if (!hasFullAccess()) showUpgrade('Multidestino é exclusivo do Pro — combine Lisboa + Porto + Madrid em um só roteiro.');
+    else showToast('Máximo de 5 destinos por roteiro', 'error');
     return;
   }
   destinos.push('');
@@ -1562,8 +1742,8 @@ function toggleMulti(val,btn) { if(multiSelected.has(val)){multiSelected.delete(
 // ══ STEPS DINÂMICOS ══
 // Retorna a sequência de steps ativa com base nas respostas
 function getActiveSteps() {
-  // Free não tem passo de bairros nem de extras
-  const skipFree = isPro() ? [] : ['bairros', 'extras'];
+  // Sem acesso completo (free/expirado): pula bairros e extras
+  const skipFree = hasFullAccess() ? [] : ['bairros', 'extras'];
   const base = STEPS.filter(s => !skipFree.includes(s.key));
   const viajante = answers.viajantes;
   const resultado = [];
@@ -1992,9 +2172,14 @@ Se o usuário quiser uma alteração estrutural grande (trocar destino, refazer 
 }
 
 async function startChat() {
-  // Gate: limite de roteiros no mês para o plano Free
-  if (!isPro() && (userUsage.roteiros_mes || 0) >= getMaxRoteirosMes()) {
-    showUpgrade('Você já criou ' + userUsage.roteiros_mes + ' roteiros este mês no plano Grátis (limite: 2). Faça upgrade para roteiros ilimitados.');
+  // Gate: trial expirado → upgrade
+  if (isTrialExpired()) {
+    showUpgrade('Seu trial expirou. Escolha um plano para continuar.');
+    return;
+  }
+  // Gate: limite de roteiros do trial (3 no total)
+  if (!isPro() && isTrialActive() && (userUsage.trial_roteiros_usados || 0) >= TRIAL_MAX_ROTEIROS) {
+    showUpgrade('Você já usou seus ' + TRIAL_MAX_ROTEIROS + ' roteiros do trial. Faça upgrade para roteiros ilimitados.');
     return;
   }
   const extra = document.getElementById('info-extra');
@@ -2081,8 +2266,8 @@ async function generateRoteiro() {
   document.getElementById('chat-messages').innerHTML = '';
   applyPlanUI();
 
-  // Free: bloqueia abas orçamento e dicas; só carrega voos/hotéis/roteiro
-  const lockedSections = isPro() ? [] : ['orcamento', 'dicas'];
+  // Sem acesso completo: bloqueia abas orçamento e dicas
+  const lockedSections = hasFullAccess() ? [] : ['orcamento', 'dicas'];
   const activeSections = SECTIONS.filter(s => !lockedSections.includes(s));
 
   // Põe abas ativas em loading; bloqueadas mostram painel de upgrade
@@ -2246,7 +2431,7 @@ function esc(s) {
 function formatInline(s) {
   if(s == null) return '';
   let t = esc(s);
-  if (isPro()) {
+  if (hasFullAccess()) {
     t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
     t = t.replace(/(?<!["'=\/>])(https?:\/\/[^\s<&"]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;word-break:break-all;">$1</a>');
   } else {
@@ -2277,7 +2462,7 @@ function siteFromLink(link) {
 function ctaBtn(link, label, ghostLabel, cls) {
   if (!link) return '';
   cls = cls || 'voo-btn';
-  if (isPro()) return '<a class="' + cls + '" href="' + esc(link) + '" target="_blank" rel="noopener">' + label + '</a>';
+  if (hasFullAccess()) return '<a class="' + cls + '" href="' + esc(link) + '" target="_blank" rel="noopener">' + label + '</a>';
   const site = siteFromLink(link);
   const onClick = 'onclick="showUpgrade(\'Deep links com datas preenchidas são exclusivos do Pro\')"';
   return '<button class="' + cls + ' ghost" type="button" ' + onClick + ' title="Disponível no Pro">' + (ghostLabel || ('Buscar em ' + site)) + '</button>';
@@ -2600,53 +2785,100 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 // ═════════════════════════════════════════════════════════════════════
 
 // Estado de plano e uso (preenchido por loadUserPlan)
-let userPlan = 'free'; // 'free' | 'pro_mensal' | 'pro_anual'
-let userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+let userPlan = 'free'; // 'free' | 'trial' | 'expirado' | 'pro_mensal' | 'pro_anual'
+let userUsage = {
+  roteiros_mes: 0,
+  mes_referencia: '',
+  plano_expira_em: null,
+  trial_started_at: null,
+  trial_expires_at: null,
+  trial_roteiros_usados: 0,
+};
 let readOnlyMode = false;     // ligado quando reabrimos um roteiro salvo
 let currentRoteiroId = null;  // id da row em supabase do roteiro atual
 let _roteiroSaved = false;    // evita salvar 2x o mesmo roteiro
 
+const TRIAL_MAX_ROTEIROS = 3;
+
 function isPro()       { return userPlan === 'pro_mensal' || userPlan === 'pro_anual'; }
 function isProAnual()  { return userPlan === 'pro_anual'; }
-function getMaxDays()      { return isPro() ? 21 : 5; }
-function getMaxRoteirosMes(){ return isPro() ? Infinity : 2; }
-function getMaxDestinos()   { return isPro() ? 5 : 1; }
+function trialMsRemaining() {
+  if (!userUsage.trial_expires_at) return 0;
+  return new Date(userUsage.trial_expires_at).getTime() - Date.now();
+}
+function trialDaysRemaining() {
+  return Math.max(0, Math.ceil(trialMsRemaining() / 86400000));
+}
+function trialRoteirosRestantes() {
+  return Math.max(0, TRIAL_MAX_ROTEIROS - (userUsage.trial_roteiros_usados || 0));
+}
+function isTrialActive() {
+  return userPlan === 'trial'
+    && trialMsRemaining() > 0
+    && trialRoteirosRestantes() > 0;
+}
+function isTrialExpired() {
+  // Trial existiu mas acabou (por tempo ou cota) ou já foi marcado como expirado
+  if (userPlan === 'expirado') return true;
+  if (userPlan !== 'trial') return false;
+  return trialMsRemaining() <= 0 || trialRoteirosRestantes() <= 0;
+}
+function hasFullAccess() { return isPro() || isTrialActive(); }
+function getMaxDays()         { return hasFullAccess() ? 21 : 5; }
+function getMaxRoteirosMes()  { return isPro() ? Infinity : (isTrialActive() ? trialRoteirosRestantes() : 0); }
+function getMaxDestinos()     { return hasFullAccess() ? 5 : 1; }
 
 async function loadUserPlan() {
   if (!supabaseClient || !currentUser) {
     userPlan = 'free';
-    userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+    userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null, trial_started_at: null, trial_expires_at: null, trial_roteiros_usados: 0 };
     applyPlanUI();
     return;
   }
   try {
     const { data, error } = await supabaseClient
       .from('user_usage')
-      .select('plano, plano_expira_em, roteiros_mes, mes_referencia')
+      .select('plano, plano_expira_em, roteiros_mes, mes_referencia, trial_started_at, trial_expires_at, trial_roteiros_usados')
       .eq('user_id', currentUser.id)
       .maybeSingle();
     if (error) throw error;
     if (data) {
       const expira = data.plano_expira_em ? new Date(data.plano_expira_em) : null;
-      const expirado = expira && expira.getTime() < Date.now();
-      userPlan = (data.plano && data.plano !== 'free' && !expirado) ? data.plano : 'free';
+      const expiradoPro = expira && expira.getTime() < Date.now();
+      let plano = data.plano || 'trial';
+      if ((plano === 'pro_mensal' || plano === 'pro_anual') && expiradoPro) plano = 'expirado';
+      userPlan = plano;
       const mesAtual = new Date().toISOString().slice(0, 7);
       userUsage = {
         roteiros_mes: data.mes_referencia === mesAtual ? (data.roteiros_mes || 0) : 0,
         mes_referencia: data.mes_referencia || '',
         plano_expira_em: data.plano_expira_em || null,
+        trial_started_at: data.trial_started_at || null,
+        trial_expires_at: data.trial_expires_at || null,
+        trial_roteiros_usados: data.trial_roteiros_usados || 0,
       };
     } else {
       // Trigger costuma criar a linha; se não existir, cria defensivamente
-      try { await supabaseClient.from('user_usage').insert({ user_id: currentUser.id, plano: 'free' }); } catch {}
-      userPlan = 'free';
-      userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null };
+      const tStart = new Date().toISOString();
+      const tEnd = new Date(Date.now() + 7 * 86400000).toISOString();
+      try {
+        await supabaseClient.from('user_usage').insert({
+          user_id: currentUser.id,
+          plano: 'trial',
+          trial_started_at: tStart,
+          trial_expires_at: tEnd,
+          trial_roteiros_usados: 0,
+        });
+      } catch {}
+      userPlan = 'trial';
+      userUsage = { roteiros_mes: 0, mes_referencia: '', plano_expira_em: null, trial_started_at: tStart, trial_expires_at: tEnd, trial_roteiros_usados: 0 };
     }
   } catch (e) {
     console.error('loadUserPlan:', e);
     userPlan = 'free';
   }
   applyPlanUI();
+  maybeShowWelcome();
 }
 
 function applyPlanUI() {
@@ -2654,26 +2886,82 @@ function applyPlanUI() {
   document.querySelectorAll('[data-meus-btn]').forEach(el => { el.style.display = logged ? 'inline-flex' : 'none'; });
   document.querySelectorAll('[data-upgrade-btn]').forEach(el => { el.style.display = (logged && !isPro()) ? 'inline-flex' : 'none'; });
   document.querySelectorAll('[data-pro-badge]').forEach(el => {
-    if (!logged || !isPro()) { el.style.display = 'none'; return; }
-    el.style.display = 'inline-flex';
-    el.textContent = isProAnual() ? '🏆 Viajante Pro' : '✨ Pro';
-    el.classList.toggle('viajante-pro', isProAnual());
+    if (!logged) { el.style.display = 'none'; return; }
+    if (isPro()) {
+      el.style.display = 'inline-flex';
+      el.textContent = isProAnual() ? '🏆 Viajante Pro' : '✨ Pro';
+      el.classList.toggle('viajante-pro', isProAnual());
+      el.style.background = ''; el.style.color = ''; el.style.borderColor = '';
+    } else if (isTrialActive()) {
+      const d = trialDaysRemaining();
+      el.style.display = 'inline-flex';
+      el.textContent = '🎁 Trial · ' + d + 'd';
+      el.classList.remove('viajante-pro');
+    } else {
+      el.style.display = 'none';
+    }
   });
-  // Marca d'água do roteiro
+  // Marca d'água do roteiro: visível só quando NÃO há acesso completo
   const wm = document.getElementById('roteiro-watermark');
-  if (wm) wm.style.display = (logged && isPro()) ? 'none' : 'block';
+  if (wm) wm.style.display = (logged && hasFullAccess()) ? 'none' : 'block';
+  // Banner do trial (aparece quando faltam <=2 dias)
+  updateTrialBanner();
+}
+
+// ─── Banner ⏰ — aparece quando faltam <= 2 dias no trial ──────────
+function updateTrialBanner() {
+  const el = document.getElementById('trial-banner');
+  if (!el) return;
+  if (!isTrialActive()) { el.classList.remove('show'); return; }
+  const dias = trialDaysRemaining();
+  if (dias > 2) { el.classList.remove('show'); return; }
+  if (sessionStorage.getItem('trial_banner_dismissed') === '1') return;
+  const msg = document.getElementById('trial-banner-msg');
+  if (msg) {
+    msg.innerHTML = '<strong>⏰ Seu trial expira em ' + dias + ' dia' + (dias === 1 ? '' : 's') + '</strong> — Garanta o Pro agora e mantenha tudo desbloqueado.';
+  }
+  el.classList.add('show');
+}
+function dismissTrialBanner() {
+  sessionStorage.setItem('trial_banner_dismissed', '1');
+  document.getElementById('trial-banner')?.classList.remove('show');
+}
+
+// ─── Mensagem de boas-vindas após cadastro ──────────
+function maybeShowWelcome() {
+  if (!window._welcomeName) return;
+  const nome = window._welcomeName;
+  window._welcomeName = null;
+  if (!isTrialActive()) return;
+  setTimeout(() => {
+    showToast('🎉 Bem-vindo ao Viaja+Aí, ' + nome + '! Você tem 7 dias de acesso completo e 3 roteiros para experimentar tudo.', 'success');
+  }, 400);
 }
 
 function showUpgrade(reason) {
   if (!currentUser) { goTo('auth'); return; }
   const overlay = document.getElementById('upgrade-overlay');
   const r = document.getElementById('upgrade-reason');
-  if (typeof reason === 'string' && reason) { r.textContent = reason; r.style.display = 'block'; }
+  const title = document.getElementById('upgrade-title');
+  const sub = document.getElementById('upgrade-sub');
+  const closeBtn = document.getElementById('upgrade-close');
+  const forced = isTrialExpired();
+  window._upgradeForced = forced;
+  if (closeBtn) closeBtn.style.display = forced ? 'none' : '';
+  if (forced) {
+    if (title) title.innerHTML = 'Continue viajando com o <em>Viaja+Aí Pro</em>';
+    if (sub) sub.textContent = 'Seu trial expirou. Escolha um plano para continuar.';
+  } else {
+    if (title) title.innerHTML = 'Continue viajando com o <em>Viaja+Aí Pro</em>';
+    if (sub) sub.textContent = 'Roteiros ilimitados, todas as funcionalidades, histórico permanente, PDF e mais.';
+  }
+  if (typeof reason === 'string' && reason && !forced) { r.textContent = reason; r.style.display = 'block'; }
   else r.style.display = 'none';
   overlay.classList.add('show');
   document.body.style.overflow = 'hidden';
 }
 function hideUpgrade() {
+  if (window._upgradeForced) return; // bloqueado quando trial expirou
   document.getElementById('upgrade-overlay').classList.remove('show');
   document.body.style.overflow = '';
 }
@@ -2769,12 +3057,12 @@ async function saveCurrentRoteiro() {
       orcamento: roteiroData.orcamento || null,
       dicas: roteiroData.dicas || [],
     };
-    const expiresAt = isPro() ? null : new Date(Date.now() + 7 * 86400000).toISOString();
-
-    // Free: só guarda o último → apaga os anteriores
-    if (!isPro()) {
-      await supabaseClient.from('roteiros').delete().eq('user_id', currentUser.id);
-    }
+    // Pro: histórico permanente. Trial: roteiros expiram em 30 dias. Free/expirado: 7 dias.
+    const expiresAt = isPro()
+      ? null
+      : (isTrialActive()
+          ? new Date(Date.now() + 30 * 86400000).toISOString()
+          : new Date(Date.now() + 7 * 86400000).toISOString());
 
     const { data, error } = await supabaseClient
       .from('roteiros')
@@ -2817,21 +3105,32 @@ async function renderMeusRoteiros() {
     const total = items.length;
     if (isPro()) {
       sub.textContent = (isProAnual() ? '🏆 Viajante Pro' : '✨ Pro') + ' · ' + total + ' roteiro' + (total === 1 ? '' : 's') + ' · histórico permanente';
+    } else if (isTrialActive()) {
+      const usados = userUsage.trial_roteiros_usados || 0;
+      sub.textContent = '🎁 Trial · ' + usados + '/' + TRIAL_MAX_ROTEIROS + ' roteiros usados · ' + trialDaysRemaining() + ' dias restantes';
     } else {
-      sub.textContent = 'Plano Grátis · 1 roteiro salvo por 7 dias · ' + (userUsage.roteiros_mes || 0) + '/2 roteiros gerados este mês';
+      sub.textContent = 'Trial expirado · faça upgrade para continuar usando';
     }
 
     let html = '';
-    if (!isPro()) {
+    if (!isPro() && isTrialActive()) {
       html += '<div class="meus-banner">'
-        + '<div class="meus-banner-icon">🔓</div>'
+        + '<div class="meus-banner-icon">⏰</div>'
         + '<div class="meus-banner-body">'
-          + '<div class="meus-banner-title">Upgrade para ver histórico completo</div>'
-          + '<div class="meus-banner-desc">No Pro seus roteiros ficam salvos para sempre. Você também desbloqueia exportar PDF e compartilhar.</div>'
+          + '<div class="meus-banner-title">Você está no Trial de 7 dias</div>'
+          + '<div class="meus-banner-desc">Faltam ' + trialDaysRemaining() + ' dias e ' + trialRoteirosRestantes() + ' roteiros. Garanta o Pro para ter histórico permanente, exportar PDF e compartilhar.</div>'
         + '</div>'
         + '<button class="meus-banner-btn" type="button" onclick="showUpgrade()">Conhecer o Pro</button>'
       + '</div>';
-      items = items.slice(0, 1);
+    } else if (!isPro()) {
+      html += '<div class="meus-banner">'
+        + '<div class="meus-banner-icon">🔒</div>'
+        + '<div class="meus-banner-body">'
+          + '<div class="meus-banner-title">Seu trial expirou</div>'
+          + '<div class="meus-banner-desc">Faça upgrade para reabrir seus roteiros, criar novos e desbloquear PDF/compartilhamento.</div>'
+        + '</div>'
+        + '<button class="meus-banner-btn" type="button" onclick="showUpgrade()">Ver planos Pro</button>'
+      + '</div>';
     }
 
     if (items.length === 0) {
@@ -2845,7 +3144,11 @@ async function renderMeusRoteiros() {
       const fmt = (s) => { try { return new Date(s).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }); } catch { return ''; } };
       html += '<div class="roteiro-list">';
       items.forEach(r => {
-        const lock = isPro() ? '' : ' locked';
+        const lockPro = isPro() ? '' : ' locked'; // PDF / compartilhar = só Pro pago
+        const expirado = isTrialExpired();
+        const openHandler = expirado
+          ? 'showUpgrade(\'Faça upgrade para reabrir seus roteiros\')'
+          : 'openSavedRoteiro(\'' + r.id + '\')';
         html += '<div class="roteiro-item">'
           + '<div class="roteiro-item-icon">✈</div>'
           + '<div class="roteiro-item-body">'
@@ -2855,9 +3158,9 @@ async function renderMeusRoteiros() {
             + (r.expires_at ? '<div class="roteiro-item-expira">⏰ Expira em ' + fmt(r.expires_at) + '</div>' : '')
           + '</div>'
           + '<div class="roteiro-item-actions">'
-            + '<button class="btn-action primary" type="button" onclick="openSavedRoteiro(\'' + r.id + '\')">📖 Abrir</button>'
-            + '<button class="btn-action' + lock + '" type="button" onclick="exportRoteiroPDF(\'' + r.id + '\')">📄 PDF</button>'
-            + '<button class="btn-action' + lock + '" type="button" onclick="shareRoteiro(\'' + r.id + '\')">🔗 Compartilhar</button>'
+            + '<button class="btn-action primary' + (expirado ? ' locked' : '') + '" type="button" onclick="' + openHandler + '">📖 Abrir</button>'
+            + '<button class="btn-action' + lockPro + '" type="button" onclick="exportRoteiroPDF(\'' + r.id + '\')">📄 PDF</button>'
+            + '<button class="btn-action' + lockPro + '" type="button" onclick="shareRoteiro(\'' + r.id + '\')">🔗 Compartilhar</button>'
             + '<button class="btn-action danger" type="button" onclick="deleteRoteiro(\'' + r.id + '\')">🗑️</button>'
           + '</div>'
         + '</div>';
@@ -2905,8 +3208,8 @@ async function openSavedRoteiro(id) {
     SECTIONS.forEach(s => {
       const v = roteiroData[s];
       const has = Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' && Object.keys(v).length > 0);
-      // Free não pode ver orcamento/dicas, mesmo se o roteiro foi gerado quando Pro
-      if (!isPro() && (s === 'orcamento' || s === 'dicas')) tabState[s] = 'locked';
+      // Sem acesso completo não pode ver orcamento/dicas, mesmo que o roteiro tenha sido gerado em Pro
+      if (!hasFullAccess() && (s === 'orcamento' || s === 'dicas')) tabState[s] = 'locked';
       else tabState[s] = has ? 'loaded' : 'idle';
     });
 
@@ -2982,6 +3285,53 @@ function renderTabLockedFree(section) {
   const btn = document.querySelector('#page-chat .tab-btn[data-tab="' + section + '"]');
   if (btn) btn.classList.add('locked');
 }
+
+// ─── INTERCEPTOR DE LINKS EXTERNOS ──────────────────
+// Mostra aviso quando o usuário clica em um link que sai do Viaja+Aí.
+// Pode ser dispensado permanentemente via checkbox "Não mostrar novamente".
+const EXT_LINK_KEY = 'ext_link_warned';
+window._pendingExtUrl = null;
+window._pendingExtTarget = null;
+
+function openExtModal(url) {
+  const m = document.getElementById('ext-modal');
+  const urlEl = document.getElementById('ext-modal-url');
+  if (urlEl) urlEl.textContent = url;
+  document.getElementById('ext-modal-dontshow').checked = false;
+  if (m) m.classList.add('show');
+}
+function closeExtModal(go) {
+  const m = document.getElementById('ext-modal');
+  if (m) m.classList.remove('show');
+  const url = window._pendingExtUrl;
+  const target = window._pendingExtTarget || '_blank';
+  window._pendingExtUrl = null;
+  window._pendingExtTarget = null;
+  if (!go || !url) return;
+  if (document.getElementById('ext-modal-dontshow')?.checked) {
+    try { localStorage.setItem(EXT_LINK_KEY, '1'); } catch {}
+  }
+  window.open(url, target, 'noopener');
+}
+
+document.addEventListener('click', (e) => {
+  // Pega o link mais próximo (cobre <a> com filhos dentro)
+  const a = e.target.closest('a[href]');
+  if (!a) return;
+  const href = a.getAttribute('href') || '';
+  if (!/^https?:\/\//i.test(href)) return;
+  // Mesma origem? Não intercepta.
+  let u;
+  try { u = new URL(href); } catch { return; }
+  if (u.host === window.location.host) return;
+  // Já dispensado pelo usuário? Não intercepta.
+  try { if (localStorage.getItem(EXT_LINK_KEY) === '1') return; } catch {}
+  // Intercepta
+  e.preventDefault();
+  window._pendingExtUrl = href;
+  window._pendingExtTarget = a.getAttribute('target') || '_blank';
+  openExtModal(href);
+}, true);
 
 initAuth();
 </script>
