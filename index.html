@@ -1930,7 +1930,7 @@ function buildContext() {
     movida:      `https://www.movida.com.br/aluguel-de-carros?local=${destino}&dataInicio=${ida}&dataFim=${volta}`,
     kayakCarros: `https://www.kayak.com.br/cars/${destino}/${ida}T10:00/${volta}T10:00`,
     // PASSEIOS
-    getyourguide: `https://www.getyourguide.com.br/${destinoSlug}-l0/?date_from=${ida}&date_to=${volta}`,
+    getyourguide: `https://www.getyourguide.com.br/s/?q=${destinoRaw.replace(/ /g,'+')}&date_from=${ida}&date_to=${volta}`,
     civitatis:    `https://www.civitatis.com/br/${destinoSlug}/?fromDate=${ida}`,
     viator:       `https://www.viator.com/pt-BR/${destinoSlug}/d0-ttd?startDate=${ida}`,
     // SEGURO VIAGEM
@@ -1964,8 +1964,6 @@ LINKS PRÉ-MONTADOS — use EXATAMENTE estas URLs. Se ainda houver [IATA_ORIGEM]
 
 • Kayak (PRINCIPAL — agrega LATAM/GOL/Azul/Decolar e mais): ${c.links.kayakVoos}
 • LATAM: ${c.links.latam}
-• GOL: ${c.links.gol}
-• Azul: ${c.links.azul}
 • Decolar (voos): ${c.links.decolarVoos}
 
 IATA de cidades brasileiras: GRU=São Paulo, CGB=Cuiabá/Sorriso, BSB=Brasília, GIG=Rio, CNF=BH, POA=Porto Alegre, FOR=Fortaleza, REC=Recife, SSA=Salvador, MAO=Manaus, BEL=Belém, FLN=Florianópolis, GYN=Goiânia, NAT=Natal, MCZ=Maceió, CWB=Curitiba, VIX=Vitória.
@@ -1975,14 +1973,13 @@ Formato EXATO:
 {
   "voos": [
     { "companhia": "Kayak (todas companhias)", "rota": "${c.origemRaw||'?'} → ${c.destinoRaw||'?'}", "duracao": "5h 20m", "escalas": "1 escala", "preco": "R$ 3.800", "link": "URL Kayak EXATA acima" },
-    { "companhia": "LATAM",  "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 10m", "escalas": "Direto",    "preco": "R$ 4.500", "link": "URL LATAM acima"  },
-    { "companhia": "GOL",    "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 30m", "escalas": "1 escala",  "preco": "R$ 3.950", "link": "URL GOL acima"    },
-    { "companhia": "Azul",   "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 40m", "escalas": "1 escala",  "preco": "R$ 4.100", "link": "URL Azul acima"   }
+    { "companhia": "LATAM",   "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 10m", "escalas": "Direto",    "preco": "R$ 4.500", "link": "URL LATAM acima"   },
+    { "companhia": "Decolar", "rota": "${c.origemIATA||'IATA'} → ${c.destinoIATA||'IATA'}", "duracao": "5h 30m", "escalas": "1 escala",  "preco": "R$ 3.950", "link": "URL Decolar acima" }
   ]
 }
 
 REGRAS:
-1. EXATAMENTE 4 opções nessa ordem: Kayak, LATAM, GOL, Azul.
+1. EXATAMENTE 3 opções nessa ordem: Kayak, LATAM, Decolar.
 2. Use os links EXATOS pré-montados acima. Se houver [IATA_ORIGEM] ou [IATA_DESTINO], substitua pelo código IATA correto.
 3. Estime preços/duração/escalas plausíveis para a rota.
 4. NUNCA gere link genérico, de home, ou inventado.
@@ -2095,6 +2092,11 @@ REGRAS:
   }
 
   if (section === 'dicas') {
+    const extrasInstrucoes = [];
+    if (c.extras.includes('carro')) extrasInstrucoes.push(`- Se extras inclui carro: adicione card { "icone": "🚗", "titulo": "Aluguel de carro", "texto": "Compare e reserve em [Localiza](${c.links.localiza}), [Movida](${c.links.movida}) ou [Kayak Carros](${c.links.kayakCarros})." }`);
+    if (c.extras.includes('passeios')) extrasInstrucoes.push(`- Se extras inclui passeios: adicione card { "icone": "🗺️", "titulo": "Passeios guiados", "texto": "Reserve tours em [GetYourGuide](${c.links.getyourguide}), [Civitatis](${c.links.civitatis}) e [Viator](${c.links.viator})." }`);
+    if (c.extras.includes('restaurantes')) extrasInstrucoes.push(`- Se extras inclui restaurantes: adicione card { "icone": "🍽️", "titulo": "Restaurantes", "texto": "Pesquise os mais bem avaliados no [TripAdvisor](https://www.tripadvisor.com.br/Search?q=${encodeURIComponent(c.destinoRaw)}+restaurantes) e [TheFork](https://www.thefork.com.br/restaurantes/${c.destinoSlug})." }`);
+    if (c.extras.includes('transfer')) extrasInstrucoes.push(`- Se extras inclui transfer: adicione card { "icone": "🚌", "titulo": "Transfer aeroporto", "texto": "Reserve transfer privativo em [GetYourGuide](${c.links.getyourguide}). Mais seguro que táxi avulso." }`);
     return `${baseHeader}
 
 Destino: "${c.destinoRaw||'?'}" · ${c.noitesNum} noites · Viajantes: ${c.viajantesLabel}
@@ -2118,11 +2120,12 @@ Formato EXATO:
 }
 
 REGRAS:
-1. EXATAMENTE 5 cards (Documentos, Câmbio, Clima, Internet, Seguro).
+1. 5 cards padrão + cards extras condicionais acima quando aplicável.
 2. No card "Internet": cite eSIM e inclua link Airalo OU Holafly via [texto](url) — substitua [PAIS] pelo slug do país de destino (ex: portugal, espanha, eua, argentina, mexico).
 3. No card "Seguro": inclua link Assist Card via [texto](url) com a URL pré-montada acima.
 4. Texto em 1-2 frases, adaptado ao destino.${c.extras.includes('carro')?'\n5. Pode citar aluguel de carro (Localiza/Movida/Kayak) com link em uma das dicas.':''}
-6. APENAS o JSON acima.`;
+6. APENAS o JSON acima.
+${extrasInstrucoes.join('\n')}`;
   }
 
   return baseHeader;
