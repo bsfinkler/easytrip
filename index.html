@@ -1149,7 +1149,11 @@ async function submitAuth() {
   document.getElementById('auth-msg').innerHTML = '';
   try {
     if(authMode === 'login') {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      console.log('[auth] signInWithPassword: iniciando login direto', email);
+      const loginPromise = supabaseClient.auth.signInWithPassword({ email, password });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tempo limite excedido. Verifique sua conexão e tente novamente.')), 15000));
+      const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
+      console.log('[auth] signInWithPassword: retornou login direto', { hasData: !!data, error });
       if(error) throw error;
       currentUser = data.user;
       updateUserChip();
@@ -1194,7 +1198,11 @@ async function submitAuth() {
       }
 
       // Loga na sequência (verify já criou e auto-confirmou o usuário)
-      const signIn = await supabaseClient.auth.signInWithPassword({ email, password });
+      console.log('[auth] signInWithPassword: iniciando login pós-signup', email);
+      const loginPromise = supabaseClient.auth.signInWithPassword({ email, password });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tempo limite excedido. Verifique sua conexão e tente novamente.')), 15000));
+      const signIn = await Promise.race([loginPromise, timeoutPromise]);
+      console.log('[auth] signInWithPassword: retornou login pós-signup', { hasData: !!signIn?.data, error: signIn?.error });
       if (signIn.error) throw signIn.error;
       currentUser = signIn.data.user;
       window._welcomeName = payload.nome || nome.split(/\s+/)[0];
