@@ -1056,10 +1056,14 @@ async function initAuth() {
       return;
     }
     supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    // IMPORTANTE: não use await em chamadas Supabase dentro deste callback.
+    // O signInWithPassword segura o lock de auth até o callback retornar; se
+    // loadUserPlan() (que chama supabaseClient.from) rodar aqui com await, o
+    // lock nunca é liberado e o login trava (deadlock). Deferimos com setTimeout.
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
       currentUser = session?.user || null;
       updateUserChip();
-      await loadUserPlan();
+      setTimeout(() => { loadUserPlan(); }, 0);
     });
     const { data } = await supabaseClient.auth.getSession();
     currentUser = data.session?.user || null;
