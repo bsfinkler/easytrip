@@ -96,7 +96,6 @@ export default async function handler(req, res) {
     return res.status(200).json({
       id: data.id,
       init_point: data.init_point,
-      sandbox_init_point: data.sandbox_init_point,
       public_key: process.env.MP_PUBLIC_KEY || '',
     });
   } catch (err) {
