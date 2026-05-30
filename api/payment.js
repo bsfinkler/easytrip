@@ -64,6 +64,12 @@ export default async function handler(req, res) {
       pending: PENDING_URL,
     },
     auto_return: 'approved',
+    payment_methods: {
+      // Sem restrições: aceita cartão de crédito/débito, boleto e PIX.
+      excluded_payment_types: [],
+      excluded_payment_methods: [],
+      installments: 12,
+    },
     notification_url: WEBHOOK_URL,
     external_reference: externalReference,
     metadata: {
