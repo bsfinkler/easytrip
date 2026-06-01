@@ -4,6 +4,20 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Viaja+Aí — Seu roteiro, do seu jeito</title>
+<meta name="description" content="Diga onde quer ir. A IA do Viaja+Aí monta voos, hotéis, roteiro dia a dia e orçamento em minutos — com links reais pra reservar." />
+<meta name="theme-color" content="#1D9E75" />
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="128x128" href="/assets/logo-icon-128.png" />
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Viaja+Aí" />
+<meta property="og:title" content="Viaja+Aí — Seu roteiro, do seu jeito" />
+<meta property="og:description" content="A IA monta voos, hotéis, roteiro e orçamento da sua viagem em minutos. Mais destinos, mais experiências." />
+<meta property="og:image" content="/assets/logo-icon.png" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Viaja+Aí — Seu roteiro, do seu jeito" />
+<meta name="twitter:description" content="A IA monta voos, hotéis, roteiro e orçamento da sua viagem em minutos." />
+<meta name="twitter:image" content="/assets/logo-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -38,6 +52,50 @@ nav { display: flex; align-items: center; justify-content: space-between; paddin
 .hero-features { display: flex; gap: 2rem; margin-top: 2.75rem; flex-wrap: wrap; justify-content: center; position: relative; z-index: 1; }
 .hero-feat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
 .hero-feat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); flex-shrink: 0; }
+
+/* ===== LANDING HERO v2 (imersivo) ===== */
+.lp2-hero { position: relative; min-height: 600px; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(180deg,#ffd9a0 0%,#ff9e7d 30%,#7a5cae 74%,#3a2f6b 100%); }
+.lp2-sun { position: absolute; left: 50%; top: 88px; transform: translateX(-50%); width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle,#fff6e0,#ffd17a); box-shadow: 0 0 80px 30px rgba(255,210,130,.55); pointer-events: none; }
+.lp2-skyline { position: absolute; bottom: 0; left: 0; right: 0; height: 200px; display: flex; align-items: flex-end; justify-content: space-around; padding: 0 4%; opacity: .9; pointer-events: none; }
+.lp2-skyline svg { fill: #26224a; filter: drop-shadow(0 4px 8px rgba(0,0,0,.2)); }
+.lp2-ground { position: absolute; bottom: 0; left: 0; right: 0; height: 54px; background: linear-gradient(180deg,#241f44,#191535); pointer-events: none; }
+.lp2-content { position: relative; z-index: 5; color: #fff; padding: 78px 20px 120px; max-width: 760px; }
+.lp2-content h1 { font-weight: 800; font-size: clamp(2.2rem,6vw,3.6rem); line-height: 1.05; letter-spacing: -.02em; text-shadow: 0 4px 24px rgba(0,0,0,.35); }
+.lp2-content > p { font-size: clamp(1rem,1.6vw,1.2rem); margin-top: 12px; font-weight: 500; text-shadow: 0 2px 12px rgba(0,0,0,.4); opacity: .97; }
+.lp2-search { margin: 26px auto 0; background: #fff; border-radius: 999px; padding: 7px 7px 7px 22px; display: flex; align-items: center; gap: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.25); max-width: 480px; }
+.lp2-search input { border: none; outline: none; font-size: 16px; flex: 1; min-width: 0; color: var(--text); font-family: inherit; background: transparent; }
+.lp2-search button { background: var(--green); color: #fff; border: none; border-radius: 999px; padding: 13px 24px; font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap; font-family: inherit; transition: background .2s; }
+.lp2-search button:hover { background: var(--green-dark); }
+.lp2-feats { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-top: 18px; font-size: 13px; font-weight: 600; opacity: .95; }
+.lp2-feats span { display: inline-flex; align-items: center; gap: 6px; }
+.lp2-feats i { width: 6px; height: 6px; border-radius: 50%; background: #46e29b; display: inline-block; }
+.lp2-booking { position: absolute; z-index: 6; background: #fff; border-radius: 14px; padding: 11px 15px; box-shadow: 0 12px 30px rgba(0,0,0,.22); display: flex; align-items: center; gap: 11px; font-size: 13.5px; font-weight: 700; color: var(--text); opacity: 0; animation: lp2Float 10.5s infinite; }
+.lp2-booking .ic { width: 34px; height: 34px; border-radius: 9px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.lp2-booking small { display: block; font-weight: 500; color: #7a8a85; font-size: 12px; }
+.lp2-b1 { top: 80px; left: 5%; animation-delay: .4s; }
+.lp2-b2 { top: 200px; right: 6%; animation-delay: 3.6s; }
+.lp2-b3 { bottom: 130px; left: 8%; animation-delay: 7s; }
+@keyframes lp2Float { 0%{opacity:0;transform:translateY(14px) scale(.96)} 7%{opacity:1;transform:translateY(0) scale(1)} 26%{opacity:1;transform:translateY(0) scale(1)} 33%{opacity:0;transform:translateY(-14px) scale(.97)} 100%{opacity:0} }
+.lp2-live { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); z-index: 7; background: rgba(255,255,255,.16); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.3); color: #fff; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 999px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.lp2-livedot { width: 9px; height: 9px; border-radius: 50%; background: #46e29b; box-shadow: 0 0 0 0 rgba(70,226,155,.7); animation: lp2Pulse 1.8s infinite; }
+@keyframes lp2Pulse { 0%{box-shadow:0 0 0 0 rgba(70,226,155,.7)} 70%{box-shadow:0 0 0 10px rgba(70,226,155,0)} 100%{box-shadow:0 0 0 0 rgba(70,226,155,0)} }
+
+/* ===== MOSAICO DE DESTINOS ===== */
+.lp2-mosaic-sec { padding: 5rem 1.5rem 5rem; }
+.lp2-mosaic { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.lp2-dest { position: relative; height: 260px; border-radius: 18px; overflow: hidden; cursor: pointer; display: flex; align-items: flex-end; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.10); background: #1d3f6e; }
+.lp2-dest img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+.lp2-dest:hover img { transform: scale(1.06); }
+.lp2-dest .shade { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,.62) 100%); }
+.lp2-dest .info { position: relative; z-index: 2; padding: 16px; }
+.lp2-dest .info b { font-size: 19px; font-weight: 800; display: block; }
+.lp2-dest .info span { font-size: 13px; opacity: .92; }
+.lp2-dest .price { position: absolute; top: 12px; right: 12px; z-index: 2; background: rgba(255,255,255,.95); color: var(--green-dark); font-weight: 800; font-size: 12px; padding: 5px 10px; border-radius: 999px; }
+.lp2-dest .cta { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: .25s; background: rgba(15,110,86,.5); }
+.lp2-dest:hover .cta { opacity: 1; }
+.lp2-dest .cta span { background: #fff; color: var(--green-dark); font-weight: 800; padding: 11px 20px; border-radius: 999px; font-size: 14px; }
+@media (max-width: 900px) { .lp2-mosaic { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .lp2-mosaic { grid-template-columns: 1fr; } .lp2-skyline { height: 130px; } .lp2-booking { display: none; } }
 
 /* SECTIONS — base */
 .section { padding: 6rem 1.5rem; }
@@ -635,7 +693,7 @@ body.auth-signup .login-only { display: none; }
 <!-- LOADER inicial (some quando auth está pronta) -->
 <div class="app-loader" id="app-loader">
   <div style="text-align:center">
-    <div style="font-size:38px;margin-bottom:14px">✈</div>
+    <img src="/assets/logo-icon-128.png" alt="Viaja+Aí" style="width:64px;height:64px;margin-bottom:14px" />
     <div><span class="app-loader-dot"></span><span class="app-loader-dot"></span><span class="app-loader-dot"></span></div>
   </div>
 </div>
@@ -643,7 +701,7 @@ body.auth-signup .login-only { display: none; }
 <!-- AUTH -->
 <div id="page-auth" class="page">
   <nav>
-    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><img src="/assets/logo-icon-64.png" alt="" style="width:30px;height:30px;margin-right:5px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <span class="nav-badge">✨ Beta</span>
   </nav>
   <div class="auth-page">
@@ -694,7 +752,7 @@ body.auth-signup .login-only { display: none; }
 <!-- LANDING -->
 <div id="page-landing" class="page">
   <nav>
-    <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="event.preventDefault()"><img src="/assets/logo-icon-64.png" alt="" style="width:30px;height:30px;margin-right:5px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
       <button class="nav-login-btn" id="nav-login-btn" type="button" onclick="goTo('auth')">Entrar</button>
       <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
@@ -705,16 +763,93 @@ body.auth-signup .login-only { display: none; }
     </div>
   </nav>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-tag">✈ Viaja+Aí · Powered by IA</div>
-    <h1>Seu roteiro completo<br/>em <em>minutos</em>.</h1>
-    <p>Diga onde quer ir. A IA cuida do resto.</p>
-    <button class="hero-cta" onclick="startJourney()">Começar agora →</button>
-    <div class="hero-features">
-      <span class="hero-feat"><span class="hero-feat-dot"></span>Grátis pra começar</span>
-      <span class="hero-feat"><span class="hero-feat-dot"></span>Links reais de reserva</span>
-      <span class="hero-feat"><span class="hero-feat-dot"></span>Pronto em segundos</span>
+  <!-- HERO IMERSIVO -->
+  <section class="lp2-hero">
+    <div class="lp2-sun"></div>
+    <div class="lp2-skyline">
+      <!-- Torre Eiffel -->
+      <svg viewBox="0 0 100 160" width="62"><path d="M50 4 L52 28 C53 38 57 46 60 52 L55 52 C58 70 62 92 70 152 L58 152 L54 124 C53 116 52 112 50 112 C48 112 47 116 46 124 L42 152 L30 152 C38 92 42 70 45 52 L40 52 C43 46 47 38 48 28 Z M40 78 L60 78 L61 84 L39 84 Z"/></svg>
+      <!-- Cristo Redentor -->
+      <svg viewBox="0 0 100 160" width="56"><path d="M44 150 L40 120 L60 120 L56 150 Z"/><rect x="42" y="100" width="16" height="22"/><rect x="46" y="44" width="8" height="60"/><rect x="18" y="52" width="64" height="7" rx="3"/><circle cx="50" cy="38" r="7"/></svg>
+      <!-- Taj Mahal -->
+      <svg viewBox="0 0 100 160" width="82"><rect x="9" y="70" width="6" height="82"/><rect x="85" y="70" width="6" height="82"/><rect x="27" y="78" width="5" height="74"/><rect x="68" y="78" width="5" height="74"/><rect x="20" y="96" width="60" height="56"/><rect x="36" y="74" width="28" height="78"/><path d="M37 76 Q37 50 50 40 Q63 50 63 76 Z"/><rect x="48" y="28" width="4" height="14"/><circle cx="50" cy="26" r="4"/></svg>
+      <!-- Big Ben -->
+      <svg viewBox="0 0 100 160" width="40"><rect x="34" y="50" width="32" height="102"/><rect x="38" y="64" width="24" height="24" rx="2" fill="#0d0a22"/><polygon points="34,50 66,50 50,20"/><rect x="47" y="6" width="6" height="16"/></svg>
+      <!-- Coliseu -->
+      <svg viewBox="0 0 100 160" width="70"><path d="M10 152 L10 86 Q50 60 90 86 L90 152 Z"/><g fill="#0d0a22"><rect x="18" y="96" width="8" height="16" rx="3"/><rect x="34" y="92" width="8" height="18" rx="3"/><rect x="50" y="90" width="8" height="18" rx="3"/><rect x="66" y="92" width="8" height="18" rx="3"/><rect x="78" y="96" width="6" height="16" rx="3"/></g></svg>
+    </div>
+    <div class="lp2-ground"></div>
+
+    <div class="lp2-content">
+      <h1>Pra onde a gente vai?</h1>
+      <p>Diga o destino. A IA monta voos, hotéis, roteiro e orçamento em minutos.</p>
+      <div class="lp2-search">
+        <span style="font-size:19px">🔍</span>
+        <input id="lp2-dest-input" placeholder="Paris, Rio, Tóquio, Lisboa..." autocomplete="off" onkeydown="if(event.key==='Enter')lp2Search()" />
+        <button type="button" onclick="lp2Search()">Planejar viagem</button>
+      </div>
+      <div class="lp2-feats">
+        <span><i></i>Grátis pra começar</span>
+        <span><i></i>Links reais de reserva</span>
+        <span><i></i>Pronto em segundos</span>
+      </div>
+    </div>
+
+    <div class="lp2-booking lp2-b1"><div class="ic">✈️</div><div>Voo SP → Paris<small>encontrado por R$ 2.340</small></div></div>
+    <div class="lp2-booking lp2-b2"><div class="ic">🏨</div><div>Hotel em Roma<small>3 noites · centro histórico</small></div></div>
+    <div class="lp2-booking lp2-b3"><div class="ic">🗺️</div><div>Roteiro de Tóquio<small>5 dias · pronto!</small></div></div>
+
+    <div class="lp2-live"><span class="lp2-livedot"></span> <span id="lp2-live-count">312</span> viagens planejadas hoje no Viaja+Aí</div>
+  </section>
+
+  <!-- MOSAICO DE DESTINOS -->
+  <section class="lp2-mosaic-sec">
+    <div class="section-eyebrow">Destinos que inspiram</div>
+    <h2 class="section-title">Comece por um <em>clássico</em>.</h2>
+    <p class="section-sub">Escolha um destino e deixe a IA montar a viagem inteira — voos, hotel, roteiro e orçamento.</p>
+    <div class="lp2-mosaic">
+      <div class="lp2-dest" onclick="startJourney('Paris')">
+        <img src="/assets/dest/paris.jpg" alt="Paris" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 2.340</div>
+        <div class="info"><b>Paris</b><span>✈️ + 🏨 + roteiro de 5 dias</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
+      <div class="lp2-dest" onclick="startJourney('Rio de Janeiro')">
+        <img src="/assets/dest/rio.jpg" alt="Rio de Janeiro" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 980</div>
+        <div class="info"><b>Rio de Janeiro</b><span>🏖️ fim de semana perfeito</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
+      <div class="lp2-dest" onclick="startJourney('Roma')">
+        <img src="/assets/dest/roma.jpg" alt="Roma" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 2.760</div>
+        <div class="info"><b>Roma</b><span>🍝 história + gastronomia</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
+      <div class="lp2-dest" onclick="startJourney('Tóquio')">
+        <img src="/assets/dest/toquio.jpg" alt="Tóquio" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 4.890</div>
+        <div class="info"><b>Tóquio</b><span>🏮 cultura + tecnologia</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
+      <div class="lp2-dest" onclick="startJourney('Nova York')">
+        <img src="/assets/dest/novayork.jpg" alt="Nova York" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 3.150</div>
+        <div class="info"><b>Nova York</b><span>🗽 a cidade que não dorme</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
+      <div class="lp2-dest" onclick="startJourney('Lisboa')">
+        <img src="/assets/dest/lisboa.jpg" alt="Lisboa" loading="lazy" />
+        <div class="shade"></div>
+        <div class="price">a partir de R$ 2.480</div>
+        <div class="info"><b>Lisboa</b><span>🚋 charme europeu</span></div>
+        <div class="cta"><span>Planejar agora →</span></div>
+      </div>
     </div>
   </section>
 
@@ -841,7 +976,7 @@ body.auth-signup .login-only { display: none; }
   <!-- FOOTER -->
   <footer class="landing-footer">
     <div class="landing-footer-inner">
-      <a class="nav-logo" href="#" onclick="event.preventDefault()"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+      <a class="nav-logo" href="#" onclick="event.preventDefault()"><img src="/assets/logo-icon-64.png" alt="" style="width:30px;height:30px;margin-right:5px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
       <div class="landing-footer-tagline">Seu roteiro, do seu jeito. Feito com IA e muito carinho pra quem ama viajar.</div>
       <div class="landing-footer-copy">© 2026 Viaja+Aí · Todos os direitos reservados</div>
       <div class="footer-links">
@@ -857,7 +992,7 @@ body.auth-signup .login-only { display: none; }
 <div id="page-wizard" class="page">
   <div class="wizard-nav">
     <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;font-weight:600;display:flex;align-items:center;gap:8px;">
-      <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:var(--green);border-radius:6px;font-size:13px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span>
+      <img src="/assets/logo-icon-64.png" alt="" style="width:28px;height:28px;margin-right:4px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span>
     </div>
     <div class="user-menu">
       <span class="step-count" id="step-count"></span>
@@ -883,7 +1018,7 @@ body.auth-signup .login-only { display: none; }
 <!-- MEUS ROTEIROS -->
 <div id="page-meus" class="page">
   <nav>
-    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="event.preventDefault(); goTo('landing')"><img src="/assets/logo-icon-64.png" alt="" style="width:30px;height:30px;margin-right:5px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
       <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
       <button class="nav-upgrade-btn" data-upgrade-btn type="button" onclick="showUpgrade()">✨ Upgrade</button>
@@ -914,7 +1049,7 @@ body.auth-signup .login-only { display: none; }
 <!-- CHAT -->
 <div id="page-chat" class="page">
   <nav>
-    <a class="nav-logo" href="#" onclick="goTo('landing')"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--green);border-radius:7px;font-size:14px;margin-right:2px;">✈</span><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
+    <a class="nav-logo" href="#" onclick="goTo('landing')"><img src="/assets/logo-icon-64.png" alt="" style="width:30px;height:30px;margin-right:5px;vertical-align:middle;" /><span>Viaja<span style="color:var(--green);">+</span>Aí</span></a>
     <div class="user-menu">
       <span class="nav-badge">✨ Beta</span>
       <span class="nav-pro-badge" data-pro-badge>✨ Pro</span>
@@ -1092,10 +1227,20 @@ function updateUserChip() {
 }
 
 // Decide para onde levar quando o usuário clica em "Começar agora"
-function startJourney() {
+function startJourney(prefillDest) {
   if (!currentUser) { goTo('auth'); return; }
   if (isTrialExpired()) { showUpgrade('Seu trial expirou. Escolha um plano para continuar.'); return; }
   goTo('wizard');
+  if (prefillDest && typeof prefillDest === 'string') {
+    destinos = [prefillDest];
+    if (typeof render === 'function') render();
+  }
+}
+
+function lp2Search() {
+  const el = document.getElementById('lp2-dest-input');
+  const dest = el ? el.value.trim() : '';
+  startJourney(dest || undefined);
 }
 
 function switchAuthTab(mode) {
