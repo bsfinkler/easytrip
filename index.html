@@ -647,41 +647,39 @@ body.auth-signup .login-only { display: none; }
     <p class="upgrade-sub" id="upgrade-sub">Roteiros ilimitados, multidestino, todas as 5 abas, deep links com datas, PDF e muito mais.</p>
     <div id="upgrade-reason" class="upgrade-reason" style="display:none"></div>
     <div class="plans-row">
-      <div class="plan-card">
-        <div class="plan-name">Pro Mensal</div>
+      <div class="plan-card popular">
+        <div class="plan-popular-tag">⭐ Melhor preço — economize R$ 40</div>
+        <div class="plan-name">Pro Anual · à vista</div>
         <div class="plan-price-row">
           <span class="plan-price-currency">R$</span>
-          <span class="plan-price">29,90</span>
-          <span class="plan-period">/mês</span>
+          <span class="plan-price">199,90</span>
+          <span class="plan-period">/ano</span>
         </div>
+        <div class="plan-anual-extra">no Pix ou cartão em 1x · equivale a R$ 16,66/mês</div>
         <ul class="plan-features">
           <li><span class="check">✅</span> Roteiros ilimitados</li>
-          <li><span class="check">✅</span> Todas as funcionalidades</li>
-          <li><span class="check">✅</span> Histórico permanente ilimitado</li>
-          <li><span class="check">✅</span> Exportar PDF</li>
-          <li><span class="check">✅</span> Compartilhar roteiro</li>
-          <li><span class="check">✅</span> Multidestino e até 21 dias</li>
-          <li><span class="check">✅</span> Deep links com datas preenchidas</li>
-          <li><span class="check">✅</span> Sem marca d'água</li>
+          <li><span class="check">✅</span> Todas as funcionalidades e as 5 abas</li>
+          <li><span class="check">✅</span> Histórico permanente · PDF · multidestino</li>
+          <li><span class="check">✅</span> Deep links com datas · sem marca d'água</li>
+          <li><span class="check">🏆</span> <strong>Badge "Viajante Pro"</strong> no perfil</li>
         </ul>
-        <button class="plan-cta plan-cta-sec" type="button" onclick="startCheckout('pro_mensal', this)">Assinar por R$ 29,90/mês</button>
+        <button class="plan-cta" type="button" onclick="startCheckout('pro_anual_avista', this)">Pagar R$ 199,90 à vista</button>
       </div>
-      <div class="plan-card popular">
-        <div class="plan-popular-tag">⭐ Mais popular — 2 meses grátis</div>
-        <div class="plan-name">Pro Anual</div>
+      <div class="plan-card">
+        <div class="plan-name">Pro Anual · 12x</div>
         <div class="plan-price-row">
           <span class="plan-price-currency">R$</span>
           <span class="plan-price">239,90</span>
           <span class="plan-period">/ano</span>
         </div>
-        <div class="plan-anual-extra">Equivale a R$ 19,99/mês</div>
+        <div class="plan-anual-extra">parcele em até 12x no cartão de crédito</div>
         <ul class="plan-features">
-          <li><span class="check">✅</span> Tudo do Pro Mensal</li>
-          <li><span class="check">✅</span> 2 meses grátis (economia de R$ 119)</li>
-          <li><span class="check">🏆</span> <strong>Badge "Viajante Pro"</strong> no perfil</li>
-          <li><span class="check">✅</span> Prioridade nos próximos recursos</li>
+          <li><span class="check">✅</span> Tudo do plano à vista</li>
+          <li><span class="check">✅</span> Roteiros ilimitados e todas as abas</li>
+          <li><span class="check">🏆</span> Badge "Viajante Pro" no perfil</li>
+          <li><span class="check">💳</span> Cabe no bolso: até 12x no cartão</li>
         </ul>
-        <button class="plan-cta" type="button" onclick="startCheckout('pro_anual', this)">Assinar por R$ 239,90/ano</button>
+        <button class="plan-cta plan-cta-sec" type="button" onclick="startCheckout('pro_anual_parcelado', this)">Parcelar em até 12x</button>
       </div>
     </div>
     <div class="upgrade-free-link" id="upgrade-support">
@@ -3163,17 +3161,38 @@ function handleQueryParams() {
   const params = new URLSearchParams(window.location.search);
   const pay = params.get('payment');
   if (pay === 'success') {
-    showToast('🎉 Pagamento aprovado! Plano Pro ativando — pode levar até 1 min.', 'success');
-    // Tenta refrescar plano algumas vezes (webhook é assíncrono)
-    let n = 0;
-    const tick = async () => {
-      n++;
-      await loadUserPlan();
-      if (!isPro() && n < 6) setTimeout(tick, 5000);
-      else if (isPro()) showToast('✨ Plano Pro ativado!', 'success');
-    };
-    setTimeout(tick, 2500);
+    showToast('🎉 Pagamento recebido! Ativando seu Plano Pro...', 'success');
+    const paymentId = params.get('payment_id') || params.get('collection_id') || '';
     history.replaceState({}, '', window.location.pathname);
+    (async () => {
+      // 1) Caminho confiável e imediato: confirma no servidor e libera na hora.
+      if (/^\d+$/.test(paymentId)) {
+        try {
+          const res = await fetch('/api/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payment_id: paymentId }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (data && data.ok && data.granted) {
+            await loadUserPlan();
+            showToast('✨ Plano Pro ativado!', 'success');
+            return;
+          }
+        } catch (e) { console.error('activate:', e); }
+      }
+      // 2) Rede de segurança: pagamento pode estar pendente (ex.: Pix) ou o
+      //    webhook ainda processando. Refresca o plano algumas vezes.
+      let n = 0;
+      const tick = async () => {
+        n++;
+        await loadUserPlan();
+        if (isPro()) { showToast('✨ Plano Pro ativado!', 'success'); return; }
+        if (n < 6) setTimeout(tick, 5000);
+        else showToast('Pagamento em processamento. Se já pagou, recarregue em instantes.', 'success');
+      };
+      setTimeout(tick, 2500);
+    })();
   } else if (pay === 'failure') {
     showToast('❌ Pagamento não aprovado. Tente novamente.', 'error');
     history.replaceState({}, '', window.location.pathname);

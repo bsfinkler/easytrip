@@ -1,20 +1,53 @@
 // Cria uma preferência de pagamento Mercado Pago.
-// Recebe { plan: 'pro_mensal' | 'pro_anual', user_id, user_email } e retorna { init_point, id }.
+// Recebe { plan, user_id, user_email } onde `plan` é o OFFER ID:
+//   • 'pro_anual_parcelado' → anual em até 12x, SÓ cartão de crédito
+//   • 'pro_anual_avista'    → anual à vista (com desconto), cartão em 1x + Pix
 //
-// O frontend redireciona o usuário para init_point. Após pagamento, MP volta para
-// back_urls.success com query string contendo payment_id, status, etc.
-// E também envia notificação assíncrona para notification_url (webhook).
+// Internamente as duas ofertas viram o mesmo plano normalizado 'pro_anual'
+// (365 dias) — é isso que gravamos em metadata/external_reference, então o
+// webhook e o frontend (isPro, badge, expiração) não precisam mudar.
+//
+// Fluxo: o frontend redireciona para init_point. Após pagar, o MP volta para
+// back_urls.success com payment_id/collection_id na query (ativação síncrona)
+// e também notifica a notification_url (webhook).
 
-const PLANS = {
-  pro_mensal: {
-    title: 'Viaja+Aí Pro Mensal',
-    description: 'Assinatura mensal — roteiros ilimitados, todas as 5 abas, PDF, sem marca d\'água',
-    unit_price: 29.90,
-  },
-  pro_anual: {
-    title: 'Viaja+Aí Pro Anual',
-    description: 'Assinatura anual — tudo do Pro Mensal + badge Viajante Pro + 2 meses grátis',
+const OFFERS = {
+  pro_anual_parcelado: {
+    plan: 'pro_anual',
+    title: 'Viaja+Aí Pro Anual — 12x',
+    description: 'Assinatura anual: roteiros ilimitados, todas as abas, PDF, sem marca d\'água. Em até 12x no cartão.',
     unit_price: 239.90,
+    payment_methods: {
+      // Só cartão de crédito, parcelado em até 12x (juros por conta do cliente).
+      excluded_payment_types: [
+        { id: 'ticket' },        // boleto
+        { id: 'bank_transfer' }, // Pix
+        { id: 'atm' },
+        { id: 'debit_card' },
+        { id: 'prepaid_card' },
+        { id: 'account_money' }, // saldo MP
+      ],
+      excluded_payment_methods: [],
+      installments: 12,
+    },
+  },
+  pro_anual_avista: {
+    plan: 'pro_anual',
+    title: 'Viaja+Aí Pro Anual — à vista',
+    description: 'Assinatura anual com desconto: roteiros ilimitados e todos os recursos. Pague no Pix ou cartão em 1x.',
+    unit_price: 199.90,
+    payment_methods: {
+      // Cartão em 1x + Pix. Sem boleto, débito ou parcelamento.
+      excluded_payment_types: [
+        { id: 'ticket' },        // boleto
+        { id: 'atm' },
+        { id: 'debit_card' },
+        { id: 'prepaid_card' },
+        { id: 'account_money' }, // saldo MP
+      ],
+      excluded_payment_methods: [],
+      installments: 1,
+    },
   },
 };
 
@@ -33,8 +66,8 @@ export default async function handler(req, res) {
 
   const { plan, user_id, user_email } = req.body || {};
 
-  if (!plan || !PLANS[plan]) {
-    return res.status(400).json({ error: 'Plano inválido. Use pro_mensal ou pro_anual.' });
+  if (!plan || !OFFERS[plan]) {
+    return res.status(400).json({ error: 'Oferta inválida. Use pro_anual_parcelado ou pro_anual_avista.' });
   }
   if (!user_id) {
     return res.status(400).json({ error: 'user_id obrigatório.' });
@@ -45,17 +78,18 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Pagamento não configurado no servidor.' });
   }
 
-  const planData = PLANS[plan];
-  const externalReference = `${user_id}|${plan}|${Date.now()}`;
+  const offer = OFFERS[plan];
+  const normalizedPlan = offer.plan; // sempre 'pro_anual' — é o que vai p/ o banco
+  const externalReference = `${user_id}|${normalizedPlan}|${Date.now()}`;
 
   const preference = {
     items: [{
-      id: plan,
-      title: planData.title,
-      description: planData.description,
+      id: plan, // offer id (analytics)
+      title: offer.title,
+      description: offer.description,
       quantity: 1,
       currency_id: 'BRL',
-      unit_price: planData.unit_price,
+      unit_price: offer.unit_price,
     }],
     payer: user_email ? { email: user_email } : undefined,
     back_urls: {
@@ -64,17 +98,13 @@ export default async function handler(req, res) {
       pending: PENDING_URL,
     },
     auto_return: 'approved',
-    payment_methods: {
-      // Sem restrições: aceita cartão de crédito/débito, boleto e PIX.
-      excluded_payment_types: [],
-      excluded_payment_methods: [],
-      installments: 12,
-    },
+    payment_methods: offer.payment_methods,
     notification_url: WEBHOOK_URL,
     external_reference: externalReference,
     metadata: {
       user_id,
-      plan,
+      plan: normalizedPlan, // normalizado p/ o webhook/grant
+      offer: plan,          // oferta escolhida (12x vs à vista) p/ analytics
     },
     statement_descriptor: 'VIAJAMAISAI',
   };
