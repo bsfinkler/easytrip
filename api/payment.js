@@ -25,7 +25,6 @@ const OFFERS = {
         { id: 'atm' },
         { id: 'debit_card' },
         { id: 'prepaid_card' },
-        { id: 'account_money' }, // saldo MP
       ],
       excluded_payment_methods: [],
       installments: 12,
@@ -43,7 +42,6 @@ const OFFERS = {
         { id: 'atm' },
         { id: 'debit_card' },
         { id: 'prepaid_card' },
-        { id: 'account_money' }, // saldo MP
       ],
       excluded_payment_methods: [],
       installments: 1,
