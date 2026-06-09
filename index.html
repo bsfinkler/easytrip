@@ -2074,18 +2074,25 @@ function buildContext() {
   // Sufixo de pax do Kayak: sempre "Nadults Mchildren" (Kayak aceita 0children)
   const paxKayak = `${adultos}adults${criancas}children`;
 
+  // --- Afiliados CJ (Commission Junction) ---
+  // Conta Viaja+Aí: PID/Website 101765339, domínio de rastreio kqzyfj.com.
+  // cjDeep() envelopa uma URL de destino no deep link da CJ — a atribuição
+  // acontece pelo clique na CJ, então a comissão é rastreada mesmo que os
+  // parâmetros internos da busca mudem. Use SÓ em anunciantes aprovados.
+  const CJ_PID = '101765339';
+  const cjDeep = (url) => `https://www.kqzyfj.com/links/${CJ_PID}/type/dlg/${url}`;
+
   // Deep links pré-montados (datas, adultos, crianças e — quando possível — IATAs preenchidos)
   const links = {
     // VOOS
     kayakVoos:   `https://www.kayak.com.br/flights/${oIATA}-${dIATA}/${ida}/${volta}/${paxKayak}`,
     latam:       `https://www.latamairlines.com/br/pt/oferta-voos?origin=${oIATA}&destination=${dIATA}&outbound=${ida}&inbound=${volta}&adt=${adultos}&chd=${criancas}`,
-    gol:         `https://www.voegol.com.br/pt/passagens-aereas/${oIATA}/${dIATA}/${ida}/${volta}?adults=${adultos}&children=${criancas}`,
-    azul:        `https://www.voeazul.com.br/br/pt/home/selecao-voo?c=${oIATA}:1:${ida}:${dIATA}:1:${volta}&t=1&p=${adultos}-0-0-0`,
     decolarVoos: `https://www.decolar.com/shop/flights/results/ROUND_TRIP/${oIATA}/${dIATA}/${ida}/${volta}/${adultos}/${criancas}/0`,
     // HOTÉIS
     bookingBusca:    `https://www.booking.com/searchresults.pt-br.html?ss=${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
     bookingTemplate: `https://www.booking.com/searchresults.pt-br.html?ss={NOME_DO_HOTEL}+${destino}&checkin=${ida}&checkout=${volta}&group_adults=${adultos}&group_children=${criancas}&no_rooms=1`,
-    hotelsCom:       `https://www.hotels.com/search.do?q-destination=${destino}&q-check-in=${ida}&q-check-out=${volta}&q-rooms=1&q-room-0-adults=${adultos}&q-room-0-children=${criancas}`,
+    hotelsCom:       cjDeep(`https://www.hoteis.com/Hotel-Search?destination=${destino}&startDate=${ida}&endDate=${volta}&adults=${adultos}`),
+    hotelsComHotel:  cjDeep(`https://www.hoteis.com/Hotel-Search?destination={NOME_DO_HOTEL}&startDate=${ida}&endDate=${volta}&adults=${adultos}`),
     decolarHoteis:   `https://www.decolar.com/hospedagem/${destinoSlug}/${ida}/${volta}/${adultos}/${criancas}`,
     airbnb:          `https://www.airbnb.com.br/s/${destino}/homes?checkin=${ida}&checkout=${volta}&adults=${adultos}&children=${criancas}`,
     // CARROS
@@ -2093,15 +2100,18 @@ function buildContext() {
     movida:      `https://www.movida.com.br/aluguel-de-carros?local=${destino}&dataInicio=${ida}&dataFim=${volta}`,
     kayakCarros: `https://www.kayak.com.br/cars/${destino}/${ida}T10:00/${volta}T10:00`,
     // PASSEIOS
-    getyourguide: `https://www.getyourguide.com.br/s/?q=${destinoRaw.replace(/ /g,'+')}&date_from=${ida}&date_to=${volta}`,
+    getyourguide: `https://www.getyourguide.com.br/s/?q=${destinoRaw.replace(/ /g,'+')}&date_from=${ida}&date_to=${volta}&partner_id=JJWUEVV`,
     civitatis:    `https://www.civitatis.com/br/${destinoSlug}/?fromDate=${ida}`,
     viator:       `https://www.viator.com/pt-BR/${destinoSlug}/d0-ttd?startDate=${ida}`,
     // SEGURO VIAGEM
-    assistCard: `https://www.assistcard.com/br/cotacao?destino=${destino}&saida=${ida}&retorno=${volta}&passageiros=${totalPax}`,
-    zurich:     `https://www.zurichseguros.com.br/seguro-viagem`,
+    // Assist Card afilia via plataforma MAIS — o short link mais.app/VUcdsa
+    // redireciona pra assistcard.com com o m_token (rastreio) + utm_campaign=viajamaisai.
+    // É um link fixo (sem pré-preencher destino/datas), mas a página já abre o widget de cotação.
+    assistCard:  `https://mais.app/VUcdsa`,
+    seguroPromo: `https://www.segurospromo.com.br/?utm_medium=afiliado&pcrid=14414&utm_source=site-blog`,
     // eSIM (o modelo deve trocar [PAIS] pelo slug do país de destino)
     airalo:  `https://www.airalo.com/pt/[PAIS]-esim`,
-    holafly: `https://esim.holafly.com/pt/esim-[PAIS]`
+    holafly: `https://holafly.sjv.io/c/7369160/3856277/24764?u=https://esim.holafly.com/pt/esim-[PAIS]`
   };
 
   const contextLine = `VIAJANTE: ${destLabel||'?'} | ${datasLabel}${noites?' ('+noites+')':''} | ${viajantesLabel} | ${estilosLabel} | Orçamento: ${orcLabel} | Partida: ${answers.cidade_saida||'?'} | Região: ${bairrosLabel}${answers.extra?' | Obs: '+answers.extra:''}${extras.length?' | Extras: '+extras.join(', '):''}`;
@@ -2157,16 +2167,18 @@ Adultos: ${c.adultos} · Crianças: ${c.criancas}${c.idades.length?' (idades: '+
 
 LINKS PRÉ-MONTADOS:
 
-• Booking — BUSCA GENÉRICA do destino: ${c.links.bookingBusca}
+• Hotels.com — POR HOTEL ESPECÍFICO (PREFERENCIAL — use SEMPRE este no campo "link" de cada hotel; troque {NOME_DO_HOTEL} pelo nome real com "+" no lugar de espaços):
+${c.links.hotelsComHotel}
 
-• Booking — POR HOTEL ESPECÍFICO (use este para cada hotel — troque {NOME_DO_HOTEL} pelo nome real com "+" no lugar de espaços):
+• Hotels.com — busca geral do destino: ${c.links.hotelsCom}
+
+• Booking — por hotel (ALTERNATIVA, só se citar explicitamente; troque {NOME_DO_HOTEL} pelo nome real com "+"):
 ${c.links.bookingTemplate}
-
-• Hotels.com (alternativa): ${c.links.hotelsCom}
+• Booking — busca genérica (alternativa): ${c.links.bookingBusca}
 • Decolar hotéis (alternativa): ${c.links.decolarHoteis}
 • Airbnb (apartamentos/casas — ideal família e grupos): ${c.links.airbnb}
 
-OBS: o card do Airbnb é renderizado AUTOMATICAMENTE pelo frontend abaixo dos 3 hotéis (você NÃO precisa incluir Airbnb no JSON). Apenas retorne os 3 hotéis Booking conforme o formato.
+OBS: o card do Airbnb é renderizado AUTOMATICAMENTE pelo frontend abaixo dos 3 hotéis (você NÃO precisa incluir Airbnb no JSON). Apenas retorne os 3 hotéis com link Hotels.com conforme o formato.
 
 Formato EXATO:
 {
@@ -2183,14 +2195,14 @@ Formato EXATO:
       "preco_noite": "R$ 280",
       "noites": ${c.noitesNum},
       "preco_total": "R$ ${c.noitesNum*280}",
-      "link": "URL Booking POR HOTEL ESPECÍFICO acima — troque {NOME_DO_HOTEL} pelo nome real com '+' no lugar de espaços"
+      "link": "URL Hotels.com POR HOTEL ESPECÍFICO acima — troque {NOME_DO_HOTEL} pelo nome real com '+' no lugar de espaços"
     }
   ]
 }
 
 REGRAS:
 1. EXATAMENTE 3 hotéis (estilo: "Econômico", "Intermediário", "Premium" — nessa ordem).
-2. Cada hotel usa o template "POR HOTEL ESPECÍFICO" com {NOME_DO_HOTEL} substituído pelo nome real (espaços viram "+").
+2. Cada hotel usa o template Hotels.com "POR HOTEL ESPECÍFICO" com {NOME_DO_HOTEL} substituído pelo nome real (espaços viram "+").
 3. Campo "destaques" com 2 itens curtos.
 4. NÃO inclua Airbnb no JSON — o card do Airbnb é adicionado automaticamente pelo frontend.${c.viajantesLabel.match(/Fam|amigos/i) ? ' Quando o usuário perguntar sobre hospedagem no chat, recomende o Airbnb como alternativa ideal para este perfil (família/grupo).' : ''}
 5. APENAS o JSON acima.`;
@@ -2202,9 +2214,9 @@ REGRAS:
 Destino: "${c.destinoRaw||'?'}" · Início: ${c.ida||'?'} · Fim: ${c.volta||'?'} (${dias} dias)
 
 LINKS PRÉ-MONTADOS de passeios (use quando citar atividade específica, via markdown [texto](url)):
-• GetYourGuide: ${c.links.getyourguide}
-• Civitatis: ${c.links.civitatis}
-• Viator: ${c.links.viator}
+• GetYourGuide (PREFERENCIAL — use este sempre que possível): ${c.links.getyourguide}
+• Civitatis (alternativa): ${c.links.civitatis}
+• Viator (alternativa): ${c.links.viator}
 
 Formato EXATO:
 {
@@ -2266,9 +2278,9 @@ Destino: "${c.destinoRaw||'?'}" · ${c.noitesNum} noites · Viajantes: ${c.viaja
 
 LINKS PRÉ-MONTADOS (use via markdown [texto](url) dentro do texto das dicas):
 • Seguro viagem — Assist Card: ${c.links.assistCard}
-• Seguro viagem — Zurich: ${c.links.zurich}
-• eSIM — Airalo (troque [PAIS] pelo slug do país de destino, ex: portugal, espanha, eua, argentina): ${c.links.airalo}
-• eSIM — Holafly (troque [PAIS] pelo slug do país de destino): ${c.links.holafly}
+• Seguro viagem — Seguros Promo (comparador): ${c.links.seguroPromo}
+• eSIM — Holafly (PREFERENCIAL — troque [PAIS] pelo slug do país de destino; MENCIONE o cupom VIAJAMAISAI = 5% OFF eSIM no texto): ${c.links.holafly}
+• eSIM — Airalo (alternativa — troque [PAIS] pelo slug do país de destino, ex: portugal, espanha, eua, argentina): ${c.links.airalo}
 ${c.extras.includes('carro')?'• Aluguel — Localiza: '+c.links.localiza+'\n• Aluguel — Movida: '+c.links.movida+'\n• Aluguel — Kayak carros: '+c.links.kayakCarros:''}
 
 Formato EXATO:
@@ -2284,8 +2296,8 @@ Formato EXATO:
 
 REGRAS:
 1. 5 cards padrão + cards extras condicionais acima quando aplicável.
-2. No card "Internet": cite eSIM e inclua link Airalo OU Holafly via [texto](url) — substitua [PAIS] pelo slug do país de destino (ex: portugal, espanha, eua, argentina, mexico).
-3. No card "Seguro": inclua link Assist Card via [texto](url) com a URL pré-montada acima.
+2. No card "Internet": cite eSIM e inclua link via [texto](url), PREFERINDO Holafly (cite o cupom VIAJAMAISAI = 5% OFF no texto); use Airalo só como alternativa. Substitua [PAIS] pelo slug do país de destino (ex: portugal, espanha, eua, argentina, mexico).
+3. No card "Seguro": inclua link Assist Card E/OU Seguros Promo via [texto](url) com as URLs pré-montadas acima.
 4. Texto em 1-2 frases, adaptado ao destino.${c.extras.includes('carro')?'\n5. Pode citar aluguel de carro (Localiza/Movida/Kayak) com link em uma das dicas.':''}
 6. APENAS o JSON acima.
 ${extrasInstrucoes.join('\n')}`;
@@ -2314,13 +2326,12 @@ ${resumo}
 Quando precisar dar links use deep links com parâmetros já pré-montados (use EXATAMENTE):
 - Voos (Kayak, agrega todas companhias): ${c.links.kayakVoos}
 - Voos LATAM: ${c.links.latam}
-- Voos GOL: ${c.links.gol}
-- Voos Azul: ${c.links.azul}
 - Voos Decolar: ${c.links.decolarVoos}
-- Hotéis busca genérica (Booking): ${c.links.bookingBusca}
-- Hotéis por nome (Booking, troque {NOME_DO_HOTEL} pelo nome real com '+' nos espaços): ${c.links.bookingTemplate}
-- Hotels.com: ${c.links.hotelsCom}
-- Decolar hotéis: ${c.links.decolarHoteis}
+- Hotéis por nome (Hotels.com — PREFERENCIAL, troque {NOME_DO_HOTEL} pelo nome real com '+' nos espaços): ${c.links.hotelsComHotel}
+- Hotéis busca geral (Hotels.com): ${c.links.hotelsCom}
+- Hotéis por nome (Booking — alternativa, troque {NOME_DO_HOTEL} pelo nome real com '+' nos espaços): ${c.links.bookingTemplate}
+- Hotéis busca genérica (Booking — alternativa): ${c.links.bookingBusca}
+- Decolar hotéis (alternativa): ${c.links.decolarHoteis}
 - Airbnb (apartamentos/casas — recomende para famílias e grupos): ${c.links.airbnb}
 - Aluguel de carro Localiza: ${c.links.localiza}
 - Aluguel de carro Movida: ${c.links.movida}
@@ -2329,9 +2340,9 @@ Quando precisar dar links use deep links com parâmetros já pré-montados (use 
 - Passeios Civitatis: ${c.links.civitatis}
 - Passeios Viator: ${c.links.viator}
 - Seguro viagem Assist Card: ${c.links.assistCard}
-- Seguro viagem Zurich: ${c.links.zurich}
+- Seguro viagem Seguros Promo (comparador): ${c.links.seguroPromo}
 - eSIM Airalo (troque [PAIS] pelo slug do país, ex: portugal, espanha, eua): ${c.links.airalo}
-- eSIM Holafly (troque [PAIS] pelo slug do país): ${c.links.holafly}
+- eSIM Holafly (troque [PAIS] pelo slug do país) — cupom VIAJAMAISAI (5% OFF eSIM): ${c.links.holafly}
 
 Se houver [IATA_ORIGEM] ou [IATA_DESTINO] nos links de voos, substitua pelo código IATA correto da cidade.
 Se o usuário quiser uma alteração estrutural grande (trocar destino, refazer tudo), oriente a clicar em "✈ Nova viagem" para regenerar.`;
