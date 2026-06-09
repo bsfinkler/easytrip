@@ -2495,6 +2495,8 @@ async function loadSection(section, isRetry) {
     if (data && typeof data === 'object') {
       // Resposta pode vir wrappeada ({voos:[...]}) ou direta ([...]/{...})
       const value = (data[section] !== undefined) ? data[section] : data;
+      // Booking ainda não aprovado: força todos os hotéis para o deep link Hotels.com (afiliado CJ).
+      if (section === 'hoteis' && Array.isArray(value)) forceHotelsComLinks(value);
       roteiroData[section] = value;
       tabState[section] = 'loaded';
       renderTab(section);
@@ -2685,6 +2687,37 @@ function renderAirbnbCard() {
   + '</div>';
 }
 
+// Booking ainda não aprovado → reescreve o link de cada hotel para o deep link
+// Hotels.com (afiliado CJ), montado a partir do nome real do hotel. Determinístico:
+// independe da IA escolher o link certo. O link corrigido é o que fica salvo no roteiro.
+function forceHotelsComLinks(hoteis) {
+  try {
+    const tpl = buildContext().links.hotelsComHotel;
+    if (!tpl || tpl.indexOf('{NOME_DO_HOTEL}') === -1) return;
+    hoteis.forEach(h => {
+      if (h && h.nome) {
+        const nomeEnc = encodeURIComponent(String(h.nome).trim()).replace(/%20/g, '+');
+        h.link = tpl.replace('{NOME_DO_HOTEL}', nomeEnc);
+      }
+    });
+  } catch (e) { /* em caso de erro, mantém o link original */ }
+}
+
+// Texto do botão de hotel conforme o destino real do link (Hotels.com é o preferencial).
+function hotelCtaLabel(link) {
+  const l = String(link || '');
+  if (l.indexOf('hoteis.com') !== -1 || l.indexOf('hotels.com') !== -1) return 'Reservar no Hotels.com →';
+  if (l.indexOf('booking.com') !== -1) return 'Reservar no Booking →';
+  if (l.indexOf('decolar.com') !== -1) return 'Reservar na Decolar →';
+  return 'Reservar →';
+}
+function hotelCtaGhost(link) {
+  const l = String(link || '');
+  if (l.indexOf('hoteis.com') !== -1 || l.indexOf('hotels.com') !== -1) return 'Disponível no Hotels.com';
+  if (l.indexOf('booking.com') !== -1) return 'Disponível no Booking';
+  return 'Ver hotel';
+}
+
 function renderHoteis(hoteis) {
   const airbnb = renderAirbnbCard();
   if(!Array.isArray(hoteis) || !hoteis.length) {
@@ -2711,7 +2744,7 @@ function renderHoteis(hoteis) {
           + '</div>'
           + (h.preco_total ? '<div class="hotel-preco-sub">Total: <strong>' + esc(h.preco_total) + '</strong>' + (h.noites ? ' · ' + esc(h.noites) + ' noites' : '') + '</div>' : '')
         + '</div>'
-        + ctaBtn(h.link, 'Reservar no Booking →', 'Disponível no Booking', 'hotel-btn')
+        + ctaBtn(h.link, hotelCtaLabel(h.link), hotelCtaGhost(h.link), 'hotel-btn')
       + '</div>'
       + '</div>';
   }).join('') + airbnb;
